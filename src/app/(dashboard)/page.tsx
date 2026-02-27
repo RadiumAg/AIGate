@@ -9,6 +9,7 @@ import type {
 } from '@/types/dashboard';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import UsageTrendChart from '@/components/UsageTrendChart';
+import ModelDistributionChart from '@/components/ModelDistributionChart';
 
 interface StatCardProps {
   title: string;
@@ -320,52 +321,7 @@ const HomePage: FC = () => {
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">模型使用分布</h2>
-          {distributionLoading ? (
-            <div className="h-64 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-            </div>
-          ) : (
-            <ScrollArea className="h-64">
-              {modelDistribution && modelDistribution.length > 0 ? (
-                <div className="space-y-3">
-                  {modelDistribution.slice(0, 6).map((model: ModelDistributionItem) => {
-                    const maxValue = Math.max(
-                      ...modelDistribution.map((m: ModelDistributionItem) => m.value)
-                    );
-                    const percentage = (model.value / maxValue) * 100;
-
-                    return (
-                      <div key={model.name} className="space-y-1">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {model.name}
-                          </span>
-                          <div className="text-right">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                              {model.requests} 次
-                            </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-500 ml-2">
-                              {model.value.toLocaleString()} tokens
-                            </span>
-                          </div>
-                        </div>
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                          <div
-                            className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${percentage}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <p className="text-gray-500 dark:text-gray-400">暂无模型使用数据</p>
-                </div>
-              )}
-            </ScrollArea>
-          )}
+          <ModelDistributionChart data={modelDistribution || []} loading={distributionLoading} />
         </div>
       </div>
 
