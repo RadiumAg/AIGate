@@ -8,6 +8,7 @@ import type {
   ModelDistributionItem,
 } from '@/types/dashboard';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import UsageTrendChart from '@/components/UsageTrendChart';
 
 interface StatCardProps {
   title: string;
@@ -307,41 +308,13 @@ const HomePage: FC = () => {
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">近期请求趋势</h2>
           {trendLoading ? (
-            <div className="h-64 flex items-center justify-center">
+            <div className="w-full h-64 flex items-center justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
             </div>
           ) : (
-            <ScrollArea className="h-64">
-              {usageTrend && usageTrend.length > 0 ? (
-                <div className="space-y-2">
-                  {usageTrend.slice(-7).map((item: UsageTrendItem) => (
-                    <div
-                      key={item.date}
-                      className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded"
-                    >
-                      <span className="text-sm text-gray-600 dark:text-gray-300">
-                        {new Date(item.date).toLocaleDateString('zh-CN', {
-                          month: 'short',
-                          day: 'numeric',
-                        })}
-                      </span>
-                      <div className="flex space-x-4">
-                        <span className="text-sm text-blue-600 dark:text-blue-400">
-                          {item.requests} 请求
-                        </span>
-                        <span className="text-sm text-green-600 dark:text-green-400">
-                          {item.tokens.toLocaleString()} tokens
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <p className="text-gray-500 dark:text-gray-400">暂无趋势数据</p>
-                </div>
-              )}
-            </ScrollArea>
+            <div className="w-full h-64">
+              <UsageTrendChart data={usageTrend || []} loading={trendLoading} />
+            </div>
           )}
         </div>
 
