@@ -1,73 +1,19 @@
 // 数据库抽象层 - 使用 Drizzle ORM
 import { db } from './drizzle';
-import { users, apiKeys, quotaPolicies, usageRecords, whitelistRules } from './schema';
-import { eq, and, gte, lte, desc, count, sum, countDistinct } from 'drizzle-orm';
+import { apiKeys, quotaPolicies, usageRecords, whitelistRules } from './schema';
+import { eq, and, gte, lte, desc, count, sum, countDistinct, sql } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import type {
-  User,
   ApiKey,
   QuotaPolicy,
   UsageRecord,
   WhitelistRule,
-  NewUser,
   NewApiKey,
   NewQuotaPolicy,
   NewUsageRecord,
   NewWhitelistRule,
 } from './schema';
 import { convertProviderToDb } from '@/server/api/routers/apiKey';
-
-// 用户数据库操作
-export const userDb = {
-  getAll: async (): Promise<User[]> => {
-    try {
-      return await db.select().from(users);
-    } catch (error) {
-      console.error('Database error:', error);
-      return [];
-    }
-  },
-
-  getById: async (id: string): Promise<User | null> => {
-    try {
-      const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
-      return result[0] || null;
-    } catch (error) {
-      console.error('Database error:', error);
-      return null;
-    }
-  },
-
-  create: async (user: NewUser): Promise<User> => {
-    const result = await db.insert(users).values(user).returning();
-    return result[0];
-  },
-
-  update: async (id: string, updates: Partial<User>): Promise<User | null> => {
-    try {
-      const result = await db
-        .update(users)
-        .set({ ...updates, updatedAt: new Date() })
-        .where(eq(users.id, id))
-        .returning();
-
-      return result[0] || null;
-    } catch (error) {
-      console.error('Database error:', error);
-      return null;
-    }
-  },
-
-  delete: async (id: string): Promise<boolean> => {
-    try {
-      await db.delete(users).where(eq(users.id, id));
-      return true;
-    } catch (error) {
-      console.error('Database error:', error);
-      return false;
-    }
-  },
-};
 
 // API Key 数据库操作
 export const apiKeyDb = {
@@ -200,29 +146,16 @@ export const usageRecordDb = {
   > => {
     try {
       const results = await db
-        .select({
-          id: usageRecords.id,
-          userId: usageRecords.userId,
-          model: usageRecords.model,
-          provider: usageRecords.provider,
-          promptTokens: usageRecords.promptTokens,
-          completionTokens: usageRecords.completionTokens,
-          totalTokens: usageRecords.totalTokens,
-          cost: usageRecords.cost,
-          timestamp: usageRecords.timestamp,
-          userName: users.name,
-          userEmail: users.email,
-        })
+        .select()
         .from(usageRecords)
-        .leftJoin(users, eq(usageRecords.userId, users.id))
         .orderBy(desc(usageRecords.timestamp));
 
       return results.map((record) => ({
         ...record,
         user: {
           id: record.userId,
-          name: record.userName,
-          email: record.userEmail,
+          name: record.userId.includes('@') ? record.userId.split('@')[0] : '未知用户',
+          email: record.userId.includes('@') ? record.userId : null,
         },
       }));
     } catch (error) {
@@ -238,21 +171,8 @@ export const usageRecordDb = {
   > => {
     try {
       const results = await db
-        .select({
-          id: usageRecords.id,
-          userId: usageRecords.userId,
-          model: usageRecords.model,
-          provider: usageRecords.provider,
-          promptTokens: usageRecords.promptTokens,
-          completionTokens: usageRecords.completionTokens,
-          totalTokens: usageRecords.totalTokens,
-          cost: usageRecords.cost,
-          timestamp: usageRecords.timestamp,
-          userName: users.name,
-          userEmail: users.email,
-        })
+        .select()
         .from(usageRecords)
-        .leftJoin(users, eq(usageRecords.userId, users.id))
         .where(eq(usageRecords.userId, userId))
         .orderBy(desc(usageRecords.timestamp));
 
@@ -260,8 +180,8 @@ export const usageRecordDb = {
         ...record,
         user: {
           id: record.userId,
-          name: record.userName,
-          email: record.userEmail,
+          name: record.userId.includes('@') ? record.userId.split('@')[0] : '未知用户',
+          email: record.userId.includes('@') ? record.userId : null,
         },
       }));
     } catch (error) {
@@ -278,21 +198,8 @@ export const usageRecordDb = {
   > => {
     try {
       const results = await db
-        .select({
-          id: usageRecords.id,
-          userId: usageRecords.userId,
-          model: usageRecords.model,
-          provider: usageRecords.provider,
-          promptTokens: usageRecords.promptTokens,
-          completionTokens: usageRecords.completionTokens,
-          totalTokens: usageRecords.totalTokens,
-          cost: usageRecords.cost,
-          timestamp: usageRecords.timestamp,
-          userName: users.name,
-          userEmail: users.email,
-        })
+        .select()
         .from(usageRecords)
-        .leftJoin(users, eq(usageRecords.userId, users.id))
         .where(and(gte(usageRecords.timestamp, startDate), lte(usageRecords.timestamp, endDate)))
         .orderBy(desc(usageRecords.timestamp));
 
@@ -300,8 +207,8 @@ export const usageRecordDb = {
         ...record,
         user: {
           id: record.userId,
-          name: record.userName,
-          email: record.userEmail,
+          name: record.userId.includes('@') ? record.userId.split('@')[0] : '未知用户',
+          email: record.userId.includes('@') ? record.userId : null,
         },
       }));
     } catch (error) {
@@ -330,8 +237,8 @@ export const usageRecordDb = {
         totalRequestsResult,
         activeUsersResult,
       ] = await Promise.all([
-        // 总用户数
-        db.select({ count: count() }).from(users),
+        // 总用户数（从用量记录中统计唯一用户）
+        db.select({ count: countDistinct(usageRecords.userId) }).from(usageRecords),
 
         // 今日请求数
         db.select({ count: count() }).from(usageRecords).where(gte(usageRecords.timestamp, today)),

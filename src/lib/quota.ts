@@ -1,6 +1,6 @@
 import { redis, RedisKeys, getTodayString, getCurrentMinuteString } from './redis';
 import { QuotaPolicy, QuotaCheckResult, UsageRecord } from './types';
-import { whitelistRuleDb, quotaPolicyDb } from './database';
+import { whitelistRuleDb, quotaPolicyDb, usageRecordDb } from './database';
 
 // 默认配额策略
 const DEFAULT_QUOTA_POLICY: QuotaPolicy = {
@@ -151,6 +151,19 @@ export async function recordUsage(
     // 存储详细的请求日志
     const logKey = RedisKeys.requestLog(identifier, record.id);
     await redis.setEx(logKey, 24 * 60 * 60, JSON.stringify(record)); // 保存 24 小时
+
+    // 写入用量记录到数据库
+    await usageRecordDb.create({
+      id: record.id,
+      userId: identifier,
+      model: record.model,
+      provider: record.provider,
+      promptTokens: record.promptTokens,
+      completionTokens: record.completionTokens,
+      totalTokens: record.totalTokens,
+      cost: typeof record.cost === 'number' ? record.cost : 0,
+      timestamp: new Date(record.timestamp),
+    });
 
     console.log(`Usage recorded for identifier ${identifier}: ${record.totalTokens} tokens`);
   } catch (error) {

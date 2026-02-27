@@ -26,20 +26,6 @@ export const quotaPolicies = pgTable('quota_policies', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// 用户表
-export const users = pgTable('users', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  email: text('email').notNull().unique(),
-  role: roleEnum('role').default('USER').notNull(),
-  status: statusEnum('status').default('ACTIVE').notNull(),
-  quotaPolicyId: text('quota_policy_id')
-    .notNull()
-    .references(() => quotaPolicies.id),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
 // API 密钥表
 export const apiKeys = pgTable('api_keys', {
   id: text('id').primaryKey(),
@@ -55,9 +41,7 @@ export const apiKeys = pgTable('api_keys', {
 // 用量记录表
 export const usageRecords = pgTable('usage_records', {
   id: text('id').primaryKey(),
-  userId: text('user_id')
-    .notNull()
-    .references(() => users.id),
+  userId: text('user_id').notNull(),
   model: text('model').notNull(),
   provider: text('provider').notNull(),
   promptTokens: integer('prompt_tokens').notNull(),
@@ -80,25 +64,6 @@ export const whitelistRules = pgTable('whitelist_rules', {
 });
 
 // 关系定义
-export const usersRelations = relations(users, ({ one, many }) => ({
-  quotaPolicy: one(quotaPolicies, {
-    fields: [users.quotaPolicyId],
-    references: [quotaPolicies.id],
-  }),
-  usageRecords: many(usageRecords),
-}));
-
-export const quotaPoliciesRelations = relations(quotaPolicies, ({ many }) => ({
-  users: many(users),
-}));
-
-export const usageRecordsRelations = relations(usageRecords, ({ one }) => ({
-  user: one(users, {
-    fields: [usageRecords.userId],
-    references: [users.id],
-  }),
-}));
-
 export const whitelistRulesRelations = relations(whitelistRules, ({ one }) => ({
   quotaPolicy: one(quotaPolicies, {
     fields: [whitelistRules.policyName],
@@ -107,8 +72,6 @@ export const whitelistRulesRelations = relations(whitelistRules, ({ one }) => ({
 }));
 
 // 类型导出
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
 export type QuotaPolicy = typeof quotaPolicies.$inferSelect;
 export type NewQuotaPolicy = typeof quotaPolicies.$inferInsert;
 export type ApiKey = typeof apiKeys.$inferSelect;
