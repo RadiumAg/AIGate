@@ -13,7 +13,7 @@ interface WhitelistRule {
   priority: number;
   status: 'active' | 'inactive';
   createdAt: string;
-  description: string | null;
+  description?: null;
 }
 
 const UsersPage: React.FC = () => {
