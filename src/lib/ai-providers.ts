@@ -18,6 +18,11 @@ export interface AIProvider {
     request: ChatCompletionRequest,
     baseUrl?: string
   ) => Promise<ChatCompletionResponse>;
+  makeStreamRequest?: (
+    apiKey: string,
+    request: ChatCompletionRequest,
+    baseUrl?: string
+  ) => Promise<ReadableStream>;
   estimateTokens: (request: ChatCompletionRequest) => number;
 }
 
@@ -49,6 +54,44 @@ const openaiProvider: AIProvider = {
     });
 
     return response as ChatCompletionResponse;
+  },
+  makeStreamRequest: async (
+    apiKey: string,
+    request: ChatCompletionRequest,
+    baseUrl?: string
+  ): Promise<ReadableStream> => {
+    const { default: OpenAI } = await import('openai');
+    const openai = new OpenAI({
+      apiKey,
+      baseURL: baseUrl || 'https://api.openai.com/v1',
+    });
+
+    const stream = await openai.chat.completions.create({
+      model: request.model,
+      messages: request.messages,
+      temperature: request.temperature,
+      max_tokens: request.max_tokens,
+      stream: true,
+    });
+
+    // 转换为 Web ReadableStream
+    return new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of stream) {
+            const data = `data: ${JSON.stringify(chunk)}\n\n`;
+            controller.enqueue(new TextEncoder().encode(data));
+
+            if (chunk.choices[0]?.finish_reason) {
+              controller.enqueue(new TextEncoder().encode(`data: [DONE]\n\n`));
+            }
+          }
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      },
+    });
   },
   estimateTokens: (request: ChatCompletionRequest) => {
     const text = request.messages.map((m: ChatMessage) => m.content).join(' ');
@@ -238,6 +281,42 @@ const deepseekProvider: AIProvider = {
       throw error;
     }
   },
+  makeStreamRequest: async (
+    apiKey: string,
+    request: ChatCompletionRequest,
+    baseUrl?: string
+  ): Promise<ReadableStream> => {
+    const { default: OpenAI } = await import('openai');
+    const openai = new OpenAI({
+      apiKey,
+      baseURL: baseUrl || 'https://api.deepseek.com/v1',
+    });
+
+    const stream = await openai.chat.completions.create({
+      model: request.model,
+      messages: request.messages,
+      temperature: request.temperature,
+      max_tokens: request.max_tokens,
+      stream: true,
+    });
+
+    return new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of stream) {
+            const data = `data: ${JSON.stringify(chunk)}\n\n`;
+            controller.enqueue(new TextEncoder().encode(data));
+            if (chunk.choices[0]?.finish_reason) {
+              controller.enqueue(new TextEncoder().encode(`data: [DONE]\n\n`));
+            }
+          }
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      },
+    });
+  },
   estimateTokens: (request: ChatCompletionRequest) => {
     const text = request.messages.map((m: ChatMessage) => m.content).join(' ');
     return estimateTokens(text);
@@ -274,6 +353,42 @@ const moonshotProvider: AIProvider = {
       throw error;
     }
   },
+  makeStreamRequest: async (
+    apiKey: string,
+    request: ChatCompletionRequest,
+    baseUrl?: string
+  ): Promise<ReadableStream> => {
+    const { default: OpenAI } = await import('openai');
+    const openai = new OpenAI({
+      apiKey,
+      baseURL: baseUrl || 'https://api.moonshot.cn/v1',
+    });
+
+    const stream = await openai.chat.completions.create({
+      model: request.model,
+      messages: request.messages,
+      temperature: request.temperature,
+      max_tokens: request.max_tokens,
+      stream: true,
+    });
+
+    return new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of stream) {
+            const data = `data: ${JSON.stringify(chunk)}\n\n`;
+            controller.enqueue(new TextEncoder().encode(data));
+            if (chunk.choices[0]?.finish_reason) {
+              controller.enqueue(new TextEncoder().encode(`data: [DONE]\n\n`));
+            }
+          }
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      },
+    });
+  },
   estimateTokens: (request: ChatCompletionRequest) => {
     const text = request.messages.map((m: ChatMessage) => m.content).join(' ');
     return estimateTokens(text);
@@ -309,6 +424,42 @@ const sparkProvider: AIProvider = {
       console.error('Spark API error:', error);
       throw error;
     }
+  },
+  makeStreamRequest: async (
+    apiKey: string,
+    request: ChatCompletionRequest,
+    baseUrl?: string
+  ): Promise<ReadableStream> => {
+    const { default: OpenAI } = await import('openai');
+    const openai = new OpenAI({
+      apiKey,
+      baseURL: baseUrl || 'https://spark-api.xf-yun.com/v1',
+    });
+
+    const stream = await openai.chat.completions.create({
+      model: request.model,
+      messages: request.messages,
+      temperature: request.temperature,
+      max_tokens: request.max_tokens,
+      stream: true,
+    });
+
+    return new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of stream) {
+            const data = `data: ${JSON.stringify(chunk)}\n\n`;
+            controller.enqueue(new TextEncoder().encode(data));
+            if (chunk.choices[0]?.finish_reason) {
+              controller.enqueue(new TextEncoder().encode(`data: [DONE]\n\n`));
+            }
+          }
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      },
+    });
   },
   estimateTokens: (request: ChatCompletionRequest) => {
     const text = request.messages.map((m: ChatMessage) => m.content).join(' ');
