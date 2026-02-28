@@ -161,6 +161,7 @@ export async function recordUsage(
       totalTokens: record.totalTokens,
       cost: typeof record.cost === 'number' ? String(record.cost) : '0',
       region: record.region || null,
+      clientIp: record.clientIp || null,
       timestamp: new Date(record.timestamp),
     });
 

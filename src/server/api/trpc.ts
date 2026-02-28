@@ -24,6 +24,7 @@ interface CreateContextOptions {
    * Session data from NextAuth
    */
   // session: Session | null;
+  req?: import('http').IncomingMessage;
 }
 
 /**
@@ -39,6 +40,7 @@ interface CreateContextOptions {
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     // session: opts.session,
+    req: opts.req,
   };
 };
 
@@ -56,6 +58,7 @@ export const createTRPCContext = (opts: CreateNextContextOptions) => {
 
   return createInnerTRPCContext({
     // session,
+    req,
   });
 };
 

@@ -62,6 +62,9 @@ importers:
       echarts:
         specifier: ^6.0.0
         version: 6.0.0
+      ip2region:
+        specifier: ^2.3.0
+        version: 2.3.0(@types/node@20.19.35)
       lucide-react:
         specifier: ^0.575.0
         version: 0.575.0(react@19.2.3)
@@ -2439,6 +2442,11 @@ packages:
   intersection-observer@0.12.2:
     resolution: {integrity: sha512-7m1vEcPCxXYI8HqnL8CKI6siDyD+eIWSwgB3DZA+ZTogxk9I4CDnj4wilt9x/+/QbHI4YG5YZNmC6458/e9Ktg==}
     deprecated: The Intersection Observer polyfill is no longer needed and can safely be removed. Intersection Observer has been Baseline since 2019.
+
+  ip2region@2.3.0:
+    resolution: {integrity: sha512-zV5Xsadzrx9Ej6heoyhbXMsfGWWQ3C6bAIYStrHhw9kzLpGpVNlnAyRBxxPgxA1GNqr1Ti7oUxcWsMWNN3jZBg==}
+    peerDependencies:
+      '@types/node': '*'
 
   is-array-buffer@3.0.5:
     resolution: {integrity: sha512-DDfANUiiG2wC1qawP66qlTugJeL5HyzMpfr8lLK+jMQirGzNod0B12cFB/9q838Ru27sBwfw78/rdoU7RERz6A==}
@@ -5523,6 +5531,10 @@ snapshots:
       side-channel: 1.1.0
 
   intersection-observer@0.12.2: {}
+
+  ip2region@2.3.0(@types/node@20.19.35):
+    dependencies:
+      '@types/node': 20.19.35
 
   is-array-buffer@3.0.5:
     dependencies:

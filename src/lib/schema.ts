@@ -49,6 +49,7 @@ export const usageRecords = pgTable('usage_records', {
   totalTokens: integer('total_tokens').notNull(),
   cost: decimal('cost', { precision: 10, scale: 6 }).notNull(),
   region: text('region'),
+  clientIp: text('client_ip'),
   timestamp: timestamp('timestamp').defaultNow().notNull(),
 });
 

@@ -71,6 +71,7 @@ export const UsageRecordSchema = z.object({
   timestamp: z.string(),
   cost: z.number().optional(),
   region: z.string().optional(),
+  clientIp: z.string().optional(),
 });
 
 export type UsageRecord = z.infer<typeof UsageRecordSchema>;

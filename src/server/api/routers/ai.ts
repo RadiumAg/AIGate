@@ -5,6 +5,7 @@ import { ChatCompletionRequestSchema, UsageRecord } from '@/lib/types';
 import { checkQuota, recordUsage } from '@/lib/quota';
 import { getProviderByModel, providers } from '@/lib/ai-providers';
 import { v4 as uuidv4 } from 'uuid';
+import { getRegionFromRequest, extractClientIp } from '@/lib/ip-region';
 
 export const aiRouter = createTRPCRouter({
   // 聊天完成接口 - 核心的 AI 代理功能
@@ -14,11 +15,14 @@ export const aiRouter = createTRPCRouter({
         userId: z.string(),
         apiKeyId: z.string(),
         request: ChatCompletionRequestSchema,
-        region: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
-      const { userId, apiKeyId, request, region } = input;
+    .mutation(async ({ input, ctx }) => {
+      const { userId, apiKeyId, request } = input;
+
+      // 提取客户端 IP 并查询归属地省份
+      const clientIp = ctx.req ? extractClientIp(ctx.req) : undefined;
+      const region = ctx.req ? getRegionFromRequest(ctx.req) : undefined;
       const requestId = uuidv4();
 
       try {
@@ -91,6 +95,7 @@ export const aiRouter = createTRPCRouter({
           timestamp: new Date().toISOString(),
           cost: 0,
           region,
+          clientIp,
         };
 
         recordUsage(actualUsage, identifier).catch((error) => {
