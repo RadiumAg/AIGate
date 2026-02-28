@@ -5,6 +5,29 @@ import { getUserQuotaPolicy, getUserDailyUsage, resetUserQuota, checkUserQuota }
 import { redis, RedisKeys } from '@/lib/redis';
 import { quotaPolicyDb } from '@/lib/database';
 
+/**
+ * 清除所有配额策略相关的 Redis 缓存
+ * 包括 policy:email:* 和 user_policy:* 两类缓存 key
+ */
+async function clearPolicyCacheKeys(): Promise<void> {
+  try {
+    const patterns = ['policy:email:*', 'user_policy:*'];
+
+    for (const pattern of patterns) {
+      let cursor = 0;
+      do {
+        const result = await redis.scan(cursor, { MATCH: pattern, COUNT: 100 });
+        cursor = result.cursor;
+        if (result.keys.length > 0) {
+          await redis.del(result.keys);
+        }
+      } while (cursor !== 0);
+    }
+  } catch (error) {
+    console.error('清除配额策略缓存失败:', error);
+  }
+}
+
 export const quotaRouter = createTRPCRouter({
   // 获取用户配额策略
   getUserPolicy: publicProcedure
@@ -164,6 +187,9 @@ export const quotaRouter = createTRPCRouter({
             message: '配额策略不存在',
           });
         }
+
+        await clearPolicyCacheKeys();
+
         return policy;
       } catch (error) {
         if (error instanceof TRPCError) throw error;
@@ -185,6 +211,9 @@ export const quotaRouter = createTRPCRouter({
           message: '配额策略不存在',
         });
       }
+
+      await clearPolicyCacheKeys();
+
       return { success: true };
     } catch (error) {
       if (error instanceof TRPCError) throw error;
