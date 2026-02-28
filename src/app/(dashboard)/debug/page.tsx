@@ -8,13 +8,17 @@ import RequestConfig from './components/request-config';
 import ResponseResult from './components/response-result';
 import CodeModal from './components/code-modal';
 import { DebugRequestForm, ResponseData } from './components/types';
+import { Spinner } from '@/components/ui/spinner';
 
 const DebugPage: React.FC = () => {
   // 获取支持的模型列表
-  const { data: supportedModels } = trpc.ai.getSupportedModels.useQuery();
+  const { data: supportedModels, isLoading: isLoadingModels } =
+    trpc.ai.getSupportedModels.useQuery();
 
   // 获取所有 API Keys
-  const { data: apiKeys } = trpc.apiKey.getAll.useQuery();
+  const { data: apiKeys, isLoading: isLoadingKeys } = trpc.apiKey.getAll.useQuery();
+
+  const isLoading = isLoadingModels || isLoadingKeys;
 
   // 聊天完成 mutation
   const chatCompletionMutation = trpc.ai.chatCompletion.useMutation();
@@ -224,26 +228,35 @@ curl -X POST '${baseUrl}/api/ai/chat/completions' \\
         <p className="text-gray-600 dark:text-gray-400 mt-2">测试和调试 AI 接口功能</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RequestConfig
-          form={form}
-          setForm={setForm}
-          apiKeys={apiKeys}
-          supportedModels={supportedModels}
-          estimatedTokens={estimatedTokens}
-          isEstimating={isEstimating}
-          onEstimateTokens={handleEstimateTokens}
-          onGenerateCode={generateCode}
-          onSubmit={handleSubmit}
-          isSubmitting={chatCompletionMutation.isPending}
-        />
+      {isLoading ? (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+          <div className="flex items-center justify-center">
+            <Spinner className="h-8 w-8 text-indigo-600" />
+            <span className="ml-2 text-gray-600 dark:text-gray-400">加载中...</span>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RequestConfig
+            form={form}
+            setForm={setForm}
+            apiKeys={apiKeys}
+            supportedModels={supportedModels}
+            estimatedTokens={estimatedTokens}
+            isEstimating={isEstimating}
+            onEstimateTokens={handleEstimateTokens}
+            onGenerateCode={generateCode}
+            onSubmit={handleSubmit}
+            isSubmitting={chatCompletionMutation.isPending}
+          />
 
-        <ResponseResult
-          response={response}
-          error={error}
-          isLoading={chatCompletionMutation.isPending}
-        />
-      </div>
+          <ResponseResult
+            response={response}
+            error={error}
+            isLoading={chatCompletionMutation.isPending}
+          />
+        </div>
+      )}
 
       <CodeModal
         isOpen={showCodeModal}

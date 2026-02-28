@@ -5,6 +5,7 @@ import { trpc } from '@/components/trpc-provider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import PolicyForm from './components/policy-form';
 import PolicyTable from './components/policy-table';
+import { Spinner } from '@/components/ui/spinner';
 
 interface QuotaPolicy {
   id: string;
@@ -18,7 +19,11 @@ interface QuotaPolicy {
 }
 
 const QuotasPage: FC = () => {
-  const { data: policies = [], refetch: refetchPolicies } = trpc.quota.getAllPolicies.useQuery();
+  const {
+    data: policies = [],
+    refetch: refetchPolicies,
+    isLoading,
+  } = trpc.quota.getAllPolicies.useQuery();
 
   const createPolicyMutation = trpc.quota.createPolicy.useMutation({
     onSuccess: () => {
@@ -104,19 +109,28 @@ const QuotasPage: FC = () => {
         </DialogContent>
       </Dialog>
 
-      <PolicyTable
-        policies={policies.map((policy) => ({
-          ...policy,
-          description: policy.description || undefined,
-        }))}
-        onEdit={handleEditPolicy}
-        onDelete={handleDeletePolicy}
-        isLoading={
-          createPolicyMutation.isPending ||
-          updatePolicyMutation.isPending ||
-          deletePolicyMutation.isPending
-        }
-      />
+      {isLoading ? (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+          <div className="flex items-center justify-center">
+            <Spinner className="h-8 w-8 text-indigo-600" />
+            <span className="ml-2 text-gray-600 dark:text-gray-400">加载中...</span>
+          </div>
+        </div>
+      ) : (
+        <PolicyTable
+          policies={policies.map((policy) => ({
+            ...policy,
+            description: policy.description || undefined,
+          }))}
+          onEdit={handleEditPolicy}
+          onDelete={handleDeletePolicy}
+          isLoading={
+            createPolicyMutation.isPending ||
+            updatePolicyMutation.isPending ||
+            deletePolicyMutation.isPending
+          }
+        />
+      )}
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { trpc } from '@/components/trpc-provider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import WhitelistRuleForm from './components/whitelist-rule-form';
 import WhitelistRuleTable from './components/whitelist-rule-table';
+import { Spinner } from '@/components/ui/spinner';
 
 interface WhitelistRule {
   id: string;
@@ -19,7 +20,11 @@ interface WhitelistRule {
 
 const UsersPage: FC = () => {
   // 获取白名单规则数据
-  const { data: whitelistRules = [], refetch: refetchRules } = trpc.whitelist.getAll.useQuery();
+  const {
+    data: whitelistRules = [],
+    refetch: refetchRules,
+    isLoading,
+  } = trpc.whitelist.getAll.useQuery();
 
   // 创建规则 mutation
   const createRuleMutation = trpc.whitelist.create.useMutation({
@@ -116,18 +121,27 @@ const UsersPage: FC = () => {
         </DialogContent>
       </Dialog>
 
-      <WhitelistRuleTable
-        rules={whitelistRules}
-        onEdit={handleEditRule}
-        onDelete={handleDeleteRule}
-        onToggleStatus={handleToggleRuleStatus}
-        isLoading={
-          createRuleMutation.isPending ||
-          updateRuleMutation.isPending ||
-          deleteRuleMutation.isPending ||
-          toggleStatusMutation.isPending
-        }
-      />
+      {isLoading ? (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+          <div className="flex items-center justify-center">
+            <Spinner className="h-8 w-8 text-indigo-600" />
+            <span className="ml-2 text-gray-600 dark:text-gray-400">加载中...</span>
+          </div>
+        </div>
+      ) : (
+        <WhitelistRuleTable
+          rules={whitelistRules}
+          onEdit={handleEditRule}
+          onDelete={handleDeleteRule}
+          onToggleStatus={handleToggleRuleStatus}
+          isLoading={
+            createRuleMutation.isPending ||
+            updateRuleMutation.isPending ||
+            deleteRuleMutation.isPending ||
+            toggleStatusMutation.isPending
+          }
+        />
+      )}
     </div>
   );
 };
