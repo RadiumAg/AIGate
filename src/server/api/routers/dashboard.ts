@@ -16,89 +16,114 @@ export const dashboardRouter = createTRPCRouter({
 
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
-      yesterday.setHours(0, 0, 0, 0);
 
       const twoDaysAgo = new Date(yesterday);
-      twoDaysAgo.setHours(0, 0, 0, 0);
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 1);
 
-      // 获取昨日的统计数据
+      // 获取今日和昨日的统计数据
       const [
-        yesterdayUsersResult,
+        todayNewUsersResult,
+        yesterdayNewUsersResult,
+        todayRequestsResult,
         yesterdayRequestsResult,
+        todayTokensResult,
         yesterdayTokensResult,
+        todayActiveUsersResult,
         yesterdayActiveUsersResult,
       ] = await Promise.all([
-        // 昨日用户数（从用量记录中统计唯一用户）
+        // 今日新增用户数（今日出现的用户中，昨日未出现过的）
         db
           .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
           .from(usageRecords)
-          .where(lte(usageRecords.timestamp, yesterday)),
+          .where(gte(usageRecords.timestamp, today)),
+
+        // 昨日新增用户数
+        db
+          .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
+          .from(usageRecords)
+          .where(and(gte(usageRecords.timestamp, yesterday), lte(usageRecords.timestamp, today))),
+
+        // 今日请求数
+        db.select({ count: count() }).from(usageRecords).where(gte(usageRecords.timestamp, today)),
 
         // 昨日请求数
         db
           .select({ count: count() })
           .from(usageRecords)
-          .where(
-            and(gte(usageRecords.timestamp, twoDaysAgo), lte(usageRecords.timestamp, yesterday))
-          ),
+          .where(and(gte(usageRecords.timestamp, yesterday), lte(usageRecords.timestamp, today))),
+
+        // 今日 Token 消耗
+        db
+          .select({ sum: sum(usageRecords.totalTokens) })
+          .from(usageRecords)
+          .where(gte(usageRecords.timestamp, today)),
 
         // 昨日 Token 消耗
         db
           .select({ sum: sum(usageRecords.totalTokens) })
           .from(usageRecords)
-          .where(
-            and(gte(usageRecords.timestamp, twoDaysAgo), lte(usageRecords.timestamp, yesterday))
-          ),
+          .where(and(gte(usageRecords.timestamp, yesterday), lte(usageRecords.timestamp, today))),
+
+        // 今日活跃用户数
+        db
+          .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
+          .from(usageRecords)
+          .where(gte(usageRecords.timestamp, today)),
 
         // 昨日活跃用户数
         db
           .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
           .from(usageRecords)
-          .where(
-            and(gte(usageRecords.timestamp, twoDaysAgo), lte(usageRecords.timestamp, yesterday))
-          ),
+          .where(and(gte(usageRecords.timestamp, yesterday), lte(usageRecords.timestamp, today))),
       ]);
 
-      const yesterdayUsers = Number(yesterdayUsersResult[0]?.count || 0);
+      const todayNewUsers = Number(todayNewUsersResult[0]?.count || 0);
+      const yesterdayNewUsers = Number(yesterdayNewUsersResult[0]?.count || 0);
+      const todayRequests = Number(todayRequestsResult[0]?.count || 0);
       const yesterdayRequests = Number(yesterdayRequestsResult[0]?.count || 0);
+      const todayTokens = Number(todayTokensResult[0]?.sum || 0);
       const yesterdayTokens = Number(yesterdayTokensResult[0]?.sum || 0);
+      const todayActiveUsers = Number(todayActiveUsersResult[0]?.count || 0);
       const yesterdayActiveUsers = Number(yesterdayActiveUsersResult[0]?.count || 0);
 
-      // 计算增长率
+      // 计算增长率（今日 vs 昨日）
       const userGrowthRate =
-        yesterdayUsers > 0
-          ? Math.round(((stats.totalUsers - yesterdayUsers) / yesterdayUsers) * 100)
+        yesterdayNewUsers > 0
+          ? Math.round(((todayNewUsers - yesterdayNewUsers) / yesterdayNewUsers) * 100)
           : 0;
       const requestGrowthRate =
         yesterdayRequests > 0
-          ? Math.round(((stats.todayRequests - yesterdayRequests) / yesterdayRequests) * 100)
+          ? Math.round(((todayRequests - yesterdayRequests) / yesterdayRequests) * 100)
           : 0;
       const tokenGrowthRate =
         yesterdayTokens > 0
-          ? Math.round(((stats.todayTokens - yesterdayTokens) / yesterdayTokens) * 100)
+          ? Math.round(((todayTokens - yesterdayTokens) / yesterdayTokens) * 100)
           : 0;
-      const activeUserGrowthRate = stats.activeUsers - yesterdayActiveUsers;
+      const activeUserGrowthRate =
+        yesterdayActiveUsers > 0
+          ? Math.round(((todayActiveUsers - yesterdayActiveUsers) / yesterdayActiveUsers) * 100)
+          : 0;
 
       return {
         totalUsers: {
           value: stats.totalUsers,
           change: userGrowthRate,
-          trend: userGrowthRate > 0 ? 'up' : 'down',
+          trend: userGrowthRate >= 0 ? 'up' : 'down',
         },
         todayRequests: {
-          value: stats.todayRequests,
+          value: todayRequests,
           change: requestGrowthRate,
-          trend: requestGrowthRate > 0 ? 'up' : 'down',
+          trend: requestGrowthRate >= 0 ? 'up' : 'down',
         },
         todayTokens: {
-          value: stats.todayTokens,
+          value: todayTokens,
           change: tokenGrowthRate,
-          trend: tokenGrowthRate > 0 ? 'up' : 'down',
+          trend: tokenGrowthRate >= 0 ? 'up' : 'down',
         },
         activeUsers: {
-          value: stats.activeUsers,
+          value: todayActiveUsers,
           change: activeUserGrowthRate,
-          trend: activeUserGrowthRate > 0 ? 'up' : 'down',
+          trend: activeUserGrowthRate >= 0 ? 'up' : 'down',
         },
       };
     } catch (error) {
