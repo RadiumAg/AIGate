@@ -6,10 +6,12 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from '@trpc/server';
+import { initTRPC, TRPCError } from '@trpc/server';
 import { type CreateNextContextOptions } from '@trpc/server/adapters/next';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/auth';
 
 /**
  * 1. CONTEXT
@@ -23,7 +25,7 @@ interface CreateContextOptions {
   /**
    * Session data from NextAuth
    */
-  // session: Session | null;
+  session: unknown;
   req?: import('http').IncomingMessage;
 }
 
@@ -39,7 +41,7 @@ interface CreateContextOptions {
  */
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
-    // session: opts.session,
+    session: opts.session,
     req: opts.req,
   };
 };
@@ -50,14 +52,13 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (opts: CreateNextContextOptions) => {
+export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req, res } = opts;
 
-  // Get the session from the server using the getServerSession wrapper function
-  // const session = await getServerAuthSession({ req, res });
+  const session = await getServerSession(authOptions);
 
   return createInnerTRPCContext({
-    // session,
+    session,
     req,
   });
 };
@@ -114,12 +115,14 @@ export const publicProcedure = t.procedure;
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  // For now, we'll skip authentication and just proceed
-  // In a real app, you would check authentication here
+  if (!ctx.session || !(ctx.session as any).user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+
   return next({
     ctx: {
       ...ctx,
-      // session: { ...ctx.session, user: ctx.session!.user },
+      session: ctx.session,
     },
   });
 });

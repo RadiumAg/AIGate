@@ -1,4 +1,12 @@
-import { pgTable, text, timestamp, integer, decimal, pgEnum } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  text,
+  timestamp,
+  integer,
+  decimal,
+  pgEnum,
+  primaryKey,
+} from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 // 枚举定义
@@ -58,6 +66,21 @@ export const usageRecords = pgTable('usage_records', {
   timestamp: timestamp('timestamp').defaultNow().notNull(),
 });
 
+// 用户表
+export const users = pgTable('users', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  password: text('password'), // 用于凭证登录
+  role: roleEnum('role').default('USER').notNull(),
+  status: statusEnum('status').default('ACTIVE').notNull(),
+  quotaPolicyId: text('quota_policy_id').notNull(),
+  emailVerified: timestamp('email_verified', { mode: 'date' }),
+  image: text('image'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // 白名单规则表
 export const whitelistRules = pgTable('whitelist_rules', {
   id: text('id').primaryKey(),
@@ -70,6 +93,45 @@ export const whitelistRules = pgTable('whitelist_rules', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+// NextAuth.js 相关表
+export const accounts = pgTable('accounts', {
+  id: text('id').primaryKey(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  type: text('type').notNull(),
+  provider: text('provider').notNull(),
+  providerAccountId: text('provider_account_id').notNull(),
+  refresh_token: text('refresh_token'),
+  access_token: text('access_token'),
+  expires_at: integer('expires_at'),
+  token_type: text('token_type'),
+  scope: text('scope'),
+  id_token: text('id_token'),
+  session_state: text('session_state'),
+});
+
+export const sessions = pgTable('sessions', {
+  id: text('id').primaryKey(),
+  sessionToken: text('session_token').notNull().unique(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  expires: timestamp('expires', { mode: 'date' }).notNull(),
+});
+
+export const verificationTokens = pgTable(
+  'verification_tokens',
+  {
+    identifier: text('identifier').notNull(),
+    token: text('token').notNull().unique(),
+    expires: timestamp('expires', { mode: 'date' }).notNull(),
+  },
+  (vt) => ({
+    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
+  })
+);
 
 // 关系定义
 export const whitelistRulesRelations = relations(whitelistRules, ({ one }) => ({
@@ -88,3 +150,9 @@ export type UsageRecord = typeof usageRecords.$inferSelect;
 export type NewUsageRecord = typeof usageRecords.$inferInsert;
 export type WhitelistRule = typeof whitelistRules.$inferSelect;
 export type NewWhitelistRule = typeof whitelistRules.$inferInsert;
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type Account = typeof accounts.$inferSelect;
+export type NewAccount = typeof accounts.$inferInsert;
+export type Session = typeof sessions.$inferSelect;
+export type NewSession = typeof sessions.$inferInsert;
