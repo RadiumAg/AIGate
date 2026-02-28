@@ -29,7 +29,6 @@ async function clearPolicyCacheKeys(): Promise<void> {
 }
 
 export const quotaRouter = createTRPCRouter({
-  // 获取用户配额信息（新接口）
   getQuotaInfo: publicProcedure.input(z.object({ userId: z.string() })).query(async ({ input }) => {
     try {
       const policy = await getUserQuotaPolicy(input.userId);
