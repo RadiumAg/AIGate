@@ -13,7 +13,6 @@ export const providerEnum = pgEnum('provider', [
   'SPARK',
 ]);
 export const whitelistStatusEnum = pgEnum('whitelist_status', ['active', 'inactive']);
-export const identifyByEnum = pgEnum('identify_by', ['ip', 'origin', 'email', 'userId']);
 
 // 配额策略表
 export const quotaPolicies = pgTable('quota_policies', {
@@ -23,9 +22,6 @@ export const quotaPolicies = pgTable('quota_policies', {
   dailyTokenLimit: integer('daily_token_limit').notNull(),
   monthlyTokenLimit: integer('monthly_token_limit').notNull(),
   rpmLimit: integer('rpm_limit').notNull().default(60),
-  identifyBy: identifyByEnum('identify_by').notNull().default('email'),
-  validationPattern: text('validation_pattern'),
-  validationEnabled: integer('validation_enabled').notNull().default(0),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -63,6 +59,8 @@ export const whitelistRules = pgTable('whitelist_rules', {
   description: text('description'),
   priority: integer('priority').notNull().default(1),
   status: whitelistStatusEnum('status').default('active').notNull(),
+  validationPattern: text('validation_pattern'),
+  validationEnabled: integer('validation_enabled').notNull().default(0),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

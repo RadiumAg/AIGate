@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
-import { QuotaPolicySchema } from '@/lib/types';
 import { getUserQuotaPolicy, getUserDailyUsage, resetUserQuota, checkUserQuota } from '@/lib/quota';
 import { redis, RedisKeys } from '@/lib/redis';
 import { quotaPolicyDb } from '@/lib/database';
@@ -28,7 +27,14 @@ export const quotaRouter = createTRPCRouter({
     .input(
       z.object({
         userId: z.string(),
-        policy: QuotaPolicySchema,
+        policy: z.object({
+          id: z.string(),
+          name: z.string(),
+          description: z.string().optional(),
+          dailyTokenLimit: z.number(),
+          monthlyTokenLimit: z.number(),
+          rpmLimit: z.number().default(60),
+        }),
       })
     )
     .mutation(async ({ input }) => {
@@ -122,18 +128,11 @@ export const quotaRouter = createTRPCRouter({
         dailyTokenLimit: z.number(),
         monthlyTokenLimit: z.number(),
         rpmLimit: z.number().default(60),
-        identifyBy: z.enum(['ip', 'origin', 'email', 'userId']).default('email'),
-        validationPattern: z.string().optional(),
-        validationEnabled: z.boolean().default(false),
       })
     )
     .mutation(async ({ input }) => {
       try {
-        const { validationEnabled, ...rest } = input;
-        return await quotaPolicyDb.create({
-          ...rest,
-          validationEnabled: validationEnabled ? 1 : 0,
-        });
+        return await quotaPolicyDb.create(input);
       } catch (error) {
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
@@ -153,18 +152,12 @@ export const quotaRouter = createTRPCRouter({
         dailyTokenLimit: z.number(),
         monthlyTokenLimit: z.number(),
         rpmLimit: z.number().default(60),
-        identifyBy: z.enum(['ip', 'origin', 'email', 'userId']).default('email'),
-        validationPattern: z.string().optional(),
-        validationEnabled: z.boolean().default(false),
       })
     )
     .mutation(async ({ input }) => {
       try {
-        const { id, validationEnabled, ...rest } = input;
-        const policy = await quotaPolicyDb.update(id, {
-          ...rest,
-          validationEnabled: validationEnabled ? 1 : 0,
-        });
+        const { id, ...rest } = input;
+        const policy = await quotaPolicyDb.update(id, rest);
         if (!policy) {
           throw new TRPCError({
             code: 'NOT_FOUND',

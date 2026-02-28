@@ -1,17 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { FC } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/ui/data-table';
-
-type IdentifyBy = 'ip' | 'origin' | 'email' | 'userId';
-
-const IDENTIFY_BY_LABELS: Record<IdentifyBy, string> = {
-  ip: 'IP 地址',
-  origin: 'Origin',
-  email: 'Email',
-  userId: 'User ID',
-};
 
 interface QuotaPolicy {
   id: string;
@@ -20,9 +11,6 @@ interface QuotaPolicy {
   dailyTokenLimit: number;
   monthlyTokenLimit: number;
   rpmLimit: number;
-  identifyBy: IdentifyBy;
-  validationPattern?: string;
-  validationEnabled: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -34,7 +22,7 @@ interface PolicyTableProps {
   isLoading?: boolean;
 }
 
-const PolicyTable: React.FC<PolicyTableProps> = (props) => {
+const PolicyTable: FC<PolicyTableProps> = (props) => {
   const { policies, onEdit, onDelete, isLoading = false } = props;
 
   const columns: ColumnDef<QuotaPolicy>[] = React.useMemo(
@@ -79,30 +67,6 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
         cell: ({ row }) => (
           <span className="text-gray-900 dark:text-white">{row.original.rpmLimit}</span>
         ),
-      },
-      {
-        accessorKey: 'identifyBy',
-        header: '用户标识',
-        cell: ({ row }) => {
-          const identifyBy = row.original.identifyBy || 'email';
-          const hasValidation =
-            row.original.validationEnabled && (identifyBy === 'email' || identifyBy === 'userId');
-          return (
-            <div className="flex items-center gap-1.5">
-              <span className="text-gray-900 dark:text-white">
-                {IDENTIFY_BY_LABELS[identifyBy]}
-              </span>
-              {hasValidation && (
-                <span
-                  className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                  title={row.original.validationPattern || ''}
-                >
-                  校验
-                </span>
-              )}
-            </div>
-          );
-        },
       },
       {
         accessorKey: 'createdAt',

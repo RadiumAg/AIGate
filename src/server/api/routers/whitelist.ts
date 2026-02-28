@@ -11,6 +11,8 @@ const WhitelistRuleSchema = z.object({
   description: z.string().optional().nullable(),
   priority: z.number(),
   status: z.enum(['active', 'inactive']),
+  validationPattern: z.string().optional().nullable(),
+  validationEnabled: z.boolean().default(false),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -22,7 +24,8 @@ export const whitelistRouter = createTRPCRouter({
       const rules = await whitelistRuleDb.getAll();
       return rules.map((rule) => ({
         ...rule,
-        createdAt: rule.createdAt.toISOString().split('T')[0], // 转换为字符串格式以兼容前端
+        validationEnabled: Boolean(rule.validationEnabled),
+        createdAt: rule.createdAt.toISOString().split('T')[0],
       }));
     } catch (error) {
       throw new TRPCError({
@@ -63,9 +66,14 @@ export const whitelistRouter = createTRPCRouter({
     .input(WhitelistRuleSchema.omit({ id: true, createdAt: true, updatedAt: true }))
     .mutation(async ({ input }) => {
       try {
-        const rule = await whitelistRuleDb.create(input);
+        const { validationEnabled, ...rest } = input;
+        const rule = await whitelistRuleDb.create({
+          ...rest,
+          validationEnabled: validationEnabled ? 1 : 0,
+        });
         return {
           ...rule,
+          validationEnabled: Boolean(rule.validationEnabled),
           createdAt: rule.createdAt.toISOString().split('T')[0],
         };
       } catch (error) {
@@ -82,8 +90,11 @@ export const whitelistRouter = createTRPCRouter({
     .input(WhitelistRuleSchema.omit({ createdAt: true, updatedAt: true }))
     .mutation(async ({ input }) => {
       try {
-        const { id, ...updates } = input;
-        const rule = await whitelistRuleDb.update(id, updates);
+        const { id, validationEnabled, ...updates } = input;
+        const rule = await whitelistRuleDb.update(id, {
+          ...updates,
+          validationEnabled: validationEnabled ? 1 : 0,
+        });
         if (!rule) {
           throw new TRPCError({
             code: 'NOT_FOUND',
@@ -93,6 +104,7 @@ export const whitelistRouter = createTRPCRouter({
 
         return {
           ...rule,
+          validationEnabled: Boolean(rule.validationEnabled),
           createdAt: rule.createdAt.toISOString().split('T')[0],
         };
       } catch (error) {

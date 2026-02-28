@@ -1,12 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { FC } from 'react';
 import { trpc } from '@/components/trpc-provider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import PolicyForm from './components/policy-form';
 import PolicyTable from './components/policy-table';
-
-type IdentifyBy = 'ip' | 'origin' | 'email' | 'userId';
 
 interface QuotaPolicy {
   id: string;
@@ -15,19 +13,13 @@ interface QuotaPolicy {
   dailyTokenLimit: number;
   monthlyTokenLimit: number;
   rpmLimit: number;
-  identifyBy: IdentifyBy;
-  validationPattern?: string;
-  validationEnabled: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-const QuotasPage: React.FC = () => {
-  // 获取配额策略数据
-  console.log('trpc', trpc);
+const QuotasPage: FC = () => {
   const { data: policies = [], refetch: refetchPolicies } = trpc.quota.getAllPolicies.useQuery();
 
-  // 创建策略 mutation
   const createPolicyMutation = trpc.quota.createPolicy.useMutation({
     onSuccess: () => {
       refetchPolicies();
@@ -36,7 +28,6 @@ const QuotasPage: React.FC = () => {
     },
   });
 
-  // 更新策略 mutation
   const updatePolicyMutation = trpc.quota.updatePolicy.useMutation({
     onSuccess: () => {
       refetchPolicies();
@@ -45,7 +36,6 @@ const QuotasPage: React.FC = () => {
     },
   });
 
-  // 删除策略 mutation
   const deletePolicyMutation = trpc.quota.deletePolicy.useMutation({
     onSuccess: () => {
       refetchPolicies();
@@ -77,15 +67,11 @@ const QuotasPage: React.FC = () => {
         ...policy,
         id: editingPolicy.id,
         description: policy.description || undefined,
-        validationPattern: policy.validationPattern || undefined,
-        validationEnabled: policy.validationEnabled ?? false,
       });
     } else {
       createPolicyMutation.mutate({
         ...policy,
         description: policy.description || undefined,
-        validationPattern: policy.validationPattern || undefined,
-        validationEnabled: policy.validationEnabled ?? false,
       });
     }
   };
@@ -122,16 +108,13 @@ const QuotasPage: React.FC = () => {
         policies={policies.map((policy) => ({
           ...policy,
           description: policy.description || undefined,
-          identifyBy: (policy.identifyBy as IdentifyBy) || 'email',
-          validationPattern: policy.validationPattern ?? undefined,
-          validationEnabled: Boolean(policy.validationEnabled),
         }))}
         onEdit={handleEditPolicy}
         onDelete={handleDeletePolicy}
         isLoading={
-          createPolicyMutation.isLoading ||
-          updatePolicyMutation.isLoading ||
-          deletePolicyMutation.isLoading
+          createPolicyMutation.isPending ||
+          updatePolicyMutation.isPending ||
+          deletePolicyMutation.isPending
         }
       />
     </div>

@@ -1,7 +1,7 @@
 // 数据库抽象层 - 使用 Drizzle ORM
 import { db } from './drizzle';
 import { apiKeys, quotaPolicies, usageRecords, whitelistRules } from './schema';
-import { eq, and, gte, lte, desc, count, sum, countDistinct, sql } from 'drizzle-orm';
+import { eq, and, gte, lte, desc, count, sum, countDistinct } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import type {
   ApiKey,
@@ -403,7 +403,6 @@ export const whitelistRuleDb = {
     try {
       const activeRules = await whitelistRuleDb.getActiveRules();
 
-      // 按优先级排序匹配
       for (const rule of activeRules) {
         if (rule.pattern === '*') {
           return { policyName: rule.policyName, ruleId: rule.id };
@@ -416,11 +415,82 @@ export const whitelistRuleDb = {
         }
       }
 
-      // 如果没有匹配到任何规则，返回默认策略
       return { policyName: '默认策略', ruleId: null };
     } catch (error) {
       console.error('Database error:', error);
       return { policyName: '默认策略', ruleId: null };
+    }
+  },
+
+  /**
+   * 根据 userId 匹配白名单规则并校验是否符合校验规则
+   * 返回匹配到的规则信息和校验结果
+   */
+  validateUserById: async (
+    userId: string
+  ): Promise<{
+    matched: boolean;
+    policyName: string;
+    ruleId: string | null;
+    valid: boolean;
+    reason?: string;
+  }> => {
+    try {
+      const activeRules = await whitelistRuleDb.getActiveRules();
+
+      for (const rule of activeRules) {
+        let isMatched = false;
+
+        if (rule.pattern === '*') {
+          isMatched = true;
+        } else if (rule.pattern.startsWith('*@') && userId.endsWith(rule.pattern.substring(1))) {
+          isMatched = true;
+        } else if (rule.pattern === userId) {
+          isMatched = true;
+        }
+
+        if (isMatched) {
+          // 检查是否启用了校验规则
+          if (rule.validationEnabled && rule.validationPattern) {
+            try {
+              const regex = new RegExp(rule.validationPattern);
+              if (!regex.test(userId)) {
+                return {
+                  matched: true,
+                  policyName: rule.policyName,
+                  ruleId: rule.id,
+                  valid: false,
+                  reason: `userId "${userId}" 不符合校验规则: ${rule.validationPattern}`,
+                };
+              }
+            } catch {
+              console.error(`Invalid validation pattern: ${rule.validationPattern}`);
+            }
+          }
+
+          return {
+            matched: true,
+            policyName: rule.policyName,
+            ruleId: rule.id,
+            valid: true,
+          };
+        }
+      }
+
+      return {
+        matched: false,
+        policyName: '默认策略',
+        ruleId: null,
+        valid: true,
+      };
+    } catch (error) {
+      console.error('Database error:', error);
+      return {
+        matched: false,
+        policyName: '默认策略',
+        ruleId: null,
+        valid: true,
+      };
     }
   },
 

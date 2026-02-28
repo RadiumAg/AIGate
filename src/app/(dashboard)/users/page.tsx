@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { FC } from 'react';
 import { trpc } from '@/components/trpc-provider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import WhitelistRuleForm from './components/whitelist-rule-form';
@@ -12,11 +12,13 @@ interface WhitelistRule {
   policyName: string;
   priority: number;
   status: 'active' | 'inactive';
+  validationPattern?: string | null;
+  validationEnabled: boolean;
   createdAt: string;
-  description?: null;
+  description?: string | null;
 }
 
-const UsersPage: React.FC = () => {
+const UsersPage: FC = () => {
   // 获取白名单规则数据
   const { data: whitelistRules = [], refetch: refetchRules } = trpc.whitelist.getAll.useQuery();
 

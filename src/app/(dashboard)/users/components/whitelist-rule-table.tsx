@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { FC } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/ui/data-table';
 
@@ -10,6 +10,8 @@ interface WhitelistRule {
   policyName: string;
   priority: number;
   status: 'active' | 'inactive';
+  validationPattern?: string | null;
+  validationEnabled: boolean;
   createdAt: string;
   description: string | null;
 }
@@ -22,7 +24,7 @@ interface WhitelistRuleTableProps {
   isLoading?: boolean;
 }
 
-const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
+const WhitelistRuleTable: FC<WhitelistRuleTableProps> = (props) => {
   const { rules, onEdit, onDelete, onToggleStatus, isLoading = false } = props;
 
   const sortedRules = React.useMemo(
@@ -65,6 +67,31 @@ const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
             {row.original.description || '-'}
           </span>
         ),
+      },
+      {
+        accessorKey: 'validationEnabled',
+        header: '校验规则',
+        cell: ({ row }) => {
+          const rule = row.original;
+          if (!rule.validationEnabled) {
+            return <span className="text-sm text-gray-400">未启用</span>;
+          }
+          return (
+            <div className="flex items-center gap-1.5">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                已启用
+              </span>
+              {rule.validationPattern && (
+                <code
+                  className="text-xs bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded max-w-[120px] truncate block"
+                  title={rule.validationPattern}
+                >
+                  {rule.validationPattern}
+                </code>
+              )}
+            </div>
+          );
+        },
       },
       {
         accessorKey: 'status',

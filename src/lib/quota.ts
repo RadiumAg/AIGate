@@ -1,7 +1,6 @@
 import { redis, RedisKeys, getTodayString, getCurrentMinuteString } from './redis';
-import { QuotaPolicy, QuotaCheckResult, UsageRecord, IdentifyBy } from './types';
+import { QuotaPolicy, QuotaCheckResult, UsageRecord } from './types';
 import { whitelistRuleDb, quotaPolicyDb, usageRecordDb } from './database';
-
 // 默认配额策略
 const DEFAULT_QUOTA_POLICY: QuotaPolicy = {
   id: 'default',
@@ -9,8 +8,6 @@ const DEFAULT_QUOTA_POLICY: QuotaPolicy = {
   dailyTokenLimit: 5000,
   monthlyTokenLimit: 50000,
   rpmLimit: 10,
-  identifyBy: 'email',
-  validationEnabled: false,
 };
 
 // 根据邮箱匹配白名单规则并获取配额策略
@@ -33,8 +30,6 @@ export async function getQuotaPolicyByEmail(email: string): Promise<QuotaPolicy>
       ? {
           ...matchedPolicy,
           description: matchedPolicy.description || undefined,
-          validationPattern: matchedPolicy.validationPattern ?? undefined,
-          validationEnabled: Boolean(matchedPolicy.validationEnabled),
         }
       : DEFAULT_QUOTA_POLICY;
 
@@ -70,75 +65,12 @@ export async function getQuotaPolicyByRequest(requestInfo: {
   }
 }
 
-// 根据策略的 identifyBy 从请求信息中提取用户标识符
-export function extractIdentifier(
-  requestInfo: {
-    email?: string;
-    userId?: string;
-    ip?: string;
-    origin?: string;
-    apiKey?: string;
-    domain?: string;
-  },
-  identifyBy: IdentifyBy = 'email'
-): string {
-  switch (identifyBy) {
-    case 'ip':
-      return requestInfo.ip || 'unknown-ip';
-    case 'origin':
-      return requestInfo.origin || requestInfo.domain || 'unknown-origin';
-    case 'email':
-      return requestInfo.email || 'anonymous';
-    case 'userId':
-      return requestInfo.userId || requestInfo.email || 'anonymous';
-    default:
-      return requestInfo.email || requestInfo.ip || 'anonymous';
-  }
-}
-
-// 校验标识符是否符合策略的校验规则
-export function validateIdentifier(
-  identifier: string,
-  policy: QuotaPolicy
-): { valid: boolean; reason?: string } {
-  if (!policy.validationEnabled) {
-    return { valid: true };
-  }
-
-  const identifyBy = policy.identifyBy || 'email';
-
-  // 只有 email 和 userId 类型支持校验规则
-  if (identifyBy !== 'email' && identifyBy !== 'userId') {
-    return { valid: true };
-  }
-
-  if (!policy.validationPattern) {
-    return { valid: true };
-  }
-
-  try {
-    const regex = new RegExp(policy.validationPattern);
-    if (!regex.test(identifier)) {
-      return {
-        valid: false,
-        reason: `${identifyBy} "${identifier}" 不符合校验规则: ${policy.validationPattern}`,
-      };
-    }
-    return { valid: true };
-  } catch {
-    console.error(`Invalid validation pattern: ${policy.validationPattern}`);
-    return { valid: true };
-  }
-}
-
 // 检查配额限制
 export async function checkQuota(
   requestInfo: {
     email?: string;
-    userId?: string;
     apiKey?: string;
     ip?: string;
-    origin?: string;
     domain?: string;
   },
   estimatedTokens: number = 0
@@ -148,19 +80,7 @@ export async function checkQuota(
     const today = getTodayString();
     const currentMinute = getCurrentMinuteString();
 
-    // 根据策略的 identifyBy 提取标识符
-    const identifyBy = (policy.identifyBy || 'email') as IdentifyBy;
-    const identifier = extractIdentifier(requestInfo, identifyBy);
-
-    // 校验标识符是否符合策略的校验规则
-    const validation = validateIdentifier(identifier, policy);
-    if (!validation.valid) {
-      return {
-        allowed: false,
-        reason: validation.reason,
-        policy,
-      };
-    }
+    const identifier = requestInfo.email || requestInfo.ip || requestInfo.apiKey || 'anonymous';
 
     // 检查每日 Token 限制
     const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);

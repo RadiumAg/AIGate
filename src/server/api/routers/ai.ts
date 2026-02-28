@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
-import { ChatCompletionRequestSchema, UsageRecord, IdentifyBy } from '@/lib/types';
-import { checkQuota, recordUsage, extractIdentifier } from '@/lib/quota';
+import { ChatCompletionRequestSchema, UsageRecord } from '@/lib/types';
+import { checkQuota, recordUsage } from '@/lib/quota';
 import {
   getProviderByModel,
   getApiKeyWithBaseUrl,
@@ -16,32 +16,33 @@ export const aiRouter = createTRPCRouter({
   chatCompletion: publicProcedure
     .input(
       z.object({
+        userId: z.string(),
         email: z.string().email().optional(),
-        userId: z.string().optional(),
-        ip: z.string().optional(),
-        origin: z.string().optional(),
         apiKeyId: z.string().optional(),
         request: ChatCompletionRequestSchema,
       })
     )
     .mutation(async ({ input }) => {
-      const { email, userId, ip, origin, apiKeyId, request } = input;
+      const { userId, email, apiKeyId, request } = input;
       const requestId = uuidv4();
 
-      // 至少需要一种标识信息
-      if (!email && !userId && !ip && !origin) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: '必须提供 email、userId、ip 或 origin 中的至少一个',
-        });
-      }
-
       try {
+        // 1. 根据 userId 匹配白名单规则并校验
+        const { whitelistRuleDb } = await import('../../../lib/database');
+        const validationResult = await whitelistRuleDb.validateUserById(userId);
+
+        if (!validationResult.valid) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: validationResult.reason || '用户校验未通过',
+          });
+        }
+
+        // 2. 获取 API Key 和 Provider
         let provider: AIProvider;
         let apiKeyInfo: { key: string; baseUrl?: string } | null;
 
         if (apiKeyId) {
-          // 1. 根据 API Key ID 获取具体的 API Key 信息
           const { apiKeyDb } = await import('../../../lib/database');
           const apiKey = await apiKeyDb.getById(apiKeyId);
 
@@ -52,7 +53,6 @@ export const aiRouter = createTRPCRouter({
             });
           }
 
-          // 2. 根据 API Key 的 provider 获取对应的 AI 提供商
           const providerKey = apiKey.provider.toLowerCase();
           const foundProvider = providers[providerKey];
 
@@ -64,14 +64,11 @@ export const aiRouter = createTRPCRouter({
           }
 
           provider = foundProvider;
-
-          // 3. 使用指定的 API Key
           apiKeyInfo = {
             key: apiKey.key,
             baseUrl: apiKey.baseUrl || undefined,
           };
         } else {
-          // 兼容旧版本：根据模型名称推断 provider
           const foundProvider = getProviderByModel(request.model);
           if (!foundProvider) {
             throw new TRPCError({
@@ -81,8 +78,6 @@ export const aiRouter = createTRPCRouter({
           }
 
           provider = foundProvider;
-
-          // 获取该 provider 的默认 API Key
           apiKeyInfo = await getApiKeyWithBaseUrl(provider.name);
           if (!apiKeyInfo) {
             throw new TRPCError({
@@ -92,12 +87,12 @@ export const aiRouter = createTRPCRouter({
           }
         }
 
-        // 4. 估算 Token 消耗
+        // 3. 估算 Token 消耗
         const estimatedTokens = provider.estimateTokens(request);
 
-        // 5. 检查配额（传入所有标识信息，由策略的 identifyBy 决定使用哪个）
-        const requestInfo = { email, userId, ip, origin };
-        const quotaCheck = await checkQuota(requestInfo, estimatedTokens);
+        // 4. 检查配额（使用 userId 或 email 作为标识符）
+        const identifier = email || userId;
+        const quotaCheck = await checkQuota({ email: identifier }, estimatedTokens);
         if (!quotaCheck.allowed) {
           throw new TRPCError({
             code: 'TOO_MANY_REQUESTS',
@@ -105,12 +100,7 @@ export const aiRouter = createTRPCRouter({
           });
         }
 
-        // 根据策略的 identifyBy 提取实际使用的标识符
-        const policyIdentifyBy: IdentifyBy = (quotaCheck.policy?.identifyBy ||
-          'email') as IdentifyBy;
-        const identifier = extractIdentifier(requestInfo, policyIdentifyBy);
-
-        // 6. 调用 AI 服务（使用 API Key 中的 baseUrl）
+        // 5. 调用 AI 服务
         const startTime = Date.now();
         const response = await provider.makeRequest(apiKeyInfo.key, request, apiKeyInfo.baseUrl);
         const endTime = Date.now();
@@ -126,10 +116,9 @@ export const aiRouter = createTRPCRouter({
           completionTokens: response.usage?.completion_tokens || estimatedTokens * 0.3,
           totalTokens: response.usage?.total_tokens || estimatedTokens,
           timestamp: new Date().toISOString(),
-          cost: 0, // 这里可以根据不同模型计算成本
+          cost: 0,
         };
 
-        // 异步记录使用量，不阻塞响应
         recordUsage(actualUsage, identifier).catch((error) => {
           console.error('Failed to record usage:', error);
         });
