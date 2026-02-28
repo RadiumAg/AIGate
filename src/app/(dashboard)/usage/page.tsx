@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import UsageChart from './components/UsageChart';
-import UserList from './components/UserList';
-import ModelDistributionItem from './components/ModelDistributionItem';
-import QuotaOverviewItem from './components/QuotaOverviewItem';
+import UsageChart from './components/usage-chart';
+import UserList from './components/user-list';
+import ModelDistributionItem from './components/model-distribution-item';
+import QuotaOverviewItem from './components/quota-overview-item';
 
 interface UsageDataPoint {
   date: string;
