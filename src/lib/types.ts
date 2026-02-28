@@ -5,8 +5,10 @@ export const QuotaPolicySchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
-  dailyTokenLimit: z.number(),
-  monthlyTokenLimit: z.number(),
+  limitType: z.enum(['token', 'request']).default('token'), // 'token' 或 'request'
+  dailyTokenLimit: z.number().optional(),
+  monthlyTokenLimit: z.number().optional(),
+  dailyRequestLimit: z.number().optional(), // 新增：每日请求次数限制
   rpmLimit: z.number().default(60),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),

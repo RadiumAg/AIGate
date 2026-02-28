@@ -5,6 +5,7 @@ import { whitelistRuleDb, quotaPolicyDb, usageRecordDb } from './database';
 const DEFAULT_QUOTA_POLICY: QuotaPolicy = {
   id: 'default',
   name: '默认策略',
+  limitType: 'token',
   dailyTokenLimit: 5000,
   monthlyTokenLimit: 50000,
   rpmLimit: 10,
@@ -30,6 +31,10 @@ export async function getQuotaPolicyByEmail(email: string): Promise<QuotaPolicy>
       ? {
           ...matchedPolicy,
           description: matchedPolicy.description || undefined,
+          limitType: (matchedPolicy.limitType as 'token' | 'request') || 'token',
+          dailyTokenLimit: matchedPolicy.dailyTokenLimit || undefined,
+          monthlyTokenLimit: matchedPolicy.monthlyTokenLimit || undefined,
+          dailyRequestLimit: matchedPolicy.dailyRequestLimit || undefined,
         }
       : DEFAULT_QUOTA_POLICY;
 
@@ -82,21 +87,62 @@ export async function checkQuota(
 
     const identifier = requestInfo.email || requestInfo.ip || requestInfo.apiKey || 'anonymous';
 
-    // 检查每日 Token 限制
-    const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);
-    const dailyUsage = await redis.get(dailyUsageKey);
-    const currentDailyTokens = dailyUsage ? parseInt(dailyUsage) : 0;
+    console.log(
+      '[checkQuota] Policy:',
+      JSON.stringify({
+        limitType: policy.limitType,
+        dailyTokenLimit: policy.dailyTokenLimit,
+        dailyRequestLimit: policy.dailyRequestLimit,
+        rpmLimit: policy.rpmLimit,
+      })
+    );
 
-    if (currentDailyTokens + estimatedTokens > policy.dailyTokenLimit) {
-      return {
-        allowed: false,
-        reason: `每日 Token 配额已用完。当前使用: ${currentDailyTokens}/${policy.dailyTokenLimit}`,
-        remainingTokens: Math.max(0, policy.dailyTokenLimit - currentDailyTokens),
-        policy,
-      };
+    // 根据 limitType 检查不同的限制
+    if (policy.limitType === 'token') {
+      // Token 限制模式
+      const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);
+      const dailyUsage = await redis.get(dailyUsageKey);
+      const currentDailyTokens = dailyUsage ? parseInt(dailyUsage) : 0;
+
+      console.log(
+        '[checkQuota] Token mode - Daily usage:',
+        currentDailyTokens,
+        '/',
+        policy.dailyTokenLimit
+      );
+
+      if (policy.dailyTokenLimit && currentDailyTokens + estimatedTokens > policy.dailyTokenLimit) {
+        return {
+          allowed: false,
+          reason: `每日 Token 配额已用完。当前使用: ${currentDailyTokens}/${policy.dailyTokenLimit}`,
+          remainingTokens: Math.max(0, policy.dailyTokenLimit - currentDailyTokens),
+          policy,
+        };
+      }
+    } else if (policy.limitType === 'request') {
+      // 请求次数限制模式
+      const dailyRequestKey = RedisKeys.userDailyRequests(identifier, today);
+      const dailyRequests = await redis.get(dailyRequestKey);
+      const currentDailyRequests = dailyRequests ? parseInt(dailyRequests) : 0;
+
+      console.log(
+        '[checkQuota] Request mode - Daily requests:',
+        currentDailyRequests,
+        '/',
+        policy.dailyRequestLimit
+      );
+
+      if (policy.dailyRequestLimit && currentDailyRequests >= policy.dailyRequestLimit) {
+        return {
+          allowed: false,
+          reason: `每日请求次数已达上限。当前请求: ${currentDailyRequests}/${policy.dailyRequestLimit}`,
+          remainingRequests: Math.max(0, policy.dailyRequestLimit - currentDailyRequests),
+          policy,
+        };
+      }
     }
 
-    // 检查每分钟请求次数限制
+    // 检查每分钟请求次数限制（两种模式都要检查）
     const rpmKey = RedisKeys.userRPM(identifier, currentMinute);
     const currentRPM = await redis.get(rpmKey);
     const currentRequests = currentRPM ? parseInt(currentRPM) : 0;
@@ -110,10 +156,28 @@ export async function checkQuota(
       };
     }
 
+    // 计算剩余配额
+    let remainingTokens: number | undefined;
+    let remainingRequests: number | undefined;
+
+    if (policy.limitType === 'token' && policy.dailyTokenLimit) {
+      const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);
+      const dailyUsage = await redis.get(dailyUsageKey);
+      const currentDailyTokens = dailyUsage ? parseInt(dailyUsage) : 0;
+      remainingTokens = policy.dailyTokenLimit - currentDailyTokens;
+    }
+
+    if (policy.limitType === 'request' && policy.dailyRequestLimit) {
+      const dailyRequestKey = RedisKeys.userDailyRequests(identifier, today);
+      const dailyRequests = await redis.get(dailyRequestKey);
+      const currentDailyRequests = dailyRequests ? parseInt(dailyRequests) : 0;
+      remainingRequests = policy.dailyRequestLimit - currentDailyRequests;
+    }
+
     return {
       allowed: true,
-      remainingTokens: policy.dailyTokenLimit - currentDailyTokens,
-      remainingRequests: policy.rpmLimit - currentRequests,
+      remainingTokens,
+      remainingRequests: remainingRequests || Math.max(0, policy.rpmLimit - currentRequests),
       policy,
     };
   } catch (error) {
@@ -134,13 +198,32 @@ export async function recordUsage(
     const today = getTodayString();
     const currentMinute = getCurrentMinuteString();
 
-    // 更新每日 Token 使用量
-    const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);
-    await redis.incrBy(dailyUsageKey, Math.round(record.totalTokens));
-    // 设置过期时间为 7 天
-    await redis.expire(dailyUsageKey, 7 * 24 * 60 * 60);
+    // 获取用户的配额策略
+    const policy = await getQuotaPolicyByRequest({ email: identifier });
 
-    // 更新每分钟请求次数
+    // 根据 limitType 更新不同的计数器
+    if (policy.limitType === 'token') {
+      // Token 模式：更新每日 Token 使用量
+      const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);
+      await redis.incrBy(dailyUsageKey, Math.round(record.totalTokens));
+      // 设置过期时间为 7 天
+      await redis.expire(dailyUsageKey, 7 * 24 * 60 * 60);
+      console.log(
+        '[recordUsage] Token mode - Recorded',
+        record.totalTokens,
+        'tokens for',
+        identifier
+      );
+    } else if (policy.limitType === 'request') {
+      // 请求次数模式：更新每日请求次数
+      const dailyRequestKey = RedisKeys.userDailyRequests(identifier, today);
+      const newCount = await redis.incr(dailyRequestKey);
+      // 设置过期时间为 7 天
+      await redis.expire(dailyRequestKey, 7 * 24 * 60 * 60);
+      console.log('[recordUsage] Request mode - New request count:', newCount, 'for', identifier);
+    }
+
+    // 更新每分钟请求次数（两种模式都要记录）
     const rpmKey = RedisKeys.userRPM(identifier, currentMinute);
     await redis.incr(rpmKey);
     // 设置过期时间为 2 分钟
@@ -188,14 +271,14 @@ export async function getDailyUsage(requestInfo: {
     const identifier = requestInfo.email || requestInfo.ip || requestInfo.apiKey || 'anonymous';
 
     const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);
-    const tokensUsed = await redis.get(dailyUsageKey);
+    const dailyRequestKey = RedisKeys.userDailyRequests(identifier, today);
 
-    // 获取今日请求次数（简化实现，实际可能需要更复杂的统计）
-    const requestsToday = 0; // 这里可以通过其他方式统计
+    const tokensUsed = await redis.get(dailyUsageKey);
+    const requestsUsed = await redis.get(dailyRequestKey);
 
     return {
       tokensUsed: tokensUsed ? parseInt(tokensUsed) : 0,
-      requestsToday,
+      requestsToday: requestsUsed ? parseInt(requestsUsed) : 0,
       policy,
     };
   } catch (error) {

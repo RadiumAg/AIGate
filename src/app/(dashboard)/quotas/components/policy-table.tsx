@@ -9,8 +9,10 @@ interface QuotaPolicy {
   id: string;
   name: string;
   description?: string;
-  dailyTokenLimit: number;
-  monthlyTokenLimit: number;
+  limitType: 'token' | 'request';
+  dailyTokenLimit?: number;
+  monthlyTokenLimit?: number;
+  dailyRequestLimit?: number;
   rpmLimit: number;
   createdAt?: Date;
   updatedAt?: Date;
@@ -45,22 +47,57 @@ const PolicyTable: FC<PolicyTableProps> = (props) => {
         ),
       },
       {
-        accessorKey: 'dailyTokenLimit',
+        accessorKey: 'limitType',
+        header: '限制类型',
+        cell: ({ row }) => {
+          const policy = row.original;
+          return (
+            <span
+              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                policy.limitType === 'token'
+                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                  : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+              }`}
+            >
+              {policy.limitType === 'token' ? 'Token 限制' : '请求次数'}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: 'dailyLimit',
         header: '每日限额',
-        cell: ({ row }) => (
-          <span className="text-gray-900 dark:text-white">
-            {row.original.dailyTokenLimit.toLocaleString()}
-          </span>
-        ),
+        cell: ({ row }) => {
+          const policy = row.original;
+          if (policy.limitType === 'token') {
+            return (
+              <span className="text-gray-900 dark:text-white">
+                {policy.dailyTokenLimit?.toLocaleString() || '-'} Tokens
+              </span>
+            );
+          } else {
+            return (
+              <span className="text-gray-900 dark:text-white">
+                {policy.dailyRequestLimit?.toLocaleString() || '-'} 次
+              </span>
+            );
+          }
+        },
       },
       {
         accessorKey: 'monthlyTokenLimit',
         header: '每月限额',
-        cell: ({ row }) => (
-          <span className="text-gray-900 dark:text-white">
-            {row.original.monthlyTokenLimit.toLocaleString()}
-          </span>
-        ),
+        cell: ({ row }) => {
+          const policy = row.original;
+          if (policy.limitType === 'token' && policy.monthlyTokenLimit) {
+            return (
+              <span className="text-gray-900 dark:text-white">
+                {policy.monthlyTokenLimit.toLocaleString()} Tokens
+              </span>
+            );
+          }
+          return <span className="text-gray-400 dark:text-gray-500">-</span>;
+        },
       },
       {
         accessorKey: 'rpmLimit',

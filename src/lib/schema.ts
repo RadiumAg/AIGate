@@ -14,13 +14,18 @@ export const providerEnum = pgEnum('provider', [
 ]);
 export const whitelistStatusEnum = pgEnum('whitelist_status', ['active', 'inactive']);
 
+// 限制类型枚举
+export const limitTypeEnum = pgEnum('limit_type', ['token', 'request']);
+
 // 配额策略表
 export const quotaPolicies = pgTable('quota_policies', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
-  dailyTokenLimit: integer('daily_token_limit').notNull(),
-  monthlyTokenLimit: integer('monthly_token_limit').notNull(),
+  limitType: text('limit_type').notNull().default('token'), // 'token' 或 'request'
+  dailyTokenLimit: integer('daily_token_limit'),
+  monthlyTokenLimit: integer('monthly_token_limit'),
+  dailyRequestLimit: integer('daily_request_limit'), // 新增：每日请求次数限制
   rpmLimit: integer('rpm_limit').notNull().default(60),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

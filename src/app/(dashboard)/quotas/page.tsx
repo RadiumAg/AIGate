@@ -12,8 +12,10 @@ interface QuotaPolicy {
   id: string;
   name: string;
   description?: string;
-  dailyTokenLimit: number;
-  monthlyTokenLimit: number;
+  limitType: 'token' | 'request';
+  dailyTokenLimit?: number;
+  monthlyTokenLimit?: number;
+  dailyRequestLimit?: number;
   rpmLimit: number;
   createdAt?: Date;
   updatedAt?: Date;
@@ -117,6 +119,10 @@ const QuotasPage: FC = () => {
           policies={policies.map((policy) => ({
             ...policy,
             description: policy.description || undefined,
+            limitType: (policy.limitType as 'token' | 'request') || 'token',
+            dailyTokenLimit: policy.dailyTokenLimit || undefined,
+            monthlyTokenLimit: policy.monthlyTokenLimit || undefined,
+            dailyRequestLimit: policy.dailyRequestLimit || undefined,
           }))}
           onEdit={handleEditPolicy}
           onDelete={handleDeletePolicy}

@@ -29,6 +29,46 @@ async function clearPolicyCacheKeys(): Promise<void> {
 }
 
 export const quotaRouter = createTRPCRouter({
+  // 获取用户配额信息（新接口）
+  getQuotaInfo: publicProcedure.input(z.object({ userId: z.string() })).query(async ({ input }) => {
+    try {
+      const policy = await getUserQuotaPolicy(input.userId);
+      const usage = await getUserDailyUsage(input.userId);
+      const today = new Date().toISOString().split('T')[0];
+
+      // 计算剩余配额
+      let remaining;
+      if (policy.limitType === 'token') {
+        remaining = {
+          type: 'token' as const,
+          daily: policy.dailyTokenLimit ? policy.dailyTokenLimit - usage.tokensUsed : null,
+          monthly: policy.monthlyTokenLimit ? policy.monthlyTokenLimit - usage.tokensUsed : null,
+        };
+      } else {
+        remaining = {
+          type: 'request' as const,
+          daily: policy.dailyRequestLimit ? policy.dailyRequestLimit - usage.requestsToday : null,
+        };
+      }
+
+      return {
+        policy,
+        usage: {
+          tokensUsed: usage.tokensUsed,
+          requestsToday: usage.requestsToday,
+          date: today,
+        },
+        remaining,
+      };
+    } catch (error) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: '获取用户配额信息失败',
+        cause: error,
+      });
+    }
+  }),
+
   // 获取用户配额策略
   getUserPolicy: publicProcedure
     .input(z.object({ userId: z.string() }))
@@ -148,15 +188,32 @@ export const quotaRouter = createTRPCRouter({
       z.object({
         name: z.string(),
         description: z.string().optional(),
-        dailyTokenLimit: z.number(),
-        monthlyTokenLimit: z.number(),
+        limitType: z.enum(['token', 'request']).default('token'),
+        dailyTokenLimit: z.number().optional(),
+        monthlyTokenLimit: z.number().optional(),
+        dailyRequestLimit: z.number().optional(),
         rpmLimit: z.number().default(60),
       })
     )
     .mutation(async ({ input }) => {
       try {
+        // 验证：limitType 为 token 时，dailyTokenLimit 必须存在
+        if (input.limitType === 'token' && !input.dailyTokenLimit) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Token 限制模式必须设置每日 Token 上限',
+          });
+        }
+        // 验证：limitType 为 request 时，dailyRequestLimit 必须存在
+        if (input.limitType === 'request' && !input.dailyRequestLimit) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: '请求次数限制模式必须设置每日请求次数上限',
+          });
+        }
         return await quotaPolicyDb.create(input);
       } catch (error) {
+        if (error instanceof TRPCError) throw error;
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: '创建配额策略失败',
@@ -172,13 +229,30 @@ export const quotaRouter = createTRPCRouter({
         id: z.string(),
         name: z.string(),
         description: z.string().optional(),
-        dailyTokenLimit: z.number(),
-        monthlyTokenLimit: z.number(),
+        limitType: z.enum(['token', 'request']).default('token'),
+        dailyTokenLimit: z.number().optional(),
+        monthlyTokenLimit: z.number().optional(),
+        dailyRequestLimit: z.number().optional(),
         rpmLimit: z.number().default(60),
       })
     )
     .mutation(async ({ input }) => {
       try {
+        // 验证：limitType 为 token 时，dailyTokenLimit 必须存在
+        if (input.limitType === 'token' && !input.dailyTokenLimit) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Token 限制模式必须设置每日 Token 上限',
+          });
+        }
+        // 验证：limitType 为 request 时，dailyRequestLimit 必须存在
+        if (input.limitType === 'request' && !input.dailyRequestLimit) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: '请求次数限制模式必须设置每日请求次数上限',
+          });
+        }
+
         const { id, ...rest } = input;
         const policy = await quotaPolicyDb.update(id, rest);
         if (!policy) {
