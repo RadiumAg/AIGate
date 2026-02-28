@@ -4,9 +4,9 @@ import { FC } from 'react';
 import { nanoid } from 'nanoid';
 import { useLocalStorageState } from 'ahooks';
 import { trpc } from '@/components/trpc-provider';
-import RequestConfig from './components/RequestConfig';
-import ResponseResult from './components/ResponseResult';
-import CodeModal from './components/CodeModal';
+import RequestConfig from './components/request-config';
+import ResponseResult from './components/response-result';
+import CodeModal from './components/code-modal';
 import { DebugRequestForm, ResponseData } from './components/types';
 
 const DebugPage: FC = () => {

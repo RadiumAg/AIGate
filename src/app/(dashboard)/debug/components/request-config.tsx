@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import MessageInput from './MessageInput';
+import MessageInput from './message-input';
 import { ApiKey } from '@/types/apiKey';
 
 interface DebugRequestForm {
