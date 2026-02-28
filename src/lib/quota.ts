@@ -136,7 +136,7 @@ export async function recordUsage(
 
     // 更新每日 Token 使用量
     const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);
-    await redis.incrBy(dailyUsageKey, record.totalTokens);
+    await redis.incrBy(dailyUsageKey, Math.round(record.totalTokens));
     // 设置过期时间为 7 天
     await redis.expire(dailyUsageKey, 7 * 24 * 60 * 60);
 

@@ -104,7 +104,7 @@ async function handleStreamRequest(params: RequestHandlerParams): Promise<Readab
     });
   }
 
-  const promptTokens = estimatedTokens * 0.7;
+  const promptTokens = Math.round(estimatedTokens * 0.7);
   let completionTokens = 0;
   let hasRecordedUsage = false;
 
@@ -139,7 +139,7 @@ async function handleStreamRequest(params: RequestHandlerParams): Promise<Readab
                 // 统计 token（支持 OpenAI 格式）
                 const content = parsed.choices?.[0]?.delta?.content || '';
                 if (content) {
-                  completionTokens += Math.ceil(content.length / 4);
+                  completionTokens += Math.max(1, Math.ceil(content.length / 4));
                 }
               }
             }
@@ -259,18 +259,10 @@ export const aiRouter = createTRPCRouter({
         const startTime = Date.now();
 
         if (isStream) {
-          // Stream 模式：返回 SSE 流
-          return handleStreamRequest({
-            apiKeyInfo,
-            request,
-            provider,
-            requestId,
-            identifier,
-            startTime,
-            quotaCheck,
-            region,
-            clientIp,
-            estimatedTokens,
+          // Stream 模式：应该使用 /api/ai/chat/stream 端点
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Stream 模式请使用 /api/ai/chat/stream 端点',
           });
         } else {
           // Non-stream 模式：返回完整响应

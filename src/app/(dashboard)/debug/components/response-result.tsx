@@ -35,10 +35,12 @@ interface ResponseResultProps {
   response: ResponseData | null;
   error: string | null;
   isLoading: boolean;
+  streamContent?: string;
+  isStreaming?: boolean;
 }
 
 const ResponseResult: React.FC<ResponseResultProps> = (props) => {
-  const { response, error, isLoading } = props;
+  const { response, error, isLoading, streamContent, isStreaming } = props;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md">
@@ -177,7 +179,44 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
           </div>
         )}
 
-        {!response && !error && !isLoading && (
+        {/* Stream 模式显示 */}
+        {isStreaming && streamContent && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                <span className="relative flex h-2 w-2 mr-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                实时响应 (Stream)
+              </label>
+              <div className="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md">
+                <p className="text-gray-800 dark:text-white whitespace-pre-wrap font-mono text-sm">
+                  {streamContent}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Stream 完成后的提示 */}
+        {!isStreaming && streamContent && !response && (
+          <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+            <p className="text-sm text-green-800 dark:text-green-200 flex items-center">
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Stream 响应已完成
+            </p>
+          </div>
+        )}
+
+        {!response && !error && !isLoading && !streamContent && (
           <div className="text-center py-12">
             <svg
               className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600"

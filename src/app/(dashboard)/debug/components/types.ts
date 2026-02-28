@@ -8,6 +8,7 @@ export interface DebugRequestForm {
   }>;
   temperature: number;
   max_tokens: number;
+  stream: boolean;
 }
 
 export interface ResponseData {

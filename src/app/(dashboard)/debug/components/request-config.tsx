@@ -8,6 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import MessageInput from './message-input';
 import { ApiKey } from '@/types/api-key';
 import { Spinner } from '@/components/ui/spinner';
@@ -23,6 +25,7 @@ interface DebugRequestForm {
   }>;
   temperature: number;
   max_tokens: number;
+  stream: boolean;
 }
 
 interface SupportedModel {
@@ -282,6 +285,25 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
             }}
             className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
           />
+        </div>
+
+        {/* Stream 选项 */}
+        <div className="flex items-center space-x-3">
+          <Checkbox
+            id="stream-mode"
+            checked={form?.stream || false}
+            onCheckedChange={(checked) => {
+              if (!form) return;
+              setForm({ ...form, stream: checked === true });
+            }}
+          />
+          <Label
+            htmlFor="stream-mode"
+            className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer"
+          >
+            启用 Stream 模式
+          </Label>
+          <span className="text-xs text-gray-500 dark:text-gray-400">（实时返回响应内容）</span>
         </div>
 
         {/* 预设示例 */}
