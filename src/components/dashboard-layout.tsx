@@ -111,6 +111,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
   const pathname = usePathname();
   const [darkMode, setDarkMode] = React.useState(false);
 
+  const toggleTheme = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('theme', newDarkMode ? 'dark' : 'light');
+  };
+
   React.useEffect(() => {
     // 在初始化时读取主题设置并应用
     const savedTheme = localStorage.getItem('theme');
@@ -138,12 +144,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
-
-  const toggleTheme = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    localStorage.setItem('theme', newDarkMode ? 'dark' : 'light');
-  };
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
@@ -187,17 +187,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
             ))}
           </ul>
         </nav>
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center">
-            <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-sm">
-              Admin
-            </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-800 dark:text-white">管理员</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">admin@example.com</p>
-            </div>
-          </div>
-        </div>
       </aside>
 
       {/* Main Content */}

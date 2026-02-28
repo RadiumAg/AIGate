@@ -19,7 +19,7 @@ const ModelDistributionChart: React.FC<ModelDistributionChartProps> = (props) =>
   const { data, loading = false } = props;
   const chartRef = React.useRef<HTMLDivElement>(null);
 
-  const initChart = useMemoizedFn(() => {
+  const initChart = React.useEffectEvent(() => {
     if (!chartRef.current || !data || data.length === 0 || loading) return;
 
     const chart = echarts.init(chartRef.current);
@@ -99,7 +99,7 @@ const ModelDistributionChart: React.FC<ModelDistributionChartProps> = (props) =>
   React.useEffect(() => {
     const cleanup = initChart();
     return cleanup;
-  }, [initChart]);
+  }, [data]);
 
   if (loading) {
     return (
