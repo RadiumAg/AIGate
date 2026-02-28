@@ -2,7 +2,7 @@
 
 import React from 'react';
 import * as echarts from 'echarts';
-import { useMemoizedFn } from 'ahooks';
+import { Spinner } from '@/components/ui/spinner';
 
 interface ModelDistributionItem {
   name: string;
@@ -104,7 +104,7 @@ const ModelDistributionChart: React.FC<ModelDistributionChartProps> = (props) =>
   if (loading) {
     return (
       <div className="w-full h-64 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <Spinner className="h-8 w-8 text-indigo-600" />
       </div>
     );
   }

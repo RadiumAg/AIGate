@@ -8,6 +8,7 @@ import RegionHeatmapChart from '@/app/(dashboard)/components/region-heatmap-char
 import RecentIpRequests from '@/app/(dashboard)/components/recent-ip-requests';
 import StatCard from './components/stat-card';
 import RecentActivity from './components/recent-activity';
+import { Spinner } from '@/components/ui/spinner';
 
 const HomePage: React.FC = () => {
   // 获取仪表盘统计数据
@@ -165,7 +166,7 @@ const HomePage: React.FC = () => {
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">近期请求趋势</h2>
           {trendLoading ? (
             <div className="w-full h-64 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+              <Spinner className="h-8 w-8 text-indigo-600" />
             </div>
           ) : (
             <div className="w-full h-64">

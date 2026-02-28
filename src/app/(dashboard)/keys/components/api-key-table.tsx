@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { Copy, Loader2 } from 'lucide-react';
+import { Copy } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import type { ApiKey } from '@/types/api-key';
 import { DataTable } from '@/components/ui/data-table';
 
@@ -114,7 +115,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                 >
                   {isTesting ? (
                     <>
-                      <Loader2 className="animate-spin -ml-1 mr-1 h-3 w-3" />
+                      <Spinner className="-ml-1 mr-1 h-3 w-3" />
                       测试中
                     </>
                   ) : (
