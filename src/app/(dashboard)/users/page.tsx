@@ -13,7 +13,7 @@ interface WhitelistRule {
   priority: number;
   status: 'active' | 'inactive';
   createdAt: string;
-  description?: string;
+  description: string | null;
 }
 
 const UsersPage: React.FC = () => {
@@ -90,7 +90,7 @@ const UsersPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-text-dark">白名单规则管理</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-text-dark">用户策略管理</h1>
         <button
           onClick={handleAddRule}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -121,10 +121,10 @@ const UsersPage: React.FC = () => {
         onDelete={handleDeleteRule}
         onToggleStatus={handleToggleRuleStatus}
         isLoading={
-          createRuleMutation.isLoading ||
-          updateRuleMutation.isLoading ||
-          deleteRuleMutation.isLoading ||
-          toggleStatusMutation.isLoading
+          createRuleMutation.isPending ||
+          updateRuleMutation.isPending ||
+          deleteRuleMutation.isPending ||
+          toggleStatusMutation.isPending
         }
       />
     </div>

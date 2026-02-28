@@ -10,7 +10,7 @@ interface WhitelistRule {
   priority: number;
   status: 'active' | 'inactive';
   createdAt: string;
-  description?: string;
+  description: string | null;
 }
 
 interface WhitelistRuleFormProps {

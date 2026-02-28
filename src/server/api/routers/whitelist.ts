@@ -8,7 +8,7 @@ const WhitelistRuleSchema = z.object({
   id: z.string(),
   pattern: z.string(),
   policyName: z.string(),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   priority: z.number(),
   status: z.enum(['active', 'inactive']),
   createdAt: z.date(),
