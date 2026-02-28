@@ -15,10 +15,8 @@ interface ModelDistributionChartProps {
   loading?: boolean;
 }
 
-const ModelDistributionChart: React.FC<ModelDistributionChartProps> = ({
-  data,
-  loading = false,
-}) => {
+const ModelDistributionChart: React.FC<ModelDistributionChartProps> = (props) => {
+  const { data, loading = false } = props;
   const chartRef = React.useRef<HTMLDivElement>(null);
 
   const initChart = useMemoizedFn(() => {

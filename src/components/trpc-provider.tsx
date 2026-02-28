@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, ReactNode, useMemo } from 'react';
+import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink, loggerLink } from '@trpc/client';
 import { createTRPCReact } from '@trpc/react-query';
@@ -8,7 +8,7 @@ import superjson from 'superjson';
 import type { AppRouter } from '@/server/api/root';
 
 interface TRPCProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 const trpc = createTRPCReact<AppRouter>();
@@ -19,10 +19,10 @@ const getBaseUrl = () => {
   return `http://localhost:3000`; // dev SSR should use localhost
 };
 
-const TRPCProvider: FC<TRPCProviderProps> = (props) => {
+const TRPCProvider: React.FC<TRPCProviderProps> = (props) => {
   const { children } = props;
 
-  const queryClient = useMemo(
+  const queryClient = React.useMemo(
     () =>
       new QueryClient({
         defaultOptions: {
@@ -35,7 +35,7 @@ const TRPCProvider: FC<TRPCProviderProps> = (props) => {
     []
   );
 
-  const trpcClient = useMemo(
+  const trpcClient = React.useMemo(
     () =>
       trpc.createClient({
         transformer: superjson,

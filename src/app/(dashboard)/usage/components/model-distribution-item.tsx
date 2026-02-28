@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import React from 'react';
 
 interface ModelDistributionItemProps {
   model: string;
@@ -8,7 +8,7 @@ interface ModelDistributionItemProps {
   color: string;
 }
 
-const ModelDistributionItem: FC<ModelDistributionItemProps> = (props) => {
+const ModelDistributionItem: React.FC<ModelDistributionItemProps> = (props) => {
   const { model, percentage, color } = props;
 
   const getColorClass = () => {

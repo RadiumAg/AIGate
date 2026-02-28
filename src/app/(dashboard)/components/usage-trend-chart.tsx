@@ -12,7 +12,8 @@ interface UsageTrendChartProps {
   loading: boolean;
 }
 
-const UsageTrendChart: React.FC<UsageTrendChartProps> = ({ data, loading }) => {
+const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
+  const { data, loading } = props;
   const chartRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {

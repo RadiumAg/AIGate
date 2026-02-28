@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FC } from 'react';
+import React from 'react';
 
 interface StatCardProps {
   title: string;
@@ -11,7 +11,7 @@ interface StatCardProps {
   isLoading?: boolean;
 }
 
-const StatCard: FC<StatCardProps> = (props) => {
+const StatCard: React.FC<StatCardProps> = (props) => {
   const { title, value, change, changeType, icon, isLoading = false } = props;
 
   const getChangeColor = () => {

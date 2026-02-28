@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useMemo } from 'react';
+import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/ui/data-table';
 
@@ -22,10 +22,10 @@ interface PolicyTableProps {
   isLoading?: boolean;
 }
 
-const PolicyTable: FC<PolicyTableProps> = (props) => {
+const PolicyTable: React.FC<PolicyTableProps> = (props) => {
   const { policies, onEdit, onDelete, isLoading = false } = props;
 
-  const columns: ColumnDef<QuotaPolicy>[] = useMemo(
+  const columns: ColumnDef<QuotaPolicy>[] = React.useMemo(
     () => [
       {
         accessorKey: 'name',

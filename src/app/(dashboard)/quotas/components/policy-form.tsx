@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FC, useState } from 'react';
+import React from 'react';
 
 interface QuotaPolicy {
   id: string;
@@ -19,9 +19,9 @@ interface PolicyFormProps {
   onCancel: () => void;
 }
 
-const PolicyForm: FC<PolicyFormProps> = (props) => {
+const PolicyForm: React.FC<PolicyFormProps> = (props) => {
   const { policy, onSave, onCancel } = props;
-  const [formData, setFormData] = useState<
+  const [formData, setFormData] = React.useState<
     Omit<QuotaPolicy, 'id' | 'createdAt' | 'updatedAt'>
   >(
     policy

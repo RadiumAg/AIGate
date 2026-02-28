@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import React from 'react';
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -10,7 +10,7 @@ interface DeleteConfirmModalProps {
   isDeleting: boolean;
 }
 
-const DeleteConfirmModal: FC<DeleteConfirmModalProps> = (props) => {
+const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = (props) => {
   const { isOpen, keyName, onConfirm, onCancel, isDeleting } = props;
 
   if (!isOpen) return null;

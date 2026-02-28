@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FC } from 'react';
+import React from 'react';
 import { trpc } from '@/components/trpc-provider';
 import type { ActivityItem as ActivityItemType } from '@/types/dashboard';
 import UsageTrendChart from '@/app/(dashboard)/components/usage-trend-chart';
@@ -8,7 +8,7 @@ import ModelDistributionChart from '@/app/(dashboard)/components/model-distribut
 import StatCard from './components/stat-card';
 import ActivityItem from './components/activity-item';
 
-const HomePage: FC = () => {
+const HomePage: React.FC = () => {
   // 获取仪表盘统计数据
   const { data: stats, isLoading: statsLoading } = trpc.dashboard.getStats.useQuery();
 

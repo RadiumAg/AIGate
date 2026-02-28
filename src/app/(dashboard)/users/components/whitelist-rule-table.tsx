@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import React from 'react';
 
 interface WhitelistRule {
   id: string;
@@ -20,7 +20,7 @@ interface WhitelistRuleTableProps {
   isLoading?: boolean;
 }
 
-const WhitelistRuleTable: FC<WhitelistRuleTableProps> = (props) => {
+const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
   const { rules, onEdit, onDelete, onToggleStatus, isLoading = false } = props;
 
   const sortedRules = [...rules].sort((a, b) => b.priority - a.priority);

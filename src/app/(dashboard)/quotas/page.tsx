@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FC } from 'react';
+import React from 'react';
 import { trpc } from '@/components/trpc-provider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import PolicyForm from './components/policy-form';
@@ -17,7 +17,7 @@ interface QuotaPolicy {
   updatedAt?: Date;
 }
 
-const QuotasPage: FC = () => {
+const QuotasPage: React.FC = () => {
   // 获取配额策略数据
   console.log('trpc', trpc);
   const { data: policies = [], refetch: refetchPolicies } = trpc.quota.getAllPolicies.useQuery();

@@ -1,10 +1,10 @@
 'use client';
-import { ReactNode, useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 interface DashboardLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 const navigation = [
@@ -106,11 +106,12 @@ const navigation = [
   },
 ];
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
+  const { children } = props;
   const pathname = usePathname();
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // 在初始化时读取主题设置并应用
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -129,7 +130,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     }, 0);
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // 响应 darkMode 状态变化
     if (darkMode) {
       document.documentElement.classList.add('dark');

@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import React from 'react';
 
 interface QuotaOverviewItemProps {
   label: string;
@@ -9,7 +9,7 @@ interface QuotaOverviewItemProps {
   percentage: number;
 }
 
-const QuotaOverviewItem: FC<QuotaOverviewItemProps> = (props) => {
+const QuotaOverviewItem: React.FC<QuotaOverviewItemProps> = (props) => {
   const { label, value, limit, percentage } = props;
 
   return (

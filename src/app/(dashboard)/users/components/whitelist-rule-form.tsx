@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useState } from 'react';
+import React from 'react';
 import { trpc } from '@/components/trpc-provider';
 
 interface WhitelistRule {
@@ -19,12 +19,12 @@ interface WhitelistRuleFormProps {
   onCancel: () => void;
 }
 
-const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
+const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
   const { ruleData, onSave, onCancel } = props;
 
   const { data: policies = [] } = trpc.quota.getAllPolicies.useQuery();
 
-  const [formData, setFormData] = useState<Omit<WhitelistRule, 'id' | 'createdAt'>>({
+  const [formData, setFormData] = React.useState<Omit<WhitelistRule, 'id' | 'createdAt'>>({
     pattern: ruleData?.pattern || '',
     policyName: ruleData?.policyName || policies[0]?.name || '默认策略',
     description: ruleData?.description || '',

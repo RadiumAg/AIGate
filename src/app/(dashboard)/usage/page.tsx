@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React from 'react';
 import UsageChart from './components/UsageChart';
 import UserList from './components/UserList';
 import ModelDistributionItem from './components/ModelDistributionItem';
@@ -22,7 +22,7 @@ interface UserData {
 }
 
 export default function UsagePage() {
-  const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month'>('week');
+  const [timeRange, setTimeRange] = React.useState<'day' | 'week' | 'month'>('week');
 
   // Mock data for usage chart
   const usageData: UsageDataPoint[] = [

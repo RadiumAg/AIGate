@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import React from 'react';
 
 interface UserData {
   id: string;
@@ -15,7 +15,7 @@ interface UserListProps {
   users: UserData[];
 }
 
-const UserList: FC<UserListProps> = (props) => {
+const UserList: React.FC<UserListProps> = (props) => {
   const { users } = props;
 
   const formatNumber = (num: number): string => {

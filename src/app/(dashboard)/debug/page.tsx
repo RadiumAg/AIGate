@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import React from 'react';
 import { nanoid } from 'nanoid';
 import { useLocalStorageState } from 'ahooks';
 import { trpc } from '@/components/trpc-provider';
@@ -9,7 +9,7 @@ import ResponseResult from './components/response-result';
 import CodeModal from './components/code-modal';
 import { DebugRequestForm, ResponseData } from './components/types';
 
-const DebugPage: FC = () => {
+const DebugPage: React.FC = () => {
   // 获取支持的模型列表
   const { data: supportedModels } = trpc.ai.getSupportedModels.useQuery();
 

@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React from 'react';
 
 interface QuotaPolicy {
   id: string;
@@ -14,7 +14,7 @@ interface QuotaCardProps {
   onDelete: (id: string) => void;
 }
 
-const QuotaCard: FC<QuotaCardProps> = (props) => {
+const QuotaCard: React.FC<QuotaCardProps> = (props) => {
   const { policy, onEdit, onDelete } = props;
 
   const formatNumber = (num: number): string => {

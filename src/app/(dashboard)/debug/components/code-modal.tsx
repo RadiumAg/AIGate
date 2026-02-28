@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface CodeModalProps {
@@ -10,7 +10,7 @@ interface CodeModalProps {
   onCopyToClipboard: (text: string) => void;
 }
 
-const CodeModal: FC<CodeModalProps> = (props) => {
+const CodeModal: React.FC<CodeModalProps> = (props) => {
   const { isOpen, generatedCode, onClose, onCopyToClipboard } = props;
 
   return (

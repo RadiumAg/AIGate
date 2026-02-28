@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import React from 'react';
 
 interface UsageDataPoint {
   date: string;
@@ -13,7 +13,7 @@ interface UsageChartProps {
   timeRange: 'day' | 'week' | 'month';
 }
 
-const UsageChart: FC<UsageChartProps> = (props) => {
+const UsageChart: React.FC<UsageChartProps> = (props) => {
   const { data, timeRange } = props;
 
   const formatDate = (dateString: string): string => {

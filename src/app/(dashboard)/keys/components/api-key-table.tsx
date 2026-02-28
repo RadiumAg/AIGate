@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useMemo } from 'react';
+import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Copy, Loader2 } from 'lucide-react';
 import type { ApiKey } from '@/types/api-key';
@@ -15,14 +15,14 @@ interface ApiKeyTableProps {
   isTestingId?: string | null;
 }
 
-const ApiKeyTable: FC<ApiKeyTableProps> = (props) => {
+const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
   const { keys, onEdit, onDelete, onToggleStatus, onTest, isTestingId } = props;
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
 
-  const columns: ColumnDef<ApiKey>[] = useMemo(
+  const columns: ColumnDef<ApiKey>[] = React.useMemo(
     () => [
       {
         accessorKey: 'name',

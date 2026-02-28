@@ -1,13 +1,13 @@
 'use client';
 
-import React, { FC, useState } from 'react';
+import React from 'react';
 import ApiKeyTable from '@/app/(dashboard)/keys/components/api-key-table';
 import AddApiKeyDialog from '@/components/add-api-key-dialog';
 import { trpc } from '@/components/trpc-provider';
 import type { ApiKey, ApiKeyFormData } from '@/types/api-key';
 import DeleteConfirmModal from './components/delete-confirm-modal';
 
-const KeysPage: FC = () => {
+const KeysPage: React.FC = () => {
   // tRPC hooks
   const { data: keys = [], isLoading, refetch } = trpc.apiKey.getAll.useQuery();
   const createMutation = trpc.apiKey.create.useMutation();
@@ -17,9 +17,9 @@ const KeysPage: FC = () => {
   const testKeyMutation = trpc.apiKey.testKey.useMutation();
 
   // 状态管理
-  const [showDialog, setShowDialog] = useState(false);
-  const [editingKey, setEditingKey] = useState<ApiKey | null>(null);
-  const [deleteModal, setDeleteModal] = useState<{
+  const [showDialog, setShowDialog] = React.useState(false);
+  const [editingKey, setEditingKey] = React.useState<ApiKey | null>(null);
+  const [deleteModal, setDeleteModal] = React.useState<{
     isOpen: boolean;
     keyId: string;
     keyName: string;
@@ -28,8 +28,8 @@ const KeysPage: FC = () => {
     keyId: '',
     keyName: '',
   });
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
 
   // 清除消息
   const clearMessages = () => {

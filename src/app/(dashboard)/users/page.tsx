@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { FC } from 'react';
+import React from 'react';
 import { trpc } from '@/components/trpc-provider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import WhitelistRuleForm from './components/whitelist-rule-form';
@@ -17,7 +16,7 @@ interface WhitelistRule {
   description?: string;
 }
 
-const UsersPage: FC = () => {
+const UsersPage: React.FC = () => {
   // 获取白名单规则数据
   const { data: whitelistRules = [], refetch: refetchRules } = trpc.whitelist.getAll.useQuery();
 
@@ -53,8 +52,8 @@ const UsersPage: FC = () => {
     },
   });
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingRule, setEditingRule] = useState<WhitelistRule | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [editingRule, setEditingRule] = React.useState<WhitelistRule | null>(null);
 
   // 白名单管理函数
   const handleAddRule = () => {
