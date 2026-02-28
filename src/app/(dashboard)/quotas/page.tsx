@@ -6,6 +6,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import PolicyForm from './components/policy-form';
 import PolicyTable from './components/policy-table';
 
+type IdentifyBy = 'ip' | 'origin' | 'email' | 'userId';
+
 interface QuotaPolicy {
   id: string;
   name: string;
@@ -13,6 +15,9 @@ interface QuotaPolicy {
   dailyTokenLimit: number;
   monthlyTokenLimit: number;
   rpmLimit: number;
+  identifyBy: IdentifyBy;
+  validationPattern?: string;
+  validationEnabled: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -72,11 +77,15 @@ const QuotasPage: React.FC = () => {
         ...policy,
         id: editingPolicy.id,
         description: policy.description || undefined,
+        validationPattern: policy.validationPattern || undefined,
+        validationEnabled: policy.validationEnabled ?? false,
       });
     } else {
       createPolicyMutation.mutate({
         ...policy,
         description: policy.description || undefined,
+        validationPattern: policy.validationPattern || undefined,
+        validationEnabled: policy.validationEnabled ?? false,
       });
     }
   };
@@ -113,6 +122,9 @@ const QuotasPage: React.FC = () => {
         policies={policies.map((policy) => ({
           ...policy,
           description: policy.description || undefined,
+          identifyBy: (policy.identifyBy as IdentifyBy) || 'email',
+          validationPattern: policy.validationPattern ?? undefined,
+          validationEnabled: Boolean(policy.validationEnabled),
         }))}
         onEdit={handleEditPolicy}
         onDelete={handleDeletePolicy}

@@ -1,15 +1,10 @@
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
-import { QuotaPolicySchema } from '../../../lib/types';
-import {
-  getUserQuotaPolicy,
-  getUserDailyUsage,
-  resetUserQuota,
-  checkUserQuota,
-} from '../../../lib/quota';
-import { redis, RedisKeys } from '../../../lib/redis';
-import { quotaPolicyDb } from '../../../lib/database';
+import { QuotaPolicySchema } from '@/lib/types';
+import { getUserQuotaPolicy, getUserDailyUsage, resetUserQuota, checkUserQuota } from '@/lib/quota';
+import { redis, RedisKeys } from '@/lib/redis';
+import { quotaPolicyDb } from '@/lib/database';
 
 export const quotaRouter = createTRPCRouter({
   // 获取用户配额策略
@@ -127,11 +122,18 @@ export const quotaRouter = createTRPCRouter({
         dailyTokenLimit: z.number(),
         monthlyTokenLimit: z.number(),
         rpmLimit: z.number().default(60),
+        identifyBy: z.enum(['ip', 'origin', 'email', 'userId']).default('email'),
+        validationPattern: z.string().optional(),
+        validationEnabled: z.boolean().default(false),
       })
     )
     .mutation(async ({ input }) => {
       try {
-        return await quotaPolicyDb.create(input);
+        const { validationEnabled, ...rest } = input;
+        return await quotaPolicyDb.create({
+          ...rest,
+          validationEnabled: validationEnabled ? 1 : 0,
+        });
       } catch (error) {
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
@@ -151,12 +153,18 @@ export const quotaRouter = createTRPCRouter({
         dailyTokenLimit: z.number(),
         monthlyTokenLimit: z.number(),
         rpmLimit: z.number().default(60),
+        identifyBy: z.enum(['ip', 'origin', 'email', 'userId']).default('email'),
+        validationPattern: z.string().optional(),
+        validationEnabled: z.boolean().default(false),
       })
     )
     .mutation(async ({ input }) => {
       try {
-        const { id, ...updates } = input;
-        const policy = await quotaPolicyDb.update(id, updates);
+        const { id, validationEnabled, ...rest } = input;
+        const policy = await quotaPolicyDb.update(id, {
+          ...rest,
+          validationEnabled: validationEnabled ? 1 : 0,
+        });
         if (!policy) {
           throw new TRPCError({
             code: 'NOT_FOUND',

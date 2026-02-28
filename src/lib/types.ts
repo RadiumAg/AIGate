@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+// 用户标识方式枚举
+export const IdentifyByEnum = z.enum(['ip', 'origin', 'email', 'userId']);
+export type IdentifyBy = z.infer<typeof IdentifyByEnum>;
+
 // 配额策略类型
 export const QuotaPolicySchema = z.object({
   id: z.string(),
@@ -8,6 +12,9 @@ export const QuotaPolicySchema = z.object({
   dailyTokenLimit: z.number(),
   monthlyTokenLimit: z.number(),
   rpmLimit: z.number().default(60),
+  identifyBy: IdentifyByEnum.default('email'),
+  validationPattern: z.string().optional(),
+  validationEnabled: z.boolean().default(false),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
 });

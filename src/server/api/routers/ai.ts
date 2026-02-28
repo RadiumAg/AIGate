@@ -1,14 +1,14 @@
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
-import { ChatCompletionRequestSchema, UsageRecord } from '../../../lib/types';
-import { checkQuota, recordUsage } from '../../../lib/quota';
+import { ChatCompletionRequestSchema, UsageRecord, IdentifyBy } from '@/lib/types';
+import { checkQuota, recordUsage, extractIdentifier } from '@/lib/quota';
 import {
   getProviderByModel,
   getApiKeyWithBaseUrl,
   providers,
   type AIProvider,
-} from '../../../lib/ai-providers';
+} from '@/lib/ai-providers';
 import { v4 as uuidv4 } from 'uuid';
 
 export const aiRouter = createTRPCRouter({
@@ -17,21 +17,22 @@ export const aiRouter = createTRPCRouter({
     .input(
       z.object({
         email: z.string().email().optional(),
-        userId: z.string().optional(), // 保持向后兼容
-        apiKeyId: z.string().optional(), // API Key ID，用于确定 provider
+        userId: z.string().optional(),
+        ip: z.string().optional(),
+        origin: z.string().optional(),
+        apiKeyId: z.string().optional(),
         request: ChatCompletionRequestSchema,
       })
     )
     .mutation(async ({ input }) => {
-      const { email, userId, apiKeyId, request } = input;
+      const { email, userId, ip, origin, apiKeyId, request } = input;
       const requestId = uuidv4();
 
-      // 使用 email 或 userId 作为标识符
-      const identifier = email || userId;
-      if (!identifier) {
+      // 至少需要一种标识信息
+      if (!email && !userId && !ip && !origin) {
         throw new TRPCError({
           code: 'BAD_REQUEST',
-          message: '必须提供 email 或 userId',
+          message: '必须提供 email、userId、ip 或 origin 中的至少一个',
         });
       }
 
@@ -94,8 +95,8 @@ export const aiRouter = createTRPCRouter({
         // 4. 估算 Token 消耗
         const estimatedTokens = provider.estimateTokens(request);
 
-        // 5. 检查配额
-        const requestInfo = email ? { email } : { email: identifier };
+        // 5. 检查配额（传入所有标识信息，由策略的 identifyBy 决定使用哪个）
+        const requestInfo = { email, userId, ip, origin };
         const quotaCheck = await checkQuota(requestInfo, estimatedTokens);
         if (!quotaCheck.allowed) {
           throw new TRPCError({
@@ -103,6 +104,11 @@ export const aiRouter = createTRPCRouter({
             message: quotaCheck.reason || '配额已用完',
           });
         }
+
+        // 根据策略的 identifyBy 提取实际使用的标识符
+        const policyIdentifyBy: IdentifyBy = (quotaCheck.policy?.identifyBy ||
+          'email') as IdentifyBy;
+        const identifier = extractIdentifier(requestInfo, policyIdentifyBy);
 
         // 6. 调用 AI 服务（使用 API Key 中的 baseUrl）
         const startTime = Date.now();

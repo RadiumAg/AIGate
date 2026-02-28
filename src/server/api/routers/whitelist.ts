@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
-import { whitelistRuleDb } from '../../../lib/database';
+import { whitelistRuleDb } from '@/lib/database';
 
 // 白名单规则 Schema
 const WhitelistRuleSchema = z.object({
