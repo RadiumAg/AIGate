@@ -199,20 +199,32 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
           </div>
         )}
 
-        {/* Stream 完成后的提示 */}
+        {/* Stream 完成后的显示 */}
         {!isStreaming && streamContent && !response && (
-          <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-            <p className="text-sm text-green-800 dark:text-green-200 flex items-center">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Stream 响应已完成
-            </p>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                AI 回复 (Stream)
+              </label>
+              <div className="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md">
+                <p className="text-gray-800 dark:text-white whitespace-pre-wrap font-mono text-sm">
+                  {streamContent}
+                </p>
+              </div>
+            </div>
+            <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+              <p className="text-sm text-green-800 dark:text-green-200 flex items-center">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Stream 响应已完成
+              </p>
+            </div>
           </div>
         )}
 

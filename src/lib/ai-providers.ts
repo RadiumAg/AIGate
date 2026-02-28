@@ -165,6 +165,116 @@ const anthropicProvider: AIProvider = {
       throw error;
     }
   },
+  makeStreamRequest: async (
+    apiKey: string,
+    request: ChatCompletionRequest,
+    baseUrl?: string
+  ): Promise<ReadableStream> => {
+    const apiUrl = baseUrl || 'https://api.anthropic.com';
+
+    const response = await fetch(`${apiUrl}/v1/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: request.model,
+        max_tokens: request.max_tokens || 1000,
+        messages: request.messages,
+        stream: true,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Anthropic API error: ${response.status} ${response.statusText}`);
+    }
+
+    // 将 Anthropic SSE 流转换为 OpenAI 格式
+    return new ReadableStream({
+      async start(controller) {
+        const reader = response.body?.getReader();
+        if (!reader) {
+          controller.error(new Error('No response body'));
+          return;
+        }
+
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6).trim();
+                if (data === '[DONE]') {
+                  controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
+                  continue;
+                }
+
+                try {
+                  const parsed = JSON.parse(data);
+                  // 转换 Anthropic 格式到 OpenAI 格式
+                  if (parsed.type === 'content_block_delta') {
+                    const chunk = {
+                      id: parsed.id || `chatcmpl-${Date.now()}`,
+                      object: 'chat.completion.chunk',
+                      created: Math.floor(Date.now() / 1000),
+                      model: request.model,
+                      choices: [
+                        {
+                          index: 0,
+                          delta: {
+                            content: parsed.delta?.text || '',
+                          },
+                          finish_reason: null,
+                        },
+                      ],
+                    };
+                    controller.enqueue(
+                      new TextEncoder().encode(`data: ${JSON.stringify(chunk)}\n\n`)
+                    );
+                  } else if (parsed.type === 'message_stop') {
+                    const chunk = {
+                      id: `chatcmpl-${Date.now()}`,
+                      object: 'chat.completion.chunk',
+                      created: Math.floor(Date.now() / 1000),
+                      model: request.model,
+                      choices: [
+                        {
+                          index: 0,
+                          delta: {},
+                          finish_reason: 'stop',
+                        },
+                      ],
+                    };
+                    controller.enqueue(
+                      new TextEncoder().encode(`data: ${JSON.stringify(chunk)}\n\n`)
+                    );
+                  }
+                } catch {
+                  // 忽略解析错误
+                }
+              }
+            }
+          }
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        } finally {
+          reader.releaseLock();
+        }
+      },
+    });
+  },
   estimateTokens: (request: ChatCompletionRequest) => {
     const text = request.messages.map((m: ChatMessage) => m.content).join(' ');
     return estimateTokens(text);
@@ -244,6 +354,111 @@ const googleProvider: AIProvider = {
       console.error('Google AI API error:', error);
       throw error;
     }
+  },
+  makeStreamRequest: async (
+    apiKey: string,
+    request: ChatCompletionRequest,
+    baseUrl?: string
+  ): Promise<ReadableStream> => {
+    const apiUrl = baseUrl || 'https://generativelanguage.googleapis.com';
+    const prompt = request.messages
+      .map((msg: ChatMessage) => `${msg.role}: ${msg.content}`)
+      .join('\n');
+
+    const response = await fetch(
+      `${apiUrl}/v1beta/models/${request.model}:streamGenerateContent?key=${apiKey}&alt=sse`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt,
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: request.temperature || 0.7,
+            maxOutputTokens: request.max_tokens || 1000,
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Google API error: ${response.status} ${response.statusText}`);
+    }
+
+    // 将 Google SSE 流转换为 OpenAI 格式
+    return new ReadableStream({
+      async start(controller) {
+        const reader = response.body?.getReader();
+        if (!reader) {
+          controller.error(new Error('No response body'));
+          return;
+        }
+
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6).trim();
+                if (data === '[DONE]') {
+                  controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
+                  continue;
+                }
+
+                try {
+                  const parsed = JSON.parse(data);
+                  // 转换 Google 格式到 OpenAI 格式
+                  const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                  if (text) {
+                    const chunk = {
+                      id: `chatcmpl-${Date.now()}`,
+                      object: 'chat.completion.chunk',
+                      created: Math.floor(Date.now() / 1000),
+                      model: request.model,
+                      choices: [
+                        {
+                          index: 0,
+                          delta: {
+                            content: text,
+                          },
+                          finish_reason: parsed.candidates?.[0]?.finishReason ? 'stop' : null,
+                        },
+                      ],
+                    };
+                    controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(chunk)}\n\n`));
+                  }
+                } catch {
+                  // 忽略解析错误
+                }
+              }
+            }
+          }
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        } finally {
+          reader.releaseLock();
+        }
+      },
+    });
   },
   estimateTokens: (request: ChatCompletionRequest) => {
     const text = request.messages.map((m: ChatMessage) => m.content).join(' ');
