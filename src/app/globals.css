@@ -3,26 +3,51 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --card: #ffffff;
-  --card-foreground: #171717;
-  --popover: #ffffff;
-  --popover-foreground: #171717;
-  --primary: #4f46e5;
+  /* Liquid Glass - Light Mode */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+
+  /* Glass Card Colors */
+  --card: rgba(255, 255, 255, 0.7);
+  --card-foreground: #0f172a;
+  --card-border: rgba(255, 255, 255, 0.5);
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+
+  /* Glass Popover/Dialog */
+  --popover: rgba(255, 255, 255, 0.85);
+  --popover-foreground: #0f172a;
+  --popover-border: rgba(255, 255, 255, 0.6);
+
+  /* Primary - Indigo with glass effect */
+  --primary: #6366f1;
   --primary-foreground: #ffffff;
-  --secondary: #f3f4f6;
-  --secondary-foreground: #171717;
-  --muted: #f3f4f6;
-  --muted-foreground: #6b7280;
-  --accent: #f3f4f6;
-  --accent-foreground: #171717;
+  --primary-glass: rgba(99, 102, 241, 0.15);
+
+  /* Secondary */
+  --secondary: rgba(241, 245, 249, 0.6);
+  --secondary-foreground: #1e293b;
+
+  /* Muted */
+  --muted: rgba(241, 245, 249, 0.5);
+  --muted-foreground: #64748b;
+
+  /* Accent */
+  --accent: rgba(99, 102, 241, 0.1);
+  --accent-foreground: #4f46e5;
+
+  /* Destructive */
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e5e7eb;
-  --input: #e5e7eb;
-  --ring: #4f46e5;
-  --radius: 0.5rem;
+
+  /* Borders - Subtle for glass effect */
+  --border: rgba(203, 213, 225, 0.4);
+  --input: rgba(203, 213, 225, 0.4);
+  --ring: #6366f1;
+  --radius: 0.75rem;
+
+  /* Glass specific */
+  --glass-blur: blur(20px);
+  --glass-saturation: saturate(180%);
 }
 
 @theme inline {
@@ -50,25 +75,46 @@
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --card: #0a0a0a;
-  --card-foreground: #ededed;
-  --popover: #0a0a0a;
-  --popover-foreground: #ededed;
-  --primary: #6366f1;
-  --primary-foreground: #ffffff;
-  --secondary: #1f2937;
-  --secondary-foreground: #ededed;
-  --muted: #1f2937;
-  --muted-foreground: #9ca3af;
-  --accent: #1f2937;
-  --accent-foreground: #ededed;
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-  --border: #374151;
-  --input: #374151;
-  --ring: #6366f1;
+  /* Liquid Glass - Dark Mode */
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+
+  /* Glass Card Colors - Dark */
+  --card: rgba(30, 41, 59, 0.6);
+  --card-foreground: #f1f5f9;
+  --card-border: rgba(255, 255, 255, 0.1);
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+  /* Glass Popover/Dialog - Dark */
+  --popover: rgba(30, 41, 59, 0.85);
+  --popover-foreground: #f1f5f9;
+  --popover-border: rgba(255, 255, 255, 0.15);
+
+  /* Primary - Indigo with glass effect */
+  --primary: #818cf8;
+  --primary-foreground: #0f172a;
+  --primary-glass: rgba(129, 140, 248, 0.2);
+
+  /* Secondary - Dark */
+  --secondary: rgba(51, 65, 85, 0.5);
+  --secondary-foreground: #e2e8f0;
+
+  /* Muted - Dark */
+  --muted: rgba(51, 65, 85, 0.4);
+  --muted-foreground: #94a3b8;
+
+  /* Accent - Dark */
+  --accent: rgba(129, 140, 248, 0.15);
+  --accent-foreground: #818cf8;
+
+  /* Destructive - Dark */
+  --destructive: #f87171;
+  --destructive-foreground: #0f172a;
+
+  /* Borders - Dark */
+  --border: rgba(71, 85, 105, 0.5);
+  --input: rgba(71, 85, 105, 0.5);
+  --ring: #818cf8;
 }
 
 body {

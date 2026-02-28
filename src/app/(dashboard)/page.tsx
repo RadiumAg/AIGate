@@ -162,8 +162,8 @@ const HomePage: React.FC = () => {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">近期请求趋势</h2>
+        <div className="rounded-2xl p-6 backdrop-blur-md bg-[var(--card)] border border-[var(--card-border)] shadow-[var(--card-shadow)]">
+          <h2 className="text-lg font-semibold text-[var(--foreground)] mb-4">近期请求趋势</h2>
           {trendLoading ? (
             <div className="w-full h-64 flex items-center justify-center">
               <Spinner className="h-8 w-8 text-indigo-600" />
@@ -175,29 +175,27 @@ const HomePage: React.FC = () => {
           )}
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">模型使用分布</h2>
+        <div className="rounded-2xl p-6 backdrop-blur-md bg-[var(--card)] border border-[var(--card-border)] shadow-[var(--card-shadow)]">
+          <h2 className="text-lg font-semibold text-[var(--foreground)] mb-4">模型使用分布</h2>
           <ModelDistributionChart data={modelDistribution || []} loading={distributionLoading} />
         </div>
       </div>
 
       {/* Region Heatmap */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">请求地区分布</h2>
+      <div className="rounded-2xl p-6 backdrop-blur-md bg-[var(--card)] border border-[var(--card-border)] shadow-[var(--card-shadow)]">
+        <h2 className="text-lg font-semibold text-[var(--foreground)] mb-4">请求地区分布</h2>
         <RegionHeatmapChart data={regionDistribution || []} loading={regionLoading} />
       </div>
 
       {/* Recent IP Requests */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-          最近 IP 请求记录
-        </h2>
+      <div className="rounded-2xl p-6 backdrop-blur-md bg-[var(--card)] border border-[var(--card-border)] shadow-[var(--card-shadow)]">
+        <h2 className="text-lg font-semibold text-[var(--foreground)] mb-4">最近 IP 请求记录</h2>
         <RecentIpRequests data={recentIpRequests || []} loading={ipRequestsLoading} />
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">最近活动</h2>
+      <div className="rounded-2xl p-6 backdrop-blur-md bg-[var(--card)] border border-[var(--card-border)] shadow-[var(--card-shadow)]">
+        <h2 className="text-lg font-semibold text-[var(--foreground)] mb-4">最近活动</h2>
         <RecentActivity activities={activities || []} isLoading={activitiesLoading} />
       </div>
     </div>

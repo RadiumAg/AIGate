@@ -132,11 +132,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
   }, [darkMode]);
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-gray-800 shadow-md flex flex-col">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <h1 className="text-xl font-bold text-indigo-600 dark:text-indigo-400 flex items-center">
+    <div className="flex h-screen bg-[var(--background)]">
+      {/* Sidebar - Liquid Glass */}
+      <aside className="w-64 flex flex-col backdrop-blur-xl bg-[var(--card)]/80 border-r border-[var(--border)]">
+        <div className="p-4 border-b border-[var(--border)]">
+          <h1 className="text-xl font-bold text-[var(--primary)] flex items-center drop-shadow-sm">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6 mr-2"
@@ -160,10 +160,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
               <li key={item.name}>
                 <Link
                   href={item.href}
-                  className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                  className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${
                     pathname === item.href
-                      ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-100'
-                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                      ? 'bg-[var(--primary-glass)] text-[var(--primary)] backdrop-blur-sm shadow-sm'
+                      : 'text-[var(--foreground)]/70 hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
                   }`}
                 >
                   <span className="mr-3">{item.icon}</span>
@@ -177,15 +177,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
-        <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10">
+        {/* Header - Liquid Glass */}
+        <header className="sticky top-0 z-10 backdrop-blur-xl bg-[var(--card)]/70 border-b border-[var(--border)]">
           <div className="flex justify-between items-center p-4">
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+            <h2 className="text-lg font-semibold text-[var(--foreground)]">
               {navigation.find((item) => item.href === pathname)?.name || '仪表板'}
             </h2>
             <div className="flex items-center space-x-4">
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
+                className="p-2 rounded-xl hover:bg-[var(--muted)] text-[var(--muted-foreground)] transition-all duration-200 backdrop-blur-sm"
                 title={darkMode ? '切换到浅色模式' : '切换到深色模式'}
               >
                 {darkMode ? (
@@ -212,7 +213,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
                   </svg>
                 )}
               </button>
-              <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+              <button className="p-2 rounded-xl hover:bg-[var(--muted)] text-[var(--muted-foreground)] transition-all duration-200 backdrop-blur-sm">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5"
@@ -224,7 +225,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
               </button>
               <div className="relative">
                 <button className="flex items-center text-sm focus:outline-none">
-                  <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--primary)] to-violet-500 flex items-center justify-center text-white shadow-lg">
                     A
                   </div>
                 </button>
