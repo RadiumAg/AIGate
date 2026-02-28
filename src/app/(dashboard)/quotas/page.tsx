@@ -1,10 +1,6 @@
-'use client';
-
-import { useState } from 'react';
-import { FC } from 'react';
-import { trpc } from '@/components/TRPCProvider';
+import React from 'react';
+import { trpc } from '@/components/trpc-provider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-
 interface QuotaPolicy {
   id: string;
   name: string;
@@ -16,7 +12,7 @@ interface QuotaPolicy {
   updatedAt?: Date;
 }
 
-const QuotasPage: FC = () => {
+const QuotasPage: React.FC = () => {
   // 获取配额策略数据
   const { data: policies = [], refetch: refetchPolicies } = trpc.quota.getAllPolicies.useQuery();
 
@@ -45,8 +41,8 @@ const QuotasPage: FC = () => {
     },
   });
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingPolicy, setEditingPolicy] = useState<QuotaPolicy | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [editingPolicy, setEditingPolicy] = React.useState<QuotaPolicy | null>(null);
 
   const handleAddPolicy = () => {
     setEditingPolicy(null);
@@ -132,9 +128,11 @@ interface PolicyFormProps {
   onCancel: () => void;
 }
 
-const PolicyForm: FC<PolicyFormProps> = (props) => {
+const PolicyForm: React.FC<PolicyFormProps> = (props) => {
   const { policy, onSave, onCancel } = props;
-  const [formData, setFormData] = useState<Omit<QuotaPolicy, 'id' | 'createdAt' | 'updatedAt'>>(
+  const [formData, setFormData] = React.useState<
+    Omit<QuotaPolicy, 'id' | 'createdAt' | 'updatedAt'>
+  >(
     policy
       ? {
           name: policy.name,
@@ -259,7 +257,7 @@ interface PolicyTableProps {
   isLoading?: boolean;
 }
 
-const PolicyTable: FC<PolicyTableProps> = (props) => {
+const PolicyTable: React.FC<PolicyTableProps> = (props) => {
   const { policies, onEdit, onDelete, isLoading = false } = props;
 
   return (

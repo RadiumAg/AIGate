@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { TRPCProvider } from '../components/TRPCProvider';
+import { TRPCProvider } from '../components/trpc-provider';
 import './globals.css';
 
 export const metadata: Metadata = {

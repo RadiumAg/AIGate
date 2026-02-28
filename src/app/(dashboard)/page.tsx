@@ -1,15 +1,10 @@
 'use client';
 
 import React, { FC } from 'react';
-import { trpc } from '@/components/TRPCProvider';
-import type {
-  ActivityItem as ActivityItemType,
-  UsageTrendItem,
-  ModelDistributionItem,
-} from '@/types/dashboard';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import UsageTrendChart from '@/components/UsageTrendChart';
-import ModelDistributionChart from '@/components/ModelDistributionChart';
+import { trpc } from '@/components/trpc-provider';
+import type { ActivityItem as ActivityItemType } from '@/types/dashboard';
+import UsageTrendChart from '@/components/usage-trend-chart';
+import ModelDistributionChart from '@/components/model-distribution-chart';
 
 interface StatCardProps {
   title: string;
