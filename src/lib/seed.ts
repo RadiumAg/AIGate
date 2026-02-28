@@ -1,5 +1,5 @@
 import { db } from './drizzle';
-import { users, quotaPolicies, apiKeys, usageRecords } from './schema';
+import { quotaPolicies, apiKeys, usageRecords } from './schema';
 import { nanoid } from 'nanoid';
 
 async function seed() {
@@ -9,7 +9,6 @@ async function seed() {
     // 清空现有数据
     console.log('🧹 清理现有数据...');
     await db.delete(usageRecords);
-    await db.delete(users);
     await db.delete(apiKeys);
     await db.delete(quotaPolicies);
 
@@ -52,46 +51,6 @@ async function seed() {
       .returning();
 
     console.log(`✅ 创建了 3 个配额策略`);
-
-    // 创建用户
-    console.log('👥 创建用户...');
-    const testUsers = [
-      {
-        id: nanoid(),
-        name: '张三',
-        email: 'zhangsan@example.com',
-        role: 'USER' as const,
-        status: 'ACTIVE' as const,
-        quotaPolicyId: basicPolicy[0].id,
-      },
-      {
-        id: nanoid(),
-        name: '李四',
-        email: 'lisi@example.com',
-        role: 'USER' as const,
-        status: 'ACTIVE' as const,
-        quotaPolicyId: proPolicy[0].id,
-      },
-      {
-        id: nanoid(),
-        name: '王五',
-        email: 'wangwu@example.com',
-        role: 'USER' as const,
-        status: 'ACTIVE' as const,
-        quotaPolicyId: enterprisePolicy[0].id,
-      },
-      {
-        id: nanoid(),
-        name: '管理员',
-        email: 'admin@example.com',
-        role: 'ADMIN' as const,
-        status: 'ACTIVE' as const,
-        quotaPolicyId: enterprisePolicy[0].id,
-      },
-    ];
-
-    const createdUsers = await db.insert(users).values(testUsers).returning();
-    console.log(`✅ 创建了 ${createdUsers.length} 个用户`);
 
     // 创建 API 密钥
     console.log('🔑 创建 API 密钥...');
@@ -138,50 +97,7 @@ async function seed() {
 
     // 创建用量记录
     console.log('📊 创建用量记录...');
-    const usageData = [];
-
-    // 为每个用户创建最近30天的随机用量记录
-    for (const user of createdUsers) {
-      for (let i = 0; i < 30; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        date.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
-
-        // 每天随机生成1-5条记录
-        const recordsPerDay = Math.floor(Math.random() * 5) + 1;
-
-        for (let j = 0; j < recordsPerDay; j++) {
-          const models = [
-            'gpt-4',
-            'gpt-3.5-turbo',
-            'claude-3-sonnet',
-            'gemini-pro',
-            'deepseek-chat',
-            'moonshot-v1-8k',
-          ];
-          const providers = ['openai', 'anthropic', 'google', 'deepseek', 'moonshot'];
-
-          const model = models[Math.floor(Math.random() * models.length)];
-          const provider = providers[Math.floor(Math.random() * providers.length)];
-          const promptTokens = Math.floor(Math.random() * 1000) + 100;
-          const completionTokens = Math.floor(Math.random() * 500) + 50;
-          const totalTokens = promptTokens + completionTokens;
-          const cost = (totalTokens * 0.00002).toFixed(6); // 模拟成本计算
-
-          usageData.push({
-            id: nanoid(),
-            userId: user.id,
-            model,
-            provider,
-            promptTokens,
-            completionTokens,
-            totalTokens,
-            cost,
-            timestamp: new Date(date),
-          });
-        }
-      }
-    }
+    const usageData: any = [];
 
     // 批量插入用量记录
     const batchSize = 100;
@@ -195,7 +111,6 @@ async function seed() {
     console.log('🎉 种子数据创建完成！');
     console.log('\n📊 数据统计:');
     console.log(`- 配额策略: 3 个`);
-    console.log(`- 用户: ${createdUsers.length} 个`);
     console.log(`- API 密钥: ${createdApiKeys.length} 个`);
     console.log(`- 用量记录: ${usageData.length} 条`);
   } catch (error) {
