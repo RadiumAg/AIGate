@@ -443,7 +443,9 @@ const googleProvider: AIProvider = {
                         },
                       ],
                     };
-                    controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(chunk)}\n\n`));
+                    controller.enqueue(
+                      new TextEncoder().encode(`data: ${JSON.stringify(chunk)}\n\n`)
+                    );
                   }
                 } catch {
                   // 忽略解析错误

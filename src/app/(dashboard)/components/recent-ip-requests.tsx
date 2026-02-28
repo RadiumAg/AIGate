@@ -1,6 +1,15 @@
 'use client';
 
-import React, { type FC } from 'react';
+import React, { useState, type FC } from 'react';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 interface IpRequestRecord {
   id: string;
@@ -20,6 +29,43 @@ interface RecentIpRequestsProps {
 
 const RecentIpRequests: FC<RecentIpRequestsProps> = (props) => {
   const { data, loading = false } = props;
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // 计算分页
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentData = data.slice(startIndex, endIndex);
+
+  // 生成页码数组
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    if (totalPages <= 7) {
+      // 总页数小于等于7，显示所有页码
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // 总页数大于7，显示省略号
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, 4, 'ellipsis', totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, 'ellipsis', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(
+          1,
+          'ellipsis',
+          currentPage - 1,
+          currentPage,
+          currentPage + 1,
+          'ellipsis',
+          totalPages
+        );
+      }
+    }
+    return pages;
+  };
 
   const formatTime = (timeStr: string) => {
     const date = new Date(timeStr);
@@ -88,58 +134,101 @@ const RecentIpRequests: FC<RecentIpRequestsProps> = (props) => {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-            <th className="pb-3 pr-4 font-medium">IP 地址</th>
-            <th className="pb-3 pr-4 font-medium">归属地</th>
-            <th className="pb-3 pr-4 font-medium">用户</th>
-            <th className="pb-3 pr-4 font-medium">模型</th>
-            <th className="pb-3 pr-4 font-medium">Tokens</th>
-            <th className="pb-3 font-medium">时间</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-          {data.map((record) => (
-            <tr
-              key={record.id}
-              className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-            >
-              <td className="py-3 pr-4">
-                <code className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded font-mono text-gray-800 dark:text-gray-200">
-                  {record.clientIp}
-                </code>
-              </td>
-              <td className="py-3 pr-4">
-                <span className="text-gray-700 dark:text-gray-300">{record.region}</span>
-              </td>
-              <td className="py-3 pr-4">
-                <span className="text-gray-600 dark:text-gray-400 truncate max-w-30 inline-block">
-                  {record.userId}
-                </span>
-              </td>
-              <td className="py-3 pr-4">
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getProviderColor(record.provider)}`}
-                >
-                  {record.model}
-                </span>
-              </td>
-              <td className="py-3 pr-4">
-                <span className="text-gray-600 dark:text-gray-400">
-                  {record.totalTokens.toLocaleString()}
-                </span>
-              </td>
-              <td className="py-3">
-                <span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">
-                  {formatTime(record.timestamp)}
-                </span>
-              </td>
+    <div className="space-y-4">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+              <th className="pb-3 pr-4 font-medium">IP 地址</th>
+              <th className="pb-3 pr-4 font-medium">归属地</th>
+              <th className="pb-3 pr-4 font-medium">用户</th>
+              <th className="pb-3 pr-4 font-medium">模型</th>
+              <th className="pb-3 pr-4 font-medium">Tokens</th>
+              <th className="pb-3 font-medium">时间</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+            {currentData.map((record) => (
+              <tr
+                key={record.id}
+                className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+              >
+                <td className="py-3 pr-4">
+                  <code className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded font-mono text-gray-800 dark:text-gray-200">
+                    {record.clientIp}
+                  </code>
+                </td>
+                <td className="py-3 pr-4">
+                  <span className="text-gray-700 dark:text-gray-300">{record.region}</span>
+                </td>
+                <td className="py-3 pr-4">
+                  <span className="text-gray-600 dark:text-gray-400 truncate max-w-30 inline-block">
+                    {record.userId}
+                  </span>
+                </td>
+                <td className="py-3 pr-4">
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getProviderColor(record.provider)}`}
+                  >
+                    {record.model}
+                  </span>
+                </td>
+                <td className="py-3 pr-4">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    {record.totalTokens.toLocaleString()}
+                  </span>
+                </td>
+                <td className="py-3">
+                  <span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">
+                    {formatTime(record.timestamp)}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 分页组件 */}
+      {totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
+            </PaginationItem>
+
+            {getPageNumbers().map((page, index) =>
+              page === 'ellipsis' ? (
+                <PaginationItem key={`ellipsis-${index}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    onClick={() => setCurrentPage(page as number)}
+                    isActive={currentPage === page}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            )}
+
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                className={
+                  currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 };
