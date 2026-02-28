@@ -8,7 +8,6 @@ import { getProviderByModel, providers } from '@/lib/ai-providers';
 import type { AIProvider } from '@/lib/ai-providers';
 import { v4 as uuidv4 } from 'uuid';
 import { getRegionFromRequest, extractClientIp } from '@/lib/ip-region';
-import { ReadableStream } from 'stream/web';
 
 // 请求处理参数类型
 interface RequestHandlerParams {
@@ -146,7 +145,7 @@ export const aiRouter = createTRPCRouter({
 
         // 4. 检查配额（使用 userId 作为标识符）
         const identifier = userId;
-        const quotaCheck = await checkQuota({ email: identifier }, estimatedTokens);
+        const quotaCheck = await checkQuota({ userId: identifier }, estimatedTokens);
         if (!quotaCheck.allowed) {
           throw new TRPCError({
             code: 'TOO_MANY_REQUESTS',

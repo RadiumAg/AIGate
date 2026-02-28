@@ -61,7 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // 4. 检查配额（使用 userId 作为标识符）
     const identifier = userId;
-    const quotaCheck = await checkQuota({ email: identifier }, estimatedTokens);
+    const quotaCheck = await checkQuota({ userId: identifier }, estimatedTokens);
     if (!quotaCheck.allowed) {
       return res.status(429).json({
         error: quotaCheck.reason || '配额已用完',

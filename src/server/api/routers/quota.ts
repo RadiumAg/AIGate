@@ -11,7 +11,7 @@ import { quotaPolicyDb } from '@/lib/database';
  */
 async function clearPolicyCacheKeys(): Promise<void> {
   try {
-    const patterns = ['policy:email:*', 'user_policy:*'];
+    const patterns = ['policy:userId:*', 'user_policy:*'];
 
     for (const pattern of patterns) {
       let cursor = 0;

@@ -12,16 +12,16 @@ const DEFAULT_QUOTA_POLICY: QuotaPolicy = {
 };
 
 // 根据邮箱匹配白名单规则并获取配额策略
-export async function getQuotaPolicyByEmail(email: string): Promise<QuotaPolicy> {
+export async function getQuotaPolicyByEmail(userId: string): Promise<QuotaPolicy> {
   try {
-    const cacheKey = `policy:email:${email}`;
+    const cacheKey = `policy:userId:${userId}`;
     const cachedPolicy = await redis.get(cacheKey);
     if (cachedPolicy) {
       return JSON.parse(cachedPolicy);
     }
 
     // 通过白名单规则匹配获取策略名称
-    const { policyName } = await whitelistRuleDb.matchUserPolicy(email);
+    const { policyName } = await whitelistRuleDb.matchUserPolicy(userId);
 
     // 根据策略名称从数据库获取完整的配额策略
     const policies = await quotaPolicyDb.getAll();
@@ -49,15 +49,15 @@ export async function getQuotaPolicyByEmail(email: string): Promise<QuotaPolicy>
 
 // 根据请求特征获取配额策略（可扩展支持更多匹配方式）
 export async function getQuotaPolicyByRequest(requestInfo: {
-  email?: string;
+  userId?: string;
   apiKey?: string;
   ip?: string;
   domain?: string;
 }): Promise<QuotaPolicy> {
   try {
     // 优先使用邮箱匹配
-    if (requestInfo.email) {
-      return await getQuotaPolicyByEmail(requestInfo.email);
+    if (requestInfo.userId) {
+      return await getQuotaPolicyByEmail(requestInfo.userId);
     }
 
     // 可以在这里扩展其他匹配方式
@@ -73,7 +73,7 @@ export async function getQuotaPolicyByRequest(requestInfo: {
 // 检查配额限制
 export async function checkQuota(
   requestInfo: {
-    email?: string;
+    userId?: string;
     apiKey?: string;
     ip?: string;
     domain?: string;
@@ -85,7 +85,7 @@ export async function checkQuota(
     const today = getTodayString();
     const currentMinute = getCurrentMinuteString();
 
-    const identifier = requestInfo.email || requestInfo.ip || requestInfo.apiKey || 'anonymous';
+    const identifier = requestInfo.userId || requestInfo.ip || requestInfo.apiKey || 'anonymous';
 
     console.log(
       '[checkQuota] Policy:',
@@ -199,7 +199,7 @@ export async function recordUsage(
     const currentMinute = getCurrentMinuteString();
 
     // 获取用户的配额策略
-    const policy = await getQuotaPolicyByRequest({ email: identifier });
+    const policy = await getQuotaPolicyByRequest({ userId: identifier });
 
     // 根据 limitType 更新不同的计数器
     if (policy.limitType === 'token') {
@@ -315,7 +315,7 @@ export async function checkUserQuota(
   estimatedTokens: number = 0
 ): Promise<QuotaCheckResult> {
   console.warn('checkUserQuota is deprecated. Use checkQuota instead.');
-  return await checkQuota({ email: userId }, estimatedTokens);
+  return await checkQuota({ userId: userId }, estimatedTokens);
 }
 
 export async function getUserDailyUsage(userId: string): Promise<{
