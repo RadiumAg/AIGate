@@ -79,7 +79,6 @@ const UsersPage: FC = () => {
       updateRuleMutation.mutate({
         ...rule,
         id: editingRule.id,
-        createdAt: editingRule.createdAt,
       });
     } else {
       createRuleMutation.mutate(rule);
