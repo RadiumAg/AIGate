@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import React from 'react';
 import {
   Select,
   SelectContent,
@@ -12,13 +12,13 @@ import {
 interface MessageInputProps {
   message: { role: 'system' | 'user' | 'assistant'; content: string };
   index: number;
+  canRemove: boolean;
   onChange: (index: number, field: 'role' | 'content', value: string) => void;
   onRemove: (index: number) => void;
-  canRemove: boolean;
 }
 
-const MessageInput: FC<MessageInputProps> = (props) => {
-  const { message, index, onChange, onRemove, canRemove } = props;
+const MessageInput: React.FC<MessageInputProps> = (props) => {
+  const { message, index, canRemove, onChange, onRemove } = props;
 
   return (
     <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3 bg-gray-50 dark:bg-gray-900">

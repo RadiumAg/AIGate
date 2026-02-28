@@ -4,7 +4,7 @@ import React, { FC, useState } from 'react';
 import ApiKeyTable from '@/app/(dashboard)/keys/components/api-key-table';
 import AddApiKeyDialog from '@/components/add-api-key-dialog';
 import { trpc } from '@/components/trpc-provider';
-import type { ApiKey, ApiKeyFormData } from '@/types/apiKey';
+import type { ApiKey, ApiKeyFormData } from '@/types/api-key';
 import DeleteConfirmModal from './components/delete-confirm-modal';
 
 const KeysPage: FC = () => {

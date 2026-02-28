@@ -5,13 +5,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 
 interface CodeModalProps {
   isOpen: boolean;
-  onClose: () => void;
   generatedCode: string;
+  onClose: () => void;
   onCopyToClipboard: (text: string) => void;
 }
 
 const CodeModal: FC<CodeModalProps> = (props) => {
-  const { isOpen, onClose, generatedCode, onCopyToClipboard } = props;
+  const { isOpen, generatedCode, onClose, onCopyToClipboard } = props;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>

@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import React from 'react';
 import {
   Select,
   SelectContent,
@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import MessageInput from './message-input';
-import { ApiKey } from '@/types/apiKey';
+import { ApiKey } from '@/types/api-key';
 
 interface DebugRequestForm {
   userId: string;
@@ -41,7 +41,7 @@ interface RequestConfigProps {
   isSubmitting: boolean;
 }
 
-const RequestConfig: FC<RequestConfigProps> = (props) => {
+const RequestConfig: React.FC<RequestConfigProps> = (props) => {
   const {
     form,
     setForm,

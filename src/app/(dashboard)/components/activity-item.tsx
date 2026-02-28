@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import React from 'react';
 
 interface ActivityItemProps {
   id: string;
@@ -14,7 +14,7 @@ interface ActivityItemProps {
   };
 }
 
-const ActivityItem: FC<ActivityItemProps> = (props) => {
+const ActivityItem: React.FC<ActivityItemProps> = (props) => {
   const { description, time, details } = props;
 
   const formatTime = (timeStr: string) => {

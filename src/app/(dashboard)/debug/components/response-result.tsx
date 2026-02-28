@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import React from 'react';
 
 interface ResponseData {
   id: string;
@@ -37,7 +37,7 @@ interface ResponseResultProps {
   isLoading: boolean;
 }
 
-const ResponseResult: FC<ResponseResultProps> = (props) => {
+const ResponseResult: React.FC<ResponseResultProps> = (props) => {
   const { response, error, isLoading } = props;
 
   return (

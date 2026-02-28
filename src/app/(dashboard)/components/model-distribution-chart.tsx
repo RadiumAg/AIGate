@@ -2,7 +2,7 @@
 
 import React from 'react';
 import * as echarts from 'echarts';
-import { useRef, useEffect, useCallback } from 'react';
+import { useMemoizedFn } from 'ahooks';
 
 interface ModelDistributionItem {
   name: string;
@@ -19,9 +19,9 @@ const ModelDistributionChart: React.FC<ModelDistributionChartProps> = ({
   data,
   loading = false,
 }) => {
-  const chartRef = useRef<HTMLDivElement>(null);
+  const chartRef = React.useRef<HTMLDivElement>(null);
 
-  const initChart = useCallback(() => {
+  const initChart = useMemoizedFn(() => {
     if (!chartRef.current || !data || data.length === 0 || loading) return;
 
     const chart = echarts.init(chartRef.current);
@@ -96,9 +96,9 @@ const ModelDistributionChart: React.FC<ModelDistributionChartProps> = ({
       window.removeEventListener('resize', handleResize);
       chart.dispose();
     };
-  }, [data, loading]);
+  });
 
-  useEffect(() => {
+  React.useEffect(() => {
     const cleanup = initChart();
     return cleanup;
   }, [initChart]);

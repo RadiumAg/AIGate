@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FC, useState } from 'react';
+import React from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import {
   Dialog,
@@ -9,12 +9,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import type { ApiKey, ApiKeyFormData } from '../types/apiKey';
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import type { ApiKey, ApiKeyFormData } from '@/types/api-key';
 
 interface AddApiKeyDialogProps {
   open: boolean;
@@ -24,10 +30,10 @@ interface AddApiKeyDialogProps {
   isLoading: boolean;
 }
 
-const AddApiKeyDialog: FC<AddApiKeyDialogProps> = (props) => {
+const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
   const { open, onOpenChange, keyData, onSave, isLoading } = props;
 
-  const [formData, setFormData] = useState<ApiKeyFormData>({
+  const [formData, setFormData] = React.useState<ApiKeyFormData>({
     name: keyData?.name || '',
     provider:
       (keyData?.provider as
@@ -42,8 +48,8 @@ const AddApiKeyDialog: FC<AddApiKeyDialogProps> = (props) => {
     lastUsed: keyData?.lastUsed || undefined,
     status: keyData?.status || 'active',
   });
-  const [showKey, setShowKey] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showKey, setShowKey] = React.useState(false);
+  const [errors, setErrors] = React.useState<Record<string, string>>({});
 
   // 当 keyData 变化时更新表单数据
   React.useEffect(() => {

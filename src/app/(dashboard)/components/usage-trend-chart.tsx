@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FC } from 'react';
+import React from 'react';
 import * as echarts from 'echarts';
 
 interface UsageTrendChartProps {
@@ -12,7 +12,7 @@ interface UsageTrendChartProps {
   loading: boolean;
 }
 
-const UsageTrendChart: FC<UsageTrendChartProps> = ({ data, loading }) => {
+const UsageTrendChart: React.FC<UsageTrendChartProps> = ({ data, loading }) => {
   const chartRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -43,7 +43,7 @@ const UsageTrendChart: FC<UsageTrendChartProps> = ({ data, loading }) => {
       xAxis: {
         type: 'category',
         boundaryGap: false,
-        data: data.map(item => 
+        data: data.map((item) =>
           new Date(item.date).toLocaleDateString('zh-CN', {
             month: 'short',
             day: 'numeric',
@@ -91,7 +91,7 @@ const UsageTrendChart: FC<UsageTrendChartProps> = ({ data, loading }) => {
           name: '请求数',
           type: 'line',
           smooth: true,
-          data: data.map(item => item.requests),
+          data: data.map((item) => item.requests),
           lineStyle: {
             color: '#1890ff',
           },
@@ -104,7 +104,7 @@ const UsageTrendChart: FC<UsageTrendChartProps> = ({ data, loading }) => {
           name: 'Token 消耗',
           type: 'line',
           smooth: true,
-          data: data.map(item => item.tokens),
+          data: data.map((item) => item.tokens),
           lineStyle: {
             color: '#52c41a',
           },
@@ -135,9 +135,7 @@ const UsageTrendChart: FC<UsageTrendChartProps> = ({ data, loading }) => {
     );
   }
 
-  return (
-    <div ref={chartRef} className="w-full h-64"></div>
-  );
+  return <div ref={chartRef} className="w-full h-64"></div>;
 };
 
 export default UsageTrendChart;
