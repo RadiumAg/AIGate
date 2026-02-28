@@ -33,6 +33,7 @@ const DataTable = <TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -49,7 +50,7 @@ const DataTable = <TData, TValue>({
   });
 
   return (
-    <div className="bg-white dark:bg-card-dark rounded-xl shadow-card-light dark:shadow-card-dark overflow-hidden">
+    <div className="bg-white dark:bg-card-dark rounded-xl shadow-md dark:shadow-lg overflow-hidden">
       <Table>
         <TableHeader className="bg-gray-50 dark:bg-slate-800">
           {table.getHeaderGroups().map((headerGroup) => (
