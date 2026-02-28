@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import PolicyForm from './components/policy-form';
 import PolicyTable from './components/policy-table';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 
 interface QuotaPolicy {
   id: string;
@@ -85,12 +86,7 @@ const QuotasPage: FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-text-dark">配额管理</h1>
-        <button
-          onClick={handleAddPolicy}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          新建策略
-        </button>
+        <Button onClick={handleAddPolicy}>新建策略</Button>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

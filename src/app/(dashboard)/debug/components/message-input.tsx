@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 
 interface MessageInputProps {
   message: { role: 'system' | 'user' | 'assistant'; content: string };
@@ -37,12 +38,14 @@ const MessageInput: React.FC<MessageInputProps> = (props) => {
           </SelectContent>
         </Select>
         {canRemove && (
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => onRemove(index)}
-            className="text-red-500 hover:text-red-700 text-sm"
+            className="text-red-500 hover:text-red-700 hover:bg-red-50"
           >
             删除
-          </button>
+          </Button>
         )}
       </div>
       <textarea

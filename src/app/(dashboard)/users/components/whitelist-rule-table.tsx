@@ -3,6 +3,7 @@
 import React, { FC } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/ui/data-table';
+import { Button } from '@/components/ui/button';
 
 interface WhitelistRule {
   id: string;
@@ -89,17 +90,19 @@ const WhitelistRuleTable: FC<WhitelistRuleTableProps> = (props) => {
         cell: ({ row }) => {
           const rule = row.original;
           return (
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => onToggleStatus(rule.id)}
               disabled={isLoading}
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                 rule.status === 'active'
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                  ? 'text-green-700 bg-green-100 hover:bg-green-200'
+                  : 'text-red-700 bg-red-100 hover:bg-red-200'
               }`}
             >
               {rule.status === 'active' ? '启用' : '禁用'}
-            </button>
+            </Button>
           );
         },
       },
@@ -117,20 +120,24 @@ const WhitelistRuleTable: FC<WhitelistRuleTableProps> = (props) => {
           const rule = row.original;
           return (
             <div className="flex space-x-2">
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => onEdit(rule)}
                 disabled={isLoading}
-                className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
               >
                 编辑
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => onDelete(rule.id)}
                 disabled={isLoading}
-                className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
               >
                 删除
-              </button>
+              </Button>
             </div>
           );
         },

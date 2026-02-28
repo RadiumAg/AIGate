@@ -2,6 +2,7 @@
 
 import React, { FC } from 'react';
 import { trpc } from '@/components/trpc-provider';
+import { Button } from '@/components/ui/button';
 
 interface WhitelistRule {
   id: string;
@@ -265,7 +266,7 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
               type="button"
               onClick={handleToggleValidation}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                formData.validationEnabled ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-gray-600'
+                formData.validationEnabled ? 'bg-[var(--primary)]' : 'bg-[var(--muted)]'
               }`}
             >
               <span
@@ -305,10 +306,10 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
                       key={preset.trigger}
                       type="button"
                       onClick={() => handleSelectPreset(preset)}
-                      className={`w-full text-left px-3 py-2 flex items-start gap-3 transition-colors ${
+                      className={`w-full text-left px-3 py-2 flex items-start gap-3 transition-colors bg-transparent border-0 ${
                         index === selectedPresetIndex
-                          ? 'bg-indigo-50 dark:bg-indigo-900/30'
-                          : 'hover:bg-gray-50 dark:hover:bg-gray-700'
+                          ? 'bg-[var(--accent)]'
+                          : 'hover:bg-[var(--muted)]'
                       }`}
                     >
                       <code className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 whitespace-nowrap mt-0.5">
@@ -344,19 +345,10 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
       </div>
 
       <div className="flex space-x-3 pt-4">
-        <button
-          type="submit"
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-        >
-          保存
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
-        >
+        <Button type="submit">保存</Button>
+        <Button type="button" variant="outline" onClick={onCancel}>
           取消
-        </button>
+        </Button>
       </div>
     </form>
   );

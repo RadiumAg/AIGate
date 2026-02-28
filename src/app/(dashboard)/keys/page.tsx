@@ -7,6 +7,7 @@ import ApiKeyTable from './components/api-key-table';
 import DeleteConfirmModal from './components/delete-confirm-modal';
 import AddApiKeyDialog from './components/add-api-key-dialog';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 
 const KeysPage: React.FC = () => {
   // tRPC hooks
@@ -123,11 +124,7 @@ const KeysPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">API 密钥管理</h1>
-        <button
-          onClick={handleAddKey}
-          disabled={isLoading}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center"
-        >
+        <Button onClick={handleAddKey} disabled={isLoading}>
           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
@@ -137,7 +134,7 @@ const KeysPage: React.FC = () => {
             />
           </svg>
           添加密钥
-        </button>
+        </Button>
       </div>
 
       {/* 消息提示 */}
@@ -158,7 +155,12 @@ const KeysPage: React.FC = () => {
               />
             </svg>
             <span className="text-sm text-red-800 dark:text-red-200">{error}</span>
-            <button onClick={clearMessages} className="ml-auto text-red-500 hover:text-red-700">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={clearMessages}
+              className="ml-auto h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -167,7 +169,7 @@ const KeysPage: React.FC = () => {
                   d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -189,7 +191,12 @@ const KeysPage: React.FC = () => {
               />
             </svg>
             <span className="text-sm text-green-800 dark:text-green-200">{success}</span>
-            <button onClick={clearMessages} className="ml-auto text-green-500 hover:text-green-700">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={clearMessages}
+              className="ml-auto h-8 w-8 text-green-500 hover:text-green-700 hover:bg-green-50"
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -198,7 +205,7 @@ const KeysPage: React.FC = () => {
                   d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
-            </button>
+            </Button>
           </div>
         </div>
       )}

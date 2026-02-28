@@ -6,6 +6,7 @@ import { Copy } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import type { ApiKey } from '@/types/api-key';
 import { DataTable } from '@/components/ui/data-table';
+import { Button } from '@/components/ui/button';
 
 interface ApiKeyTableProps {
   keys: ApiKey[];
@@ -45,12 +46,14 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
         cell: ({ row }) => (
           <div className="flex items-center text-gray-500 dark:text-gray-400">
             <span className="mr-2">{row.original.key}</span>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => copyToClipboard(row.original.key)}
-              className="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 cursor-pointer"
+              className="h-8 w-8 text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             >
               <Copy className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
         ),
       },
@@ -108,10 +111,12 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
           return (
             <div className="flex justify-end space-x-3">
               {onTest && (
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => onTest(key)}
                   disabled={isTesting}
-                  className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center cursor-pointer"
+                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                 >
                   {isTesting ? (
                     <>
@@ -121,26 +126,32 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                   ) : (
                     '测试'
                   )}
-                </button>
+                </Button>
               )}
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => onToggleStatus(key.id)}
-                className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 cursor-pointer"
+                className="text-[var(--primary)] hover:text-[var(--primary)]/80"
               >
                 {key.status === 'active' ? '禁用' : '启用'}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => onEdit(key)}
-                className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 cursor-pointer"
+                className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
               >
                 编辑
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => onDelete(key.id)}
-                className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 cursor-pointer"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
               >
                 删除
-              </button>
+              </Button>
             </div>
           );
         },

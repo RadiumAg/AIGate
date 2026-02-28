@@ -1,6 +1,7 @@
 'use client';
 
 import React, { FC } from 'react';
+import { Button } from '@/components/ui/button';
 
 interface QuotaPolicy {
   id: string;
@@ -135,19 +136,10 @@ const PolicyForm: FC<PolicyFormProps> = (props) => {
       </div>
 
       <div className="flex space-x-3 pt-4">
-        <button
-          type="submit"
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-        >
-          保存
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
-        >
+        <Button type="submit">保存</Button>
+        <Button type="button" variant="outline" onClick={onCancel}>
           取消
-        </button>
+        </Button>
       </div>
     </form>
   );

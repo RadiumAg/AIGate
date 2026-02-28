@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@/components/ui/button';
 
 interface QuotaPolicy {
   id: string;
@@ -26,9 +27,11 @@ const QuotaCard: React.FC<QuotaCardProps> = (props) => {
       <div className="flex justify-between items-start mb-4">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-text-dark">{policy.name}</h3>
         <div className="flex space-x-2">
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => onEdit(policy)}
-            className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            className="h-8 w-8 text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -38,10 +41,12 @@ const QuotaCard: React.FC<QuotaCardProps> = (props) => {
             >
               <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
             </svg>
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => onDelete(policy.id)}
-            className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400"
+            className="h-8 w-8 text-[var(--muted-foreground)] hover:text-red-500"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -55,7 +60,7 @@ const QuotaCard: React.FC<QuotaCardProps> = (props) => {
                 clipRule="evenodd"
               />
             </svg>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -92,9 +97,9 @@ const QuotaCard: React.FC<QuotaCardProps> = (props) => {
       </div>
 
       <div className="mt-6 pt-4 border-t border-gray-100 dark:border-slate-700">
-        <button className="w-full py-2 text-center text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
+        <Button variant="ghost" className="w-full">
           查看详情
-        </button>
+        </Button>
       </div>
     </div>
   );

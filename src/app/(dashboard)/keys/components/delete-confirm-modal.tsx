@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -39,27 +40,19 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = (props) => {
           确定要删除 API Key &quot;{keyName}&quot; 吗？此操作不可撤销。
         </p>
         <div className="flex justify-end space-x-3">
-          <button
-            onClick={onCancel}
-            disabled={isDeleting}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-          >
+          <Button variant="outline" onClick={onCancel} disabled={isDeleting}>
             取消
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isDeleting}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center"
-          >
+          </Button>
+          <Button variant="destructive" onClick={onConfirm} disabled={isDeleting}>
             {isDeleting ? (
               <>
-                <Spinner className="-ml-1 mr-2 h-4 w-4 text-white" />
+                <Spinner className="-ml-1 mr-2 h-4 w-4" />
                 删除中...
               </>
             ) : (
               '确认删除'
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

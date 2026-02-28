@@ -11,6 +11,7 @@ import {
 import MessageInput from './message-input';
 import { ApiKey } from '@/types/api-key';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 
 interface DebugRequestForm {
   userId: string;
@@ -202,17 +203,19 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
                       </p>
                       <div className="flex flex-wrap gap-1">
                         {providerModels.slice(0, 8).map((modelInfo) => (
-                          <button
+                          <Button
                             key={modelInfo.model}
+                            variant="secondary"
+                            size="sm"
                             onClick={() => {
                               if (!form) return;
                               setForm({ ...form, model: modelInfo.model });
                             }}
-                            className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                            className="text-xs h-6 px-2"
                             title={`${modelInfo.model}`}
                           >
                             {modelInfo.model}
-                          </button>
+                          </Button>
                         ))}
                         {providerModels.length > 8 && (
                           <span className="px-2 py-1 text-xs text-gray-400 dark:text-gray-500">
@@ -287,24 +290,15 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
             快速示例
           </label>
           <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => loadExample('simple')}
-              className="px-3 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            >
+            <Button variant="secondary" size="sm" onClick={() => loadExample('simple')}>
               简单对话
-            </button>
-            <button
-              onClick={() => loadExample('system')}
-              className="px-3 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            >
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => loadExample('system')}>
               系统提示
-            </button>
-            <button
-              onClick={() => loadExample('conversation')}
-              className="px-3 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            >
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => loadExample('conversation')}>
               多轮对话
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -314,12 +308,9 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               消息 ({form?.messages?.length || 0})
             </label>
-            <button
-              onClick={handleAddMessage}
-              className="px-3 py-1 text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-md hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-colors"
-            >
+            <Button variant="secondary" size="sm" onClick={handleAddMessage}>
               + 添加消息
-            </button>
+            </Button>
           </div>
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {form?.messages?.map((message, index) => (
@@ -337,15 +328,16 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
 
         {/* 操作按钮 */}
         <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <button
+          <Button
+            variant="secondary"
             onClick={onEstimateTokens}
             disabled={isEstimating || !form?.apiKeyId}
-            className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1"
           >
             {isEstimating ? '估算中...' : '估算 Token'}
-          </button>
+          </Button>
 
-          <button
+          <Button
             onClick={onSubmit}
             disabled={
               isSubmitting ||
@@ -353,50 +345,53 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
               !form?.model ||
               form?.messages?.some((m) => !m.content.trim())
             }
-            className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="flex-1"
           >
             {isSubmitting ? (
               <>
-                <Spinner className="-ml-1 mr-2 h-4 w-4 text-white" />
+                <Spinner className="-ml-1 mr-2 h-4 w-4" />
                 发送中...
               </>
             ) : (
               '发送请求'
             )}
-          </button>
+          </Button>
 
           {/* 生成代码按钮组 */}
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => onGenerateCode('javascript')}
               disabled={
                 !form?.apiKeyId || !form?.model || form?.messages?.some((m) => !m.content.trim())
               }
-              className="px-3 py-2 bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 rounded-md hover:bg-yellow-200 dark:hover:bg-yellow-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               title="生成 JavaScript 代码"
             >
               JS
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => onGenerateCode('python')}
               disabled={
                 !form?.apiKeyId || !form?.model || form?.messages?.some((m) => !m.content.trim())
               }
-              className="px-3 py-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-md hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               title="生成 Python 代码"
             >
               PY
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => onGenerateCode('curl')}
               disabled={
                 !form?.apiKeyId || !form?.model || form?.messages?.some((m) => !m.content.trim())
               }
-              className="px-3 py-2 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-md hover:bg-green-200 dark:hover:bg-green-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               title="生成 cURL 命令"
             >
               cURL
-            </button>
+            </Button>
           </div>
         </div>
 

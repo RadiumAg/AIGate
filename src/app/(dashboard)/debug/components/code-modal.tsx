@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface CodeModalProps {
   isOpen: boolean;
@@ -19,11 +20,8 @@ const CodeModal: React.FC<CodeModalProps> = (props) => {
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span>生成的代码</span>
-            <button
-              onClick={() => onCopyToClipboard(generatedCode)}
-              className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-md hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-colors text-sm flex items-center gap-1"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <Button variant="secondary" size="sm" onClick={() => onCopyToClipboard(generatedCode)}>
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -32,7 +30,7 @@ const CodeModal: React.FC<CodeModalProps> = (props) => {
                 />
               </svg>
               复制
-            </button>
+            </Button>
           </DialogTitle>
         </DialogHeader>
 

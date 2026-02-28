@@ -3,6 +3,7 @@
 import React, { FC } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/ui/data-table';
+import { Button } from '@/components/ui/button';
 
 interface QuotaPolicy {
   id: string;
@@ -85,20 +86,24 @@ const PolicyTable: FC<PolicyTableProps> = (props) => {
 
           return (
             <div className="flex justify-end space-x-2">
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => onEdit(policy)}
                 disabled={isLoading}
-                className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
               >
                 编辑
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => onDelete(policy.id)}
                 disabled={isLoading}
-                className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
               >
                 删除
-              </button>
+              </Button>
             </div>
           );
         },

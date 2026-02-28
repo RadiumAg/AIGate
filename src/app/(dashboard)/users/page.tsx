@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import WhitelistRuleForm from './components/whitelist-rule-form';
 import WhitelistRuleTable from './components/whitelist-rule-table';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 
 interface WhitelistRule {
   id: string;
@@ -97,12 +98,7 @@ const UsersPage: FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-text-dark">用户策略管理</h1>
-        <button
-          onClick={handleAddRule}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          添加规则
-        </button>
+        <Button onClick={handleAddRule}>添加规则</Button>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
