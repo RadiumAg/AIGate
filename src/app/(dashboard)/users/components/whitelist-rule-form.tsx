@@ -5,7 +5,6 @@ import { trpc } from '@/components/trpc-provider';
 
 interface WhitelistRule {
   id: string;
-  pattern: string;
   policyName: string;
   priority: number;
   status: 'active' | 'inactive';
@@ -21,6 +20,70 @@ interface WhitelistRuleFormProps {
   onCancel: () => void;
 }
 
+interface PatternPreset {
+  trigger: string;
+  label: string;
+  description: string;
+  pattern: string;
+}
+
+const PATTERN_PRESETS: PatternPreset[] = [
+  {
+    trigger: '@ip',
+    label: '@ip',
+    description: '匹配 IPv4 地址格式',
+    pattern: '^((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$',
+  },
+  {
+    trigger: '@ip_range',
+    label: '@ip_range',
+    description: '匹配 IP 段（如 192.168.*.*）',
+    pattern: '^192\\.168\\.\\d{1,3}\\.\\d{1,3}$',
+  },
+  {
+    trigger: '@email',
+    label: '@email',
+    description: '匹配邮箱格式',
+    pattern: '^[\\w.+-]+@[\\w-]+\\.[\\w.]+$',
+  },
+  {
+    trigger: '@email_domain',
+    label: '@email_domain',
+    description: '匹配指定域名邮箱（需修改 domain）',
+    pattern: '^[\\w.+-]+@company\\.com$',
+  },
+  {
+    trigger: '@origin',
+    label: '@origin',
+    description: '匹配 HTTP Origin（如 https://example.com）',
+    pattern: '^https?://[\\w.-]+(:\\d+)?$',
+  },
+  {
+    trigger: '@numeric',
+    label: '@numeric',
+    description: '匹配纯数字 ID',
+    pattern: '^[1-9]\\d*$',
+  },
+  {
+    trigger: '@uuid',
+    label: '@uuid',
+    description: '匹配 UUID 格式',
+    pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+  },
+  {
+    trigger: '@prefix',
+    label: '@prefix',
+    description: '匹配带前缀的 ID（如 user_xxx）',
+    pattern: '^user_[a-zA-Z0-9]+$',
+  },
+  {
+    trigger: '@any',
+    label: '@any',
+    description: '匹配任意非空字符串',
+    pattern: '^.+$',
+  },
+];
+
 const inputClassName =
   'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white';
 
@@ -30,7 +93,6 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
   const { data: policies = [] } = trpc.quota.getAllPolicies.useQuery();
 
   const [formData, setFormData] = React.useState<Omit<WhitelistRule, 'id' | 'createdAt'>>({
-    pattern: ruleData?.pattern || '',
     policyName: ruleData?.policyName || policies[0]?.name || '默认策略',
     description: ruleData?.description || '',
     priority: ruleData?.priority || 1,
@@ -38,6 +100,22 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
     validationPattern: ruleData?.validationPattern || '',
     validationEnabled: ruleData?.validationEnabled || false,
   });
+
+  const [showPresets, setShowPresets] = React.useState(false);
+  const [presetFilter, setPresetFilter] = React.useState('');
+  const [selectedPresetIndex, setSelectedPresetIndex] = React.useState(0);
+  const presetDropdownRef = React.useRef<HTMLDivElement>(null);
+  const validationInputRef = React.useRef<HTMLInputElement>(null);
+
+  const filteredPresets = React.useMemo(() => {
+    if (!presetFilter) return PATTERN_PRESETS;
+    const lowerFilter = presetFilter.toLowerCase();
+    return PATTERN_PRESETS.filter(
+      (preset) =>
+        preset.trigger.toLowerCase().includes(lowerFilter) ||
+        preset.description.toLowerCase().includes(lowerFilter)
+    );
+  }, [presetFilter]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -49,6 +127,52 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
     });
   };
 
+  const handleValidationPatternChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFormData({ ...formData, validationPattern: value });
+
+    const atIndex = value.lastIndexOf('@');
+    if (atIndex >= 0) {
+      const afterAt = value.substring(atIndex);
+      setPresetFilter(afterAt);
+      setShowPresets(true);
+      setSelectedPresetIndex(0);
+    } else {
+      setShowPresets(false);
+      setPresetFilter('');
+    }
+  };
+
+  const handleSelectPreset = (preset: PatternPreset) => {
+    const currentValue = formData.validationPattern || '';
+    const atIndex = currentValue.lastIndexOf('@');
+
+    const newValue =
+      atIndex >= 0 ? currentValue.substring(0, atIndex) + preset.pattern : preset.pattern;
+
+    setFormData({ ...formData, validationPattern: newValue });
+    setShowPresets(false);
+    setPresetFilter('');
+    validationInputRef.current?.focus();
+  };
+
+  const handleValidationKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showPresets || filteredPresets.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedPresetIndex((prev) => Math.min(prev + 1, filteredPresets.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedPresetIndex((prev) => Math.max(prev - 1, 0));
+    } else if (e.key === 'Enter' && showPresets) {
+      e.preventDefault();
+      handleSelectPreset(filteredPresets[selectedPresetIndex]);
+    } else if (e.key === 'Escape') {
+      setShowPresets(false);
+    }
+  };
+
   const handleToggleValidation = () => {
     setFormData({ ...formData, validationEnabled: !formData.validationEnabled });
   };
@@ -58,25 +182,18 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
     onSave(formData);
   };
 
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (presetDropdownRef.current && !presetDropdownRef.current.contains(event.target as Node)) {
+        setShowPresets(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          匹配模式
-        </label>
-        <input
-          type="text"
-          name="pattern"
-          value={formData.pattern}
-          onChange={handleChange}
-          required
-          placeholder="例如: *, *@company.com, user@example.com"
-          className={inputClassName}
-        />
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          支持通配符 *，例如：* 匹配所有用户，*@company.com 匹配公司邮箱
-        </p>
-      </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           策略名称
@@ -141,7 +258,7 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
                 启用校验规则
               </label>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                开启后，通过 X-Request-User 传入的 userId 必须匹配正则表达式才允许请求
+                开启后，通过 X-Request-User 传入的 userId 必须匹配校验规则才允许请求
               </p>
             </div>
             <button
@@ -160,20 +277,66 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
           </div>
 
           {formData.validationEnabled && (
-            <div>
+            <div className="relative" ref={presetDropdownRef}>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                校验规则（正则表达式）
+                校验规则
               </label>
               <input
+                ref={validationInputRef}
                 type="text"
-                name="validationPattern"
                 value={formData.validationPattern || ''}
-                onChange={handleChange}
-                placeholder="例如: ^user_[a-zA-Z0-9]+$ 或 ^[1-9]\d*$"
+                onChange={handleValidationPatternChange}
+                onKeyDown={handleValidationKeyDown}
+                onFocus={() => {
+                  const value = formData.validationPattern || '';
+                  if (value.includes('@')) {
+                    setPresetFilter(value.substring(value.lastIndexOf('@')));
+                    setShowPresets(true);
+                  }
+                }}
+                placeholder="输入正则表达式，或输入 @ 选择预设模板"
                 className={inputClassName}
               />
+
+              {showPresets && filteredPresets.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                  {filteredPresets.map((preset, index) => (
+                    <button
+                      key={preset.trigger}
+                      type="button"
+                      onClick={() => handleSelectPreset(preset)}
+                      className={`w-full text-left px-3 py-2 flex items-start gap-3 transition-colors ${
+                        index === selectedPresetIndex
+                          ? 'bg-indigo-50 dark:bg-indigo-900/30'
+                          : 'hover:bg-gray-50 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      <code className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 whitespace-nowrap mt-0.5">
+                        {preset.label}
+                      </code>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm text-gray-800 dark:text-gray-200">
+                          {preset.description}
+                        </p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">
+                          {preset.pattern}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                请求时通过 X-Request-User 传入的 userId 必须匹配此正则表达式，不匹配将被拒绝
+                {'输入 '}
+                <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">@</code>
+                {' 可快速选择预设模板（如 '}
+                <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">@ip</code>
+                {'、'}
+                <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">@email</code>
+                {'、'}
+                <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">@origin</code>
+                {'），也可直接输入正则表达式'}
               </p>
             </div>
           )}

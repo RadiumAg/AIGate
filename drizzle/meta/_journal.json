@@ -43,6 +43,13 @@
       "when": 1772258892491,
       "tag": "0005_silly_wolf_cub",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1772260531306,
+      "tag": "0006_breezy_colossus",
+      "breakpoints": true
     }
   ]
 }

@@ -6,7 +6,6 @@ import { DataTable } from '@/components/ui/data-table';
 
 interface WhitelistRule {
   id: string;
-  pattern: string;
   policyName: string;
   priority: number;
   status: 'active' | 'inactive';
@@ -41,15 +40,6 @@ const WhitelistRuleTable: FC<WhitelistRuleTableProps> = (props) => {
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
             {row.original.priority}
           </span>
-        ),
-      },
-      {
-        accessorKey: 'pattern',
-        header: '匹配模式',
-        cell: ({ row }) => (
-          <code className="text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-            {row.original.pattern}
-          </code>
         ),
       },
       {

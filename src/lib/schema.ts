@@ -54,7 +54,6 @@ export const usageRecords = pgTable('usage_records', {
 // 白名单规则表
 export const whitelistRules = pgTable('whitelist_rules', {
   id: text('id').primaryKey(),
-  pattern: text('pattern').notNull(),
   policyName: text('policy_name').notNull(),
   description: text('description'),
   priority: integer('priority').notNull().default(1),

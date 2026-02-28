@@ -398,19 +398,24 @@ export const whitelistRuleDb = {
   },
 
   matchUserPolicy: async (
-    email: string
+    userId: string
   ): Promise<{ policyName: string; ruleId: string | null }> => {
     try {
       const activeRules = await whitelistRuleDb.getActiveRules();
 
       for (const rule of activeRules) {
-        if (rule.pattern === '*') {
-          return { policyName: rule.policyName, ruleId: rule.id };
-        }
-        if (rule.pattern.startsWith('*@') && email.endsWith(rule.pattern.substring(1))) {
-          return { policyName: rule.policyName, ruleId: rule.id };
-        }
-        if (rule.pattern === email) {
+        // 如果启用了校验规则，用正则匹配
+        if (rule.validationEnabled && rule.validationPattern) {
+          try {
+            const regex = new RegExp(rule.validationPattern);
+            if (regex.test(userId)) {
+              return { policyName: rule.policyName, ruleId: rule.id };
+            }
+          } catch {
+            console.error(`Invalid validation pattern: ${rule.validationPattern}`);
+          }
+        } else {
+          // 未启用校验规则的规则，视为匹配所有用户
           return { policyName: rule.policyName, ruleId: rule.id };
         }
       }
@@ -439,35 +444,23 @@ export const whitelistRuleDb = {
       const activeRules = await whitelistRuleDb.getActiveRules();
 
       for (const rule of activeRules) {
-        let isMatched = false;
-
-        if (rule.pattern === '*') {
-          isMatched = true;
-        } else if (rule.pattern.startsWith('*@') && userId.endsWith(rule.pattern.substring(1))) {
-          isMatched = true;
-        } else if (rule.pattern === userId) {
-          isMatched = true;
-        }
-
-        if (isMatched) {
-          // 检查是否启用了校验规则
-          if (rule.validationEnabled && rule.validationPattern) {
-            try {
-              const regex = new RegExp(rule.validationPattern);
-              if (!regex.test(userId)) {
-                return {
-                  matched: true,
-                  policyName: rule.policyName,
-                  ruleId: rule.id,
-                  valid: false,
-                  reason: `userId "${userId}" 不符合校验规则: ${rule.validationPattern}`,
-                };
-              }
-            } catch {
-              console.error(`Invalid validation pattern: ${rule.validationPattern}`);
+        // 如果启用了校验规则，用正则匹配 userId
+        if (rule.validationEnabled && rule.validationPattern) {
+          try {
+            const regex = new RegExp(rule.validationPattern);
+            if (regex.test(userId)) {
+              return {
+                matched: true,
+                policyName: rule.policyName,
+                ruleId: rule.id,
+                valid: true,
+              };
             }
+          } catch {
+            console.error(`Invalid validation pattern: ${rule.validationPattern}`);
           }
-
+        } else {
+          // 未启用校验规则的规则，视为匹配所有用户
           return {
             matched: true,
             policyName: rule.policyName,
@@ -481,7 +474,8 @@ export const whitelistRuleDb = {
         matched: false,
         policyName: '默认策略',
         ruleId: null,
-        valid: true,
+        valid: false,
+        reason: `userId "${userId}" 未匹配到任何白名单规则`,
       };
     } catch (error) {
       console.error('Database error:', error);

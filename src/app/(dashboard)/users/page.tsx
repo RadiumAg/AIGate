@@ -8,7 +8,6 @@ import WhitelistRuleTable from './components/whitelist-rule-table';
 
 interface WhitelistRule {
   id: string;
-  pattern: string;
   policyName: string;
   priority: number;
   status: 'active' | 'inactive';

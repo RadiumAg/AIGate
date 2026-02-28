@@ -6,7 +6,6 @@ import { whitelistRuleDb } from '@/lib/database';
 // 白名单规则 Schema
 const WhitelistRuleSchema = z.object({
   id: z.string(),
-  pattern: z.string(),
   policyName: z.string(),
   description: z.string().optional().nullable(),
   priority: z.number(),
