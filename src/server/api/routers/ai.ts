@@ -3,12 +3,7 @@ import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { ChatCompletionRequestSchema, UsageRecord } from '@/lib/types';
 import { checkQuota, recordUsage } from '@/lib/quota';
-import {
-  getProviderByModel,
-  getApiKeyWithBaseUrl,
-  providers,
-  type AIProvider,
-} from '@/lib/ai-providers';
+import { getProviderByModel, providers } from '@/lib/ai-providers';
 import { v4 as uuidv4 } from 'uuid';
 
 export const aiRouter = createTRPCRouter({
@@ -17,13 +12,12 @@ export const aiRouter = createTRPCRouter({
     .input(
       z.object({
         userId: z.string(),
-        email: z.string().email().optional(),
-        apiKeyId: z.string().optional(),
+        apiKeyId: z.string(),
         request: ChatCompletionRequestSchema,
       })
     )
     .mutation(async ({ input }) => {
-      const { userId, email, apiKeyId, request } = input;
+      const { userId, apiKeyId, request } = input;
       const requestId = uuidv4();
 
       try {
@@ -39,59 +33,37 @@ export const aiRouter = createTRPCRouter({
         }
 
         // 2. 获取 API Key 和 Provider
-        let provider: AIProvider;
-        let apiKeyInfo: { key: string; baseUrl?: string } | null;
+        const { apiKeyDb } = await import('../../../lib/database');
+        const apiKey = await apiKeyDb.getById(apiKeyId);
 
-        if (apiKeyId) {
-          const { apiKeyDb } = await import('../../../lib/database');
-          const apiKey = await apiKeyDb.getById(apiKeyId);
-
-          if (!apiKey || apiKey.status !== 'ACTIVE') {
-            throw new TRPCError({
-              code: 'BAD_REQUEST',
-              message: 'API Key 不存在或已禁用',
-            });
-          }
-
-          const providerKey = apiKey.provider.toLowerCase();
-          const foundProvider = providers[providerKey];
-
-          if (!foundProvider) {
-            throw new TRPCError({
-              code: 'BAD_REQUEST',
-              message: `不支持的提供商: ${apiKey.provider}`,
-            });
-          }
-
-          provider = foundProvider;
-          apiKeyInfo = {
-            key: apiKey.key,
-            baseUrl: apiKey.baseUrl || undefined,
-          };
-        } else {
-          const foundProvider = getProviderByModel(request.model);
-          if (!foundProvider) {
-            throw new TRPCError({
-              code: 'BAD_REQUEST',
-              message: `不支持的模型: ${request.model}`,
-            });
-          }
-
-          provider = foundProvider;
-          apiKeyInfo = await getApiKeyWithBaseUrl(provider.name);
-          if (!apiKeyInfo) {
-            throw new TRPCError({
-              code: 'INTERNAL_SERVER_ERROR',
-              message: `${provider.name} API Key 未配置`,
-            });
-          }
+        if (!apiKey || apiKey.status !== 'ACTIVE') {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'API Key 不存在或已禁用',
+          });
         }
+
+        const providerKey = apiKey.provider.toLowerCase();
+        const foundProvider = providers[providerKey];
+
+        if (!foundProvider) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `不支持的提供商: ${apiKey.provider}`,
+          });
+        }
+
+        const provider = foundProvider;
+        const apiKeyInfo = {
+          key: apiKey.key,
+          baseUrl: apiKey.baseUrl || undefined,
+        };
 
         // 3. 估算 Token 消耗
         const estimatedTokens = provider.estimateTokens(request);
 
-        // 4. 检查配额（使用 userId 或 email 作为标识符）
-        const identifier = email || userId;
+        // 4. 检查配额（使用 userId 作为标识符）
+        const identifier = userId;
         const quotaCheck = await checkQuota({ email: identifier }, estimatedTokens);
         if (!quotaCheck.allowed) {
           throw new TRPCError({
