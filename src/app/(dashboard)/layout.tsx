@@ -1,6 +1,6 @@
 import React from 'react';
 import DashboardLayout from '@/components/dashboard-layout';
-import auth from '@/auth';
+import { getServerSession } from '@/auth';
 import { redirect } from 'next/navigation';
 
 interface DashboardLayoutProps {
@@ -8,7 +8,8 @@ interface DashboardLayoutProps {
 }
 
 export default async function Layout({ children }: DashboardLayoutProps) {
-  const session = await auth();
+  const session = await getServerSession();
+  console.log(session);
 
   if (!session) {
     redirect('/login');

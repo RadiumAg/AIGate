@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth';
+import NextAuth, { getServerSession as nextAuthGetServerSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
 export const authOptions = {
@@ -47,5 +47,9 @@ export const authOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-key',
 };
+
+export function getServerSession() {
+  return nextAuthGetServerSession(authOptions);
+}
 
 export default NextAuth(authOptions);
