@@ -145,10 +145,7 @@ export const usageRecordDb = {
     Array<UsageRecord & { user: { id: string; name: string | null; email: string | null } }>
   > => {
     try {
-      const results = await db
-        .select()
-        .from(usageRecords)
-        .orderBy(desc(usageRecords.timestamp));
+      const results = await db.select().from(usageRecords).orderBy(desc(usageRecords.timestamp));
 
       return results.map((record) => ({
         ...record,
@@ -282,16 +279,20 @@ export const usageRecordDb = {
 // 获取用户的配额策略
 export const getUserQuotaPolicyFromDb = async (userId: string): Promise<QuotaPolicy | null> => {
   try {
-    const user = await userDb.getById(userId);
-    if (!user) return null;
+    // 由于当前项目没有用户表，通过白名单规则匹配用户策略
+    const matchResult = await whitelistRuleDb.matchUserPolicy(userId);
 
-    return await quotaPolicyDb.getById(user.quotaPolicyId);
+    // 根据策略名称查找对应的配额策略
+    const policies = await quotaPolicyDb.getAll();
+    const matchedPolicy = policies.find((policy) => policy.name === matchResult.policyName);
+
+    // 如果找到匹配的策略则返回，否则返回第一个策略作为默认策略
+    return matchedPolicy || policies[0] || null;
   } catch (error) {
     console.error('Database error:', error);
     return null;
   }
 };
-
 // 获取活跃的 API Key
 export const getActiveApiKey = async (provider: string): Promise<string | null> => {
   try {

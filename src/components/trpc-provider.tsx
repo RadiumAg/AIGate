@@ -1,18 +1,17 @@
 'use client';
 
-import { FC, ReactNode, useState } from 'react';
+import { FC, ReactNode, useMemo } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink, loggerLink } from '@trpc/client';
 import { createTRPCReact } from '@trpc/react-query';
 import superjson from 'superjson';
-import { AppRouter } from '../server/api/root';
+import type { AppRouter } from '@/server/api/root';
 
 interface TRPCProviderProps {
   children: ReactNode;
 }
 
 const trpc = createTRPCReact<AppRouter>();
-
 const getBaseUrl = () => {
   if (typeof window !== 'undefined') return ''; // browser should use relative url
   if (typeof process !== 'undefined' && process.env.VERCEL_URL)
@@ -23,7 +22,7 @@ const getBaseUrl = () => {
 const TRPCProvider: FC<TRPCProviderProps> = (props) => {
   const { children } = props;
 
-  const [queryClient] = useState(
+  const queryClient = useMemo(
     () =>
       new QueryClient({
         defaultOptions: {
@@ -32,23 +31,26 @@ const TRPCProvider: FC<TRPCProviderProps> = (props) => {
             retry: 1,
           },
         },
-      })
+      }),
+    []
   );
 
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
-      transformer: superjson,
-      links: [
-        loggerLink({
-          enabled: (opts: { direction: string; result: unknown }) =>
-            (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') ||
-            (opts.direction === 'down' && opts.result instanceof Error),
-        }),
-        httpBatchLink({
-          url: `${getBaseUrl()}/api/trpc`,
-        }),
-      ],
-    })
+  const trpcClient = useMemo(
+    () =>
+      trpc.createClient({
+        transformer: superjson,
+        links: [
+          loggerLink({
+            enabled: (opts) =>
+              (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') ||
+              (opts.direction === 'down' && opts.result instanceof Error),
+          }),
+          httpBatchLink({
+            url: `${getBaseUrl()}/api/trpc`,
+          }),
+        ],
+      }),
+    []
   );
 
   return (

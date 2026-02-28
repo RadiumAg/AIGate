@@ -3,7 +3,7 @@
 import { FC } from 'react';
 import { nanoid } from 'nanoid';
 import { useLocalStorageState } from 'ahooks';
-import { trpc } from '@/components/TRPCProvider';
+import { trpc } from '@/components/trpc-provider';
 import RequestConfig from './components/RequestConfig';
 import ResponseResult from './components/ResponseResult';
 import CodeModal from './components/CodeModal';

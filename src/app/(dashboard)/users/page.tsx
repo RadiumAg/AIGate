@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { FC } from 'react';
-import { trpc } from '@/components/TRPCProvider';
+import { trpc } from '@/components/trpc-provider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 interface WhitelistRule {
   id: string;
