@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.gitignore
+*.md
+.env
+.env.*
+!.env.example
+docker-compose.yml
+Dockerfile
+Dockerfile.migrate
+.aone_copilot

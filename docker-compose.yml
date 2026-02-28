@@ -1,28 +1,83 @@
-version: '3.8'
-
 services:
+  # ---- Next.js 应用 ----
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aigate-app
+    ports:
+      - '${APP_PORT:-3000}:3000'
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-12345678}@postgres:5432/${POSTGRES_DB:-aigate}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    networks:
+      - aigate-network
+
+  # ---- PostgreSQL ----
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: aigate-postgres
     environment:
-      POSTGRES_DB: aigate
-      POSTGRES_USER: aigate_user
-      POSTGRES_PASSWORD: aigate_password
+      POSTGRES_DB: ${POSTGRES_DB:-aigate}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-12345678}
     ports:
-      - "5432:5432"
+      - '${POSTGRES_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-aigate}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
+    networks:
+      - aigate-network
 
+  # ---- Redis ----
   redis:
     image: redis:7-alpine
     container_name: aigate-redis
     ports:
-      - "6379:6379"
+      - '${REDIS_PORT:-6379}:6379'
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
+    networks:
+      - aigate-network
+
+  # ---- 数据库迁移（一次性任务） ----
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.migrate
+    container_name: aigate-migrate
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-12345678}@postgres:5432/${POSTGRES_DB:-aigate}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: 'no'
+    networks:
+      - aigate-network
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  aigate-network:
+    driver: bridge
