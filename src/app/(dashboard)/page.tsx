@@ -2,13 +2,12 @@
 
 import React from 'react';
 import { trpc } from '@/components/trpc-provider';
-import type { ActivityItem as ActivityItemType } from '@/types/dashboard';
 import UsageTrendChart from '@/app/(dashboard)/components/usage-trend-chart';
 import ModelDistributionChart from '@/app/(dashboard)/components/model-distribution-chart';
 import RegionHeatmapChart from '@/app/(dashboard)/components/region-heatmap-chart';
 import RecentIpRequests from '@/app/(dashboard)/components/recent-ip-requests';
 import StatCard from './components/stat-card';
-import ActivityItem from './components/activity-item';
+import RecentActivity from './components/recent-activity';
 
 const HomePage: React.FC = () => {
   // 获取仪表盘统计数据
@@ -198,37 +197,7 @@ const HomePage: React.FC = () => {
       {/* Recent Activity */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">最近活动</h2>
-        {activitiesLoading ? (
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="animate-pulse flex space-x-3">
-                <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {activities && activities.length > 0 ? (
-              activities.map((activity: ActivityItemType) => (
-                <ActivityItem
-                  key={activity.id}
-                  id={activity.id}
-                  description={activity.description}
-                  time={activity.time}
-                  details={activity.details}
-                />
-              ))
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500 dark:text-gray-400">暂无最近活动</p>
-              </div>
-            )}
-          </div>
-        )}
+        <RecentActivity activities={activities || []} isLoading={activitiesLoading} />
       </div>
     </div>
   );

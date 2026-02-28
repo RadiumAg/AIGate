@@ -25,7 +25,9 @@ const ActivityItem: React.FC<ActivityItemProps> = (props) => {
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffMins < 60) {
+    if (diffMins === 0) {
+      return '刚刚';
+    } else if (diffMins < 60) {
       return `${diffMins} 分钟前`;
     } else if (diffHours < 24) {
       return `${diffHours} 小时前`;
@@ -70,9 +72,9 @@ const ActivityItem: React.FC<ActivityItemProps> = (props) => {
                 {details.tokens.toLocaleString()} tokens
               </span>
             )}
-            {details.cost && (
+            {/* {details.cost && (
               <span className="text-xs text-gray-500 dark:text-gray-400">${details.cost}</span>
-            )}
+            )} */}
           </div>
         )}
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{formatTime(time)}</p>

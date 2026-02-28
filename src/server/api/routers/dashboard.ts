@@ -119,7 +119,7 @@ export const dashboardRouter = createTRPCRouter({
       const activities = recentRecords.slice(0, 10).map((record) => ({
         id: record.id,
         type: 'api_call',
-        description: `${record.user.name || '未知用户'} 调用了 ${record.model} API`,
+        description: `${record.user.id || '未知用户'} 调用了 ${record.model} API`,
         time: record.timestamp.toISOString(),
         details: {
           model: record.model,
