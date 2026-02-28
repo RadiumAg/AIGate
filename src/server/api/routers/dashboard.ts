@@ -209,6 +209,41 @@ export const dashboardRouter = createTRPCRouter({
     }
   }),
 
+  // 获取最近 IP 请求记录
+  getRecentIpRequests: publicProcedure.query(async () => {
+    try {
+      const results = await db
+        .select({
+          id: usageRecords.id,
+          userId: usageRecords.userId,
+          clientIp: usageRecords.clientIp,
+          region: usageRecords.region,
+          model: usageRecords.model,
+          provider: usageRecords.provider,
+          totalTokens: usageRecords.totalTokens,
+          timestamp: usageRecords.timestamp,
+        })
+        .from(usageRecords)
+        .where(isNotNull(usageRecords.clientIp))
+        .orderBy(sql`${usageRecords.timestamp} desc`)
+        .limit(20);
+
+      return results.map((record) => ({
+        id: record.id,
+        userId: record.userId,
+        clientIp: record.clientIp || '',
+        region: record.region || '未知',
+        model: record.model,
+        provider: record.provider,
+        totalTokens: record.totalTokens,
+        timestamp: record.timestamp.toISOString(),
+      }));
+    } catch (error) {
+      console.error('获取最近 IP 请求记录失败:', error);
+      throw new Error('获取最近 IP 请求记录失败');
+    }
+  }),
+
   // 获取模型使用分布
   getModelDistribution: publicProcedure.query(async () => {
     try {

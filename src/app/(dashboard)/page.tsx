@@ -6,6 +6,7 @@ import type { ActivityItem as ActivityItemType } from '@/types/dashboard';
 import UsageTrendChart from '@/app/(dashboard)/components/usage-trend-chart';
 import ModelDistributionChart from '@/app/(dashboard)/components/model-distribution-chart';
 import RegionHeatmapChart from '@/app/(dashboard)/components/region-heatmap-chart';
+import RecentIpRequests from '@/app/(dashboard)/components/recent-ip-requests';
 import StatCard from './components/stat-card';
 import ActivityItem from './components/activity-item';
 
@@ -27,6 +28,10 @@ const HomePage: React.FC = () => {
   // 获取地区分布
   const { data: regionDistribution, isLoading: regionLoading } =
     trpc.dashboard.getRegionDistribution.useQuery();
+
+  // 获取最近 IP 请求记录
+  const { data: recentIpRequests, isLoading: ipRequestsLoading } =
+    trpc.dashboard.getRecentIpRequests.useQuery();
 
   return (
     <div className="space-y-6">
@@ -180,6 +185,14 @@ const HomePage: React.FC = () => {
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">请求地区分布</h2>
         <RegionHeatmapChart data={regionDistribution || []} loading={regionLoading} />
+      </div>
+
+      {/* Recent IP Requests */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+          最近 IP 请求记录
+        </h2>
+        <RecentIpRequests data={recentIpRequests || []} loading={ipRequestsLoading} />
       </div>
 
       {/* Recent Activity */}
