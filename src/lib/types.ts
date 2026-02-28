@@ -70,6 +70,7 @@ export const UsageRecordSchema = z.object({
   totalTokens: z.number(),
   timestamp: z.string(),
   cost: z.number().optional(),
+  region: z.string().optional(),
 });
 
 export type UsageRecord = z.infer<typeof UsageRecordSchema>;

@@ -1,6 +1,6 @@
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { usageRecordDb } from '../../../lib/database';
-import { and, gte, lte, count, sum, sql } from 'drizzle-orm';
+import { and, gte, lte, count, sum, sql, isNotNull } from 'drizzle-orm';
 import { db } from '../../../lib/drizzle';
 import { usageRecords } from '../../../lib/schema';
 
@@ -172,6 +172,40 @@ export const dashboardRouter = createTRPCRouter({
     } catch (error) {
       console.error('获取使用趋势失败:', error);
       throw new Error('获取使用趋势失败');
+    }
+  }),
+
+  // 获取请求地区分布
+  getRegionDistribution: publicProcedure.query(async () => {
+    try {
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 30);
+
+      const results = await db
+        .select({
+          region: usageRecords.region,
+          requestCount: count(),
+          tokenCount: sum(usageRecords.totalTokens),
+        })
+        .from(usageRecords)
+        .where(
+          and(
+            gte(usageRecords.timestamp, startDate),
+            lte(usageRecords.timestamp, endDate),
+            isNotNull(usageRecords.region)
+          )
+        )
+        .groupBy(usageRecords.region);
+
+      return results.map((item) => ({
+        name: item.region || '未知',
+        value: Number(item.requestCount),
+        tokens: Number(item.tokenCount || 0),
+      }));
+    } catch (error) {
+      console.error('获取地区分布失败:', error);
+      throw new Error('获取地区分布失败');
     }
   }),
 

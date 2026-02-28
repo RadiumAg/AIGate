@@ -14,10 +14,11 @@ export const aiRouter = createTRPCRouter({
         userId: z.string(),
         apiKeyId: z.string(),
         request: ChatCompletionRequestSchema,
+        region: z.string().optional(),
       })
     )
     .mutation(async ({ input }) => {
-      const { userId, apiKeyId, request } = input;
+      const { userId, apiKeyId, request, region } = input;
       const requestId = uuidv4();
 
       try {
@@ -89,6 +90,7 @@ export const aiRouter = createTRPCRouter({
           totalTokens: response.usage?.total_tokens || estimatedTokens,
           timestamp: new Date().toISOString(),
           cost: 0,
+          region,
         };
 
         recordUsage(actualUsage, identifier).catch((error) => {

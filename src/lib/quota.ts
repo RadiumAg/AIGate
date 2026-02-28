@@ -160,6 +160,7 @@ export async function recordUsage(
       completionTokens: record.completionTokens,
       totalTokens: record.totalTokens,
       cost: typeof record.cost === 'number' ? String(record.cost) : '0',
+      region: record.region || null,
       timestamp: new Date(record.timestamp),
     });
 
