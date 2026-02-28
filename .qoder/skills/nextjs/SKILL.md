@@ -17,6 +17,7 @@ description: Develop Next.js 16+ applications with React 19, TypeScript, Tailwin
 ## Key Configuration
 
 ### next.config.ts
+
 ```typescript
 import type { NextConfig } from 'next';
 
@@ -29,6 +30,7 @@ export default nextConfig;
 ```
 
 ### Path Aliases
+
 - `@/*` maps to `./src/*`
 
 ## Development Commands
@@ -71,6 +73,7 @@ src/app/
 ## Component Patterns
 
 ### Server Component (Default)
+
 ```typescript
 // page.tsx or layout.tsx
 export default async function Page() {
@@ -80,6 +83,7 @@ export default async function Page() {
 ```
 
 ### Client Component
+
 ```typescript
 'use client';
 
@@ -92,6 +96,7 @@ export function ClientComponent() {
 ```
 
 ### tRPC Integration
+
 ```typescript
 'use client';
 
@@ -100,7 +105,7 @@ import { trpc } from '@/utils/api';
 export function Component() {
   const { data } = trpc.dashboard.getStats.useQuery();
   const mutation = trpc.apiKey.create.useMutation();
-  
+
   return <div>{/* render */}</div>;
 }
 ```
@@ -133,12 +138,10 @@ export const exampleRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     return await ctx.db.query.table.findMany();
   }),
-  
-  create: publicProcedure
-    .input(z.object({ name: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      return await ctx.db.insert(table).values(input);
-    }),
+
+  create: publicProcedure.input(z.object({ name: z.string() })).mutation(async ({ ctx, input }) => {
+    return await ctx.db.insert(table).values(input);
+  }),
 });
 ```
 
