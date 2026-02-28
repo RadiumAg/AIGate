@@ -1,7 +1,7 @@
 'use client';
 
 import React, { FC, useState } from 'react';
-import ApiKeyTable from '@/components/api-key-table';
+import ApiKeyTable from '@/app/(dashboard)/keys/components/api-key-table';
 import AddApiKeyDialog from '@/components/add-api-key-dialog';
 import { trpc } from '@/components/trpc-provider';
 import type { ApiKey, ApiKeyFormData } from '@/types/apiKey';

@@ -3,8 +3,8 @@
 import { FC, useMemo } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Copy, Loader2 } from 'lucide-react';
-import type { ApiKey } from '../types/apiKey';
-import { DataTable } from './ui/data-table';
+import type { ApiKey } from '../../../../types/apiKey';
+import { DataTable } from '../../../../components/ui/data-table';
 
 interface ApiKeyTableProps {
   keys: ApiKey[];

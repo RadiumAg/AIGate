@@ -30,7 +30,7 @@ export interface ActivityItem {
     model?: string;
     provider?: string;
     tokens?: number;
-    cost?: number;
+    cost?: number | string;
   };
 }
 

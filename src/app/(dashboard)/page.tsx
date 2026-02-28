@@ -3,8 +3,8 @@
 import React, { FC } from 'react';
 import { trpc } from '@/components/trpc-provider';
 import type { ActivityItem as ActivityItemType } from '@/types/dashboard';
-import UsageTrendChart from '@/components/usage-trend-chart';
-import ModelDistributionChart from '@/components/model-distribution-chart';
+import UsageTrendChart from '@/app/(dashboard)/components/usage-trend-chart';
+import ModelDistributionChart from '@/app/(dashboard)/components/model-distribution-chart';
 import StatCard from './components/stat-card';
 import ActivityItem from './components/activity-item';
 

@@ -15,17 +15,20 @@ interface ModelDistributionChartProps {
   loading?: boolean;
 }
 
-const ModelDistributionChart: React.FC<ModelDistributionChartProps> = ({ data, loading = false }) => {
+const ModelDistributionChart: React.FC<ModelDistributionChartProps> = ({
+  data,
+  loading = false,
+}) => {
   const chartRef = useRef<HTMLDivElement>(null);
 
   const initChart = useCallback(() => {
     if (!chartRef.current || !data || data.length === 0 || loading) return;
 
     const chart = echarts.init(chartRef.current);
-    
+
     // 计算总请求次数
     const totalRequests = data.reduce((sum, item) => sum + item.requests, 0);
-    
+
     // 配置图表
     const option = {
       tooltip: {
@@ -71,7 +74,7 @@ const ModelDistributionChart: React.FC<ModelDistributionChartProps> = ({ data, l
           labelLine: {
             show: true,
           },
-          data: data.map(item => ({
+          data: data.map((item) => ({
             name: item.name,
             value: item.value,
             requests: item.requests,
