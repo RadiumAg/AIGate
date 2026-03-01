@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { Copy } from 'lucide-react';
+import { Copy, KeyRound } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import type { ApiKey } from '@/types/api-key';
 import { DataTable } from '@/components/ui/data-table';
@@ -160,22 +160,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
     [onEdit, onDelete, onToggleStatus, onTest, isTestingId]
   );
 
-  const emptyIcon = (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-12 w-12 text-gray-400"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-      />
-    </svg>
-  );
+  const emptyIcon = <KeyRound className="h-12 w-12 text-gray-400" />;
 
   return (
     <DataTable

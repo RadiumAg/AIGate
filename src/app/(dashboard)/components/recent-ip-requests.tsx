@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, type FC } from 'react';
+import { Globe } from 'lucide-react';
 import {
   Pagination,
   PaginationContent,
@@ -114,20 +115,7 @@ const RecentIpRequests: FC<RecentIpRequestsProps> = (props) => {
   if (data.length === 0) {
     return (
       <div className="text-center py-8">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-12 w-12 mx-auto text-gray-300 dark:text-gray-600 mb-3"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-          />
-        </svg>
+        <Globe className="h-12 w-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" />
         <p className="text-gray-500 dark:text-gray-400">暂无 IP 请求记录</p>
       </div>
     );

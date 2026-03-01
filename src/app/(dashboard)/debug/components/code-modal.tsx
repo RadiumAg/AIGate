@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Copy } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
@@ -21,14 +22,7 @@ const CodeModal: React.FC<CodeModalProps> = (props) => {
           <DialogTitle className="flex items-center justify-between">
             <span>生成的代码</span>
             <Button variant="secondary" size="sm" onClick={() => onCopyToClipboard(generatedCode)}>
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                />
-              </svg>
+              <Copy className="w-4 h-4 mr-1" />
               复制
             </Button>
           </DialogTitle>

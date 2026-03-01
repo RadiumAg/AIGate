@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { CheckCircle, AlertCircle, Check, MessageSquare } from 'lucide-react';
 
 interface ResponseData {
   id: string;
@@ -46,19 +47,7 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md">
       <div className="p-6 border-b border-gray-200 dark:border-gray-700">
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center">
-          <svg
-            className="w-5 h-5 mr-2 text-green-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
+          <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
           响应结果
         </h2>
       </div>
@@ -67,19 +56,7 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
         {error && (
           <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md mb-4">
             <div className="flex items-center">
-              <svg
-                className="w-5 h-5 text-red-500 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+              <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
               <span className="text-sm text-red-800 dark:text-red-200">{error}</span>
             </div>
           </div>
@@ -214,14 +191,7 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
             </div>
             <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
               <p className="text-sm text-green-800 dark:text-green-200 flex items-center">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <Check className="w-4 h-4 mr-2" />
                 Stream 响应已完成
               </p>
             </div>
@@ -230,19 +200,7 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
 
         {!response && !error && !isLoading && !streamContent && (
           <div className="text-center py-12">
-            <svg
-              className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-              />
-            </svg>
+            <MessageSquare className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" />
             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               配置请求参数后点击发送请求查看响应结果
             </p>
