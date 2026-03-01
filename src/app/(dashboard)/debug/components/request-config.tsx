@@ -15,6 +15,8 @@ import MessageInput from './message-input';
 import { ApiKey } from '@/types/api-key';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface DebugRequestForm {
   userId: string;
@@ -262,15 +264,14 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Temperature: {form?.temperature || 0.7}
           </label>
-          <input
-            type="range"
-            min="0"
-            max="2"
-            step="0.1"
-            value={form?.temperature || 0.7}
-            onChange={(e) => {
+          <Slider
+            min={0}
+            max={2}
+            step={0.1}
+            defaultValue={[form?.temperature || 0.7]}
+            onValueChange={(value) => {
               if (!form) return;
-              setForm({ ...form, temperature: parseFloat(e.target.value) });
+              setForm({ ...form, temperature: value[0] });
             }}
             className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
           />
@@ -323,18 +324,20 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
               + 添加消息
             </Button>
           </div>
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {form?.messages?.map((message, index) => (
-              <MessageInput
-                key={index}
-                message={message}
-                index={index}
-                onChange={handleMessageChange}
-                onRemove={handleRemoveMessage}
-                canRemove={(form?.messages?.length || 0) > 1}
-              />
-            ))}
-          </div>
+          <ScrollArea className="h-0 min-h-64 max-h-96">
+            <div className="flex flex-col gap-y-1.5">
+              {form?.messages?.map((message, index) => (
+                <MessageInput
+                  key={index}
+                  message={message}
+                  index={index}
+                  onChange={handleMessageChange}
+                  onRemove={handleRemoveMessage}
+                  canRemove={(form?.messages?.length || 0) > 1}
+                />
+              ))}
+            </div>
+          </ScrollArea>
         </div>
 
         {/* 操作按钮 */}
