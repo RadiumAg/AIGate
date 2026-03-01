@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { TRPCError } from '@trpc/server';
 import { providers } from '@/lib/ai-providers';
 import { checkQuota, recordUsage } from '@/lib/quota';
 import { v4 as uuidv4 } from 'uuid';
