@@ -21,11 +21,21 @@ import { authOptions } from '@/auth';
  * These allow you to access things when processing a request, like the database, the session, etc.
  */
 
+interface Session {
+  user?: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    status: string;
+  };
+}
+
 interface CreateContextOptions {
   /**
    * Session data from NextAuth
    */
-  session: unknown;
+  session: Session | null;
   req?: import('http').IncomingMessage;
 }
 
@@ -55,7 +65,8 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
 export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req, res } = opts;
 
-  const session = await getServerSession(authOptions);
+  // 修复：传入req和res给getServerSession
+  const session = await getServerSession(req, res, authOptions);
 
   return createInnerTRPCContext({
     session,
@@ -115,7 +126,7 @@ export const publicProcedure = t.procedure;
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  if (!ctx.session || !(ctx.session as any).user) {
+  if (!ctx.session?.user) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
 
