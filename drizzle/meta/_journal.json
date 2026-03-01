@@ -64,6 +64,20 @@
       "when": 1772265051426,
       "tag": "0008_wet_speed_demon",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1772310000000,
+      "tag": "0009_fix_migration_conflict",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1772357234378,
+      "tag": "0010_fix_database_structure",
+      "breakpoints": true
     }
   ]
 }
