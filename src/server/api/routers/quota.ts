@@ -1,7 +1,13 @@
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
-import { getUserQuotaPolicy, getUserDailyUsage, resetUserQuota, checkUserQuota } from '@/lib/quota';
+import {
+  getUserQuotaPolicy,
+  getUserDailyUsage,
+  getDailyUsage,
+  resetUserQuota,
+  checkQuota,
+} from '@/lib/quota';
 import { redis, RedisKeys } from '@/lib/redis';
 import { quotaPolicyDb } from '@/lib/database';
 
@@ -29,44 +35,50 @@ async function clearPolicyCacheKeys(): Promise<void> {
 }
 
 export const quotaRouter = createTRPCRouter({
-  getQuotaInfo: publicProcedure.input(z.object({ userId: z.string() })).query(async ({ input }) => {
-    try {
-      const policy = await getUserQuotaPolicy(input.userId);
-      const usage = await getUserDailyUsage(input.userId);
-      const today = new Date().toISOString().split('T')[0];
+  getQuotaInfo: publicProcedure
+    .input(z.object({ userId: z.string(), apiKeyId: z.string().optional() }))
+    .query(async ({ input }) => {
+      try {
+        const policy = await getUserQuotaPolicy(input.userId);
+        // 使用新的 getDailyUsage 函数，支持 apiKey 参数
+        const usage = await getDailyUsage({
+          email: input.userId,
+          apiKey: input.apiKeyId,
+        });
+        const today = new Date().toISOString().split('T')[0];
 
-      // 计算剩余配额
-      let remaining;
-      if (policy.limitType === 'token') {
-        remaining = {
-          type: 'token' as const,
-          daily: policy.dailyTokenLimit ? policy.dailyTokenLimit - usage.tokensUsed : null,
-          monthly: policy.monthlyTokenLimit ? policy.monthlyTokenLimit - usage.tokensUsed : null,
+        // 计算剩余配额
+        let remaining;
+        if (policy.limitType === 'token') {
+          remaining = {
+            type: 'token' as const,
+            daily: policy.dailyTokenLimit ? policy.dailyTokenLimit - usage.tokensUsed : null,
+            monthly: policy.monthlyTokenLimit ? policy.monthlyTokenLimit - usage.tokensUsed : null,
+          };
+        } else {
+          remaining = {
+            type: 'request' as const,
+            daily: policy.dailyRequestLimit ? policy.dailyRequestLimit - usage.requestsToday : null,
+          };
+        }
+
+        return {
+          policy,
+          usage: {
+            tokensUsed: usage.tokensUsed,
+            requestsToday: usage.requestsToday,
+            date: today,
+          },
+          remaining,
         };
-      } else {
-        remaining = {
-          type: 'request' as const,
-          daily: policy.dailyRequestLimit ? policy.dailyRequestLimit - usage.requestsToday : null,
-        };
+      } catch (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: '获取用户配额信息失败',
+          cause: error,
+        });
       }
-
-      return {
-        policy,
-        usage: {
-          tokensUsed: usage.tokensUsed,
-          requestsToday: usage.requestsToday,
-          date: today,
-        },
-        remaining,
-      };
-    } catch (error) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: '获取用户配额信息失败',
-        cause: error,
-      });
-    }
-  }),
+    }),
 
   // 获取用户配额策略
   getUserPolicy: publicProcedure
@@ -136,12 +148,17 @@ export const quotaRouter = createTRPCRouter({
     .input(
       z.object({
         userId: z.string(),
+        apiKeyId: z.string().optional(),
         estimatedTokens: z.number().optional(),
       })
     )
     .query(async ({ input }) => {
       try {
-        const result = await checkUserQuota(input.userId, input.estimatedTokens);
+        // 使用新的 checkQuota 函数，支持 apiKey 参数
+        const result = await checkQuota(
+          { userId: input.userId, apiKey: input.apiKeyId },
+          input.estimatedTokens
+        );
         return result;
       } catch (error) {
         throw new TRPCError({

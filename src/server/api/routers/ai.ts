@@ -143,9 +143,9 @@ export const aiRouter = createTRPCRouter({
         // 3. 估算 Token 消耗
         const estimatedTokens = provider.estimateTokens(request);
 
-        // 4. 检查配额（使用 userId 作为标识符）
-        const identifier = userId;
-        const quotaCheck = await checkQuota({ userId: identifier }, estimatedTokens);
+        // 4. 检查配额（使用 userId + apiKeyId 组合作为标识符，确保不同 API Key 配额分开计算）
+        const identifier = `${userId}:${apiKeyId}`;
+        const quotaCheck = await checkQuota({ userId, apiKey: apiKeyId }, estimatedTokens);
         if (!quotaCheck.allowed) {
           throw new TRPCError({
             code: 'TOO_MANY_REQUESTS',

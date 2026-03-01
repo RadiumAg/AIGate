@@ -85,7 +85,10 @@ export async function checkQuota(
     const today = getTodayString();
     const currentMinute = getCurrentMinuteString();
 
-    const identifier = requestInfo.userId || requestInfo.ip || requestInfo.apiKey || 'anonymous';
+    // 使用 userId + apiKey 组合作为标识符，确保不同 API Key 的配额分开计算
+    const identifier = requestInfo.userId
+      ? `${requestInfo.userId}:${requestInfo.apiKey || 'default'}`
+      : requestInfo.ip || requestInfo.apiKey || 'anonymous';
 
     console.log(
       '[checkQuota] Policy:',
@@ -268,7 +271,10 @@ export async function getDailyUsage(requestInfo: {
   try {
     const policy = await getQuotaPolicyByRequest(requestInfo);
     const today = getTodayString();
-    const identifier = requestInfo.email || requestInfo.ip || requestInfo.apiKey || 'anonymous';
+    // 使用 userId + apiKey 组合作为标识符，确保不同 API Key 的配额分开计算
+    const identifier = requestInfo.email
+      ? `${requestInfo.email}:${requestInfo.apiKey || 'default'}`
+      : requestInfo.ip || requestInfo.apiKey || 'anonymous';
 
     const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);
     const dailyRequestKey = RedisKeys.userDailyRequests(identifier, today);
