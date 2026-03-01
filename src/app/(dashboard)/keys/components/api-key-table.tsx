@@ -50,7 +50,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
               variant="ghost"
               size="icon"
               onClick={() => copyToClipboard(row.original.key)}
-              className="h-8 w-8 text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
             >
               <Copy className="h-4 w-4" />
             </Button>
@@ -132,7 +132,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                 variant="ghost"
                 size="sm"
                 onClick={() => onToggleStatus(key.id)}
-                className="text-[var(--primary)] hover:text-[var(--primary)]/80 dark:text-blue-400 dark:hover:text-blue-300"
+                className="text-primary hover:text-(--primary)/80 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 {key.status === 'active' ? '禁用' : '启用'}
               </Button>
