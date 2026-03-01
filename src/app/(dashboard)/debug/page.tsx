@@ -331,15 +331,15 @@ curl -X POST '${baseUrl}/api/ai/chat/completions' \\
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <RequestConfig
             form={form}
-            setForm={setForm}
             apiKeys={apiKeys}
             supportedModels={supportedModels}
             estimatedTokens={estimatedTokens}
+            isSubmitting={chatCompletionMutation.isPending}
             isEstimating={isEstimating}
+            setForm={setForm}
             onEstimateTokens={handleEstimateTokens}
             onGenerateCode={generateCode}
             onSubmit={handleSubmit}
-            isSubmitting={chatCompletionMutation.isPending}
           />
 
           <ResponseResult

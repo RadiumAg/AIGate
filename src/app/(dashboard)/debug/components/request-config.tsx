@@ -324,7 +324,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
               + 添加消息
             </Button>
           </div>
-          <ScrollArea className="h-0 min-h-64 max-h-96">
+          <ScrollArea className="h-0 min-h-55 max-h-96">
             <div className="flex flex-col gap-y-1.5">
               {form?.messages?.map((message, index) => (
                 <MessageInput
