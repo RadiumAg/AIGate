@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,21 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  // 从环境变量获取默认用户信息
+  useEffect(() => {
+    // 在客户端使用NEXT_PUBLIC_前缀的环境变量
+    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@aigate.com';
+    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123';
+    
+    // 自动填充默认用户信息
+    setEmail(adminEmail);
+    setPassword(adminPassword);
+    
+    setIsLoading(false);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,10 +43,10 @@ export default function LoginPage() {
       if (result?.error) {
         setError('登录失败，请检查邮箱和密码');
       } else {
-        router.push('/dashboard');
+        router.push('/');
         router.refresh();
       }
-    } catch (err) {
+    } catch {
       setError('登录过程中发生错误');
     } finally {
       setLoading(false);
@@ -83,13 +97,27 @@ export default function LoginPage() {
 
           {error && <div className="text-red-500 text-sm text-center">{error}</div>}
 
-          <div>
+          <div className="space-y-3">
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loading || isLoading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               {loading ? '登录中...' : '登录'}
+            </Button>
+            
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@aigate.com';
+                const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123';
+                setEmail(adminEmail);
+                setPassword(adminPassword);
+              }}
+              className="group relative w-full flex justify-center py-2 px-4 border border-indigo-600 text-sm font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              使用默认账户
             </Button>
           </div>
         </form>

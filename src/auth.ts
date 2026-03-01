@@ -10,16 +10,32 @@ export const authOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        // 简单的测试用户
-        if (credentials?.email === 'test@example.com' && credentials?.password === 'password') {
+        // 从环境变量读取管理员用户信息
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@aigate.com';
+        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+
+        // 验证凭证
+        if (credentials?.email === adminEmail && credentials?.password === adminPassword) {
           return {
             id: '1',
+            email: adminEmail,
+            name: process.env.ADMIN_NAME || '系统管理员',
+            role: 'ADMIN',
+            status: 'ACTIVE',
+          };
+        }
+
+        // 保留原来的测试用户作为备选
+        if (credentials?.email === 'test@example.com' && credentials?.password === 'password') {
+          return {
+            id: '2',
             email: 'test@example.com',
             name: 'Test User',
             role: 'USER',
             status: 'ACTIVE',
           };
         }
+
         return null;
       },
     }),
@@ -44,6 +60,7 @@ export const authOptions = {
   },
   pages: {
     signIn: '/login',
+    error: '/login', // 登录错误时重定向到登录页面
   },
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-key',
 };

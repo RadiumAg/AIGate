@@ -1,6 +1,18 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 export default function HomePage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // 自动跳转到登录页面
+    router.push('/login');
+  }, [router]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
       <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
         <div className="mb-6">
           <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -23,18 +35,12 @@ export default function HomePage() {
         </div>
 
         <div className="space-y-4">
-          <a
-            href="/login"
+          <button
+            onClick={() => router.push('/login')}
             className="block w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
           >
             登录管理后台
-          </a>
-          <a
-            href="/register"
-            className="block w-full bg-white text-indigo-600 border border-indigo-600 py-3 px-4 rounded-lg font-medium hover:bg-indigo-50 transition-colors"
-          >
-            注册新账户
-          </a>
+          </button>
         </div>
 
         <div className="mt-8 pt-6 border-t border-gray-200">
