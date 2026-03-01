@@ -30,21 +30,21 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
         accessorKey: 'name',
         header: '名称',
         cell: ({ row }) => (
-          <span className="font-medium text-gray-900 dark:text-text-dark">{row.original.name}</span>
+          <span className="font-medium text-gray-900 dark:text-white">{row.original.name}</span>
         ),
       },
       {
         accessorKey: 'provider',
         header: '服务商',
         cell: ({ row }) => (
-          <span className="text-gray-500 dark:text-gray-400">{row.original.provider}</span>
+          <span className="text-gray-500 dark:text-white">{row.original.provider}</span>
         ),
       },
       {
         accessorKey: 'key',
         header: 'API Key',
         cell: ({ row }) => (
-          <div className="flex items-center text-gray-500 dark:text-gray-400">
+          <div className="flex items-center text-gray-500 dark:text-white">
             <span className="mr-2">{row.original.key}</span>
             <Button
               variant="ghost"
@@ -61,7 +61,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
         accessorKey: 'baseUrl',
         header: 'Base URL',
         cell: ({ row }) => (
-          <div className="text-gray-500 dark:text-gray-400 max-w-xs">
+          <div className="text-gray-500 dark:text-white max-w-xs">
             {row.original.baseUrl ? (
               <span className="truncate block" title={row.original.baseUrl}>
                 {row.original.baseUrl}
@@ -76,7 +76,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
         accessorKey: 'createdAt',
         header: '创建时间',
         cell: ({ row }) => (
-          <span className="text-gray-500 dark:text-gray-400">{row.original.createdAt}</span>
+          <span className="text-gray-500 dark:text-white">{row.original.createdAt}</span>
         ),
       },
       {
@@ -132,7 +132,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                 variant="ghost"
                 size="sm"
                 onClick={() => onToggleStatus(key.id)}
-                className="text-[var(--primary)] hover:text-[var(--primary)]/80"
+                className="text-[var(--primary)] hover:text-[var(--primary)]/80 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 {key.status === 'active' ? '禁用' : '启用'}
               </Button>
@@ -140,7 +140,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                 variant="ghost"
                 size="sm"
                 onClick={() => onEdit(key)}
-                className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:text-indigo-300 dark:hover:bg-indigo-900/20"
               >
                 编辑
               </Button>
@@ -148,7 +148,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                 variant="ghost"
                 size="sm"
                 onClick={() => onDelete(key.id)}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
               >
                 删除
               </Button>

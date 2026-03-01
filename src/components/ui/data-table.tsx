@@ -91,13 +91,13 @@ const DataTable = <TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="bg-white dark:bg-card-dark rounded-xl shadow-md dark:shadow-lg overflow-hidden">
+      <div className="bg-white dark:bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-md dark:shadow-lg overflow-hidden border border-gray-200 dark:border-slate-700">
         <Table>
-          <TableHeader className="bg-gray-50 dark:bg-slate-800">
+          <TableHeader className="bg-gray-50 dark:bg-slate-800/50">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="hover:bg-transparent dark:hover:bg-transparent">
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="text-xs font-medium uppercase tracking-wider">
+                  <TableHead key={header.id} className="text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -109,9 +109,13 @@ const DataTable = <TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                <TableRow 
+                  key={row.id} 
+                  data-state={row.getIsSelected() && 'selected'}
+                  className="dark:bg-slate-900/30 dark:hover:bg-slate-800/50"
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="dark:text-gray-200">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -122,7 +126,7 @@ const DataTable = <TData, TValue>({
                 <TableCell colSpan={columns.length} className="h-24 text-center">
                   <div className="flex flex-col items-center justify-center py-8">
                     {emptyIcon && <div className="mb-2">{emptyIcon}</div>}
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-text-dark">
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {emptyMessage}
                     </h3>
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
