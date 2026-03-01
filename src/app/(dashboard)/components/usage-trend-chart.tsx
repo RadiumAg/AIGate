@@ -17,19 +17,52 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
   const { data, loading } = props;
   const chartRef = React.useRef<HTMLDivElement>(null);
 
+  // 获取系统主题偏好
+  const [isDarkMode, setIsDarkMode] = React.useState(false);
+
+  React.useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setIsDarkMode(mediaQuery.matches);
+
+    const handler = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
+    mediaQuery.addEventListener('change', handler);
+
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
   React.useEffect(() => {
     if (!chartRef.current || loading || !data || data.length === 0) return;
 
     const chart = echarts.init(chartRef.current);
 
+    // 根据主题设置颜色配置
+    const themeConfig = isDarkMode
+      ? {
+          backgroundColor: 'transparent',
+          textColor: '#e5e7eb',
+          axisColor: '#4b5563',
+          gridColor: '#374151',
+          tooltipBg: 'rgba(30, 30, 36, 0.95)',
+          borderColor: '#4b5563',
+        }
+      : {
+          backgroundColor: 'transparent',
+          textColor: '#374151',
+          axisColor: '#6b7280',
+          gridColor: '#f3f4f6',
+          tooltipBg: 'rgba(255, 255, 255, 0.95)',
+          borderColor: '#e5e7eb',
+        };
+
     const option = {
+      backgroundColor: themeConfig.backgroundColor,
       tooltip: {
         trigger: 'axis',
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        borderColor: '#e5e7eb',
+        backgroundColor: themeConfig.tooltipBg,
+        borderColor: themeConfig.borderColor,
         borderWidth: 1,
         textStyle: {
-          color: '#374151',
+          color: themeConfig.textColor,
           fontSize: 12,
         },
         padding: [10, 15],
@@ -38,7 +71,7 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
       legend: {
         data: ['请求数', 'Token 消耗'],
         textStyle: {
-          color: '#4b5563',
+          color: themeConfig.textColor,
           fontSize: 12,
         },
         itemWidth: 12,
@@ -65,7 +98,7 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
         ),
         axisLine: {
           lineStyle: {
-            color: '#e5e7eb',
+            color: themeConfig.axisColor,
             width: 1,
           },
         },
@@ -73,7 +106,7 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
           show: false,
         },
         axisLabel: {
-          color: '#6b7280',
+          color: themeConfig.textColor,
           fontSize: 11,
           rotate: 0,
           margin: 12,
@@ -81,7 +114,7 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
         splitLine: {
           show: true,
           lineStyle: {
-            color: '#f3f4f6',
+            color: themeConfig.gridColor,
             type: 'dashed',
           },
         },
@@ -92,14 +125,14 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
           name: '请求数（次）',
           position: 'left',
           nameTextStyle: {
-            color: '#1890ff',
+            color: isDarkMode ? '#60a5fa' : '#1890ff',
             fontSize: 12,
             fontWeight: '500',
           },
           axisLine: {
             show: true,
             lineStyle: {
-              color: '#e5e7eb',
+              color: themeConfig.axisColor,
               width: 1,
             },
           },
@@ -107,14 +140,14 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
             show: false,
           },
           axisLabel: {
-            color: '#6b7280',
+            color: themeConfig.textColor,
             fontSize: 11,
             formatter: '{value}',
           },
           splitLine: {
             show: true,
             lineStyle: {
-              color: '#f3f4f6',
+              color: themeConfig.gridColor,
               type: 'dashed',
             },
           },
@@ -124,14 +157,14 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
           name: 'Token（个）',
           position: 'right',
           nameTextStyle: {
-            color: '#52c41a',
+            color: isDarkMode ? '#34d399' : '#52c41a',
             fontSize: 12,
             fontWeight: '500',
           },
           axisLine: {
             show: true,
             lineStyle: {
-              color: '#e5e7eb',
+              color: themeConfig.axisColor,
               width: 1,
             },
           },
@@ -139,7 +172,7 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
             show: false,
           },
           axisLabel: {
-            color: '#6b7280',
+            color: themeConfig.textColor,
             fontSize: 11,
             formatter: (value: number) => {
               if (value >= 1000) {
@@ -162,25 +195,25 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
           symbolSize: 6,
           showSymbol: true,
           lineStyle: {
-            color: '#3b82f6',
+            color: isDarkMode ? '#60a5fa' : '#3b82f6',
             width: 3,
           },
           itemStyle: {
-            color: '#3b82f6',
-            borderColor: '#ffffff',
+            color: isDarkMode ? '#60a5fa' : '#3b82f6',
+            borderColor: isDarkMode ? '#1e1e24' : '#ffffff',
             borderWidth: 2,
-            shadowColor: 'rgba(59, 130, 246, 0.3)',
+            shadowColor: isDarkMode ? 'rgba(96, 165, 250, 0.4)' : 'rgba(59, 130, 246, 0.3)',
             shadowBlur: 6,
           },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               {
                 offset: 0,
-                color: 'rgba(59, 130, 246, 0.2)',
+                color: isDarkMode ? 'rgba(96, 165, 250, 0.3)' : 'rgba(59, 130, 246, 0.2)',
               },
               {
                 offset: 1,
-                color: 'rgba(59, 130, 246, 0.02)',
+                color: isDarkMode ? 'rgba(96, 165, 250, 0.05)' : 'rgba(59, 130, 246, 0.02)',
               },
             ]),
           },
@@ -195,25 +228,25 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
           symbolSize: 6,
           showSymbol: true,
           lineStyle: {
-            color: '#10b981',
+            color: isDarkMode ? '#34d399' : '#10b981',
             width: 3,
           },
           itemStyle: {
-            color: '#10b981',
-            borderColor: '#ffffff',
+            color: isDarkMode ? '#34d399' : '#10b981',
+            borderColor: isDarkMode ? '#1e1e24' : '#ffffff',
             borderWidth: 2,
-            shadowColor: 'rgba(16, 185, 129, 0.3)',
+            shadowColor: isDarkMode ? 'rgba(52, 211, 153, 0.4)' : 'rgba(16, 185, 129, 0.3)',
             shadowBlur: 6,
           },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               {
                 offset: 0,
-                color: 'rgba(16, 185, 129, 0.2)',
+                color: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : 'rgba(16, 185, 129, 0.2)',
               },
               {
                 offset: 1,
-                color: 'rgba(16, 185, 129, 0.02)',
+                color: isDarkMode ? 'rgba(52, 211, 153, 0.05)' : 'rgba(16, 185, 129, 0.02)',
               },
             ]),
           },
@@ -225,14 +258,24 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
 
     chart.setOption(option);
 
+    // 监听主题变化
+    const handleThemeChange = (e: MediaQueryListEvent) => {
+      setIsDarkMode(e.matches);
+      chart.setOption(option);
+    };
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', handleThemeChange);
+
     const handleResize = () => chart.resize();
     window.addEventListener('resize', handleResize);
 
     return () => {
+      mediaQuery.removeEventListener('change', handleThemeChange);
       window.removeEventListener('resize', handleResize);
       chart.dispose();
     };
-  }, [data, loading]);
+  }, [data, loading, isDarkMode]);
 
   if (loading) {
     return (
@@ -243,9 +286,9 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
   }
 
   return (
-    <div className="bg-white">
-      <div ref={chartRef} className="w-full h-64"></div>
-      <div className="mt-3 text-center text-xs text-gray-500">
+    <div>
+      <div ref={chartRef} className="w-full h-72"></div>
+      <div className={`mt-3 text-center text-xs`}>
         数据周期：{data.length > 0 && new Date(data[0].date).toLocaleDateString('zh-CN')} -{' '}
         {data.length > 0 && new Date(data[data.length - 1].date).toLocaleDateString('zh-CN')}
       </div>
