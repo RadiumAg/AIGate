@@ -87,7 +87,7 @@ const QuotasPage: FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-text-dark">配额管理</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">配额管理</h1>
         <Button onClick={handleAddPolicy}>新建策略</Button>
       </div>
 

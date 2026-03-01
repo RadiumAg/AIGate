@@ -97,7 +97,7 @@ const UsersPage: FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-text-dark">用户策略管理</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">用户策略管理</h1>
         <Button onClick={handleAddRule}>添加规则</Button>
       </div>
 
