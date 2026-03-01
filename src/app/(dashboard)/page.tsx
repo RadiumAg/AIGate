@@ -164,15 +164,7 @@ const HomePage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="rounded-2xl p-6 backdrop-blur-md bg-[var(--card)] border border-[var(--card-border)] shadow-[var(--card-shadow)]">
           <h2 className="text-lg font-semibold text-[var(--foreground)] mb-4">近期请求趋势</h2>
-          {trendLoading ? (
-            <div className="w-full h-64 flex items-center justify-center">
-              <Spinner className="h-8 w-8 text-indigo-600" />
-            </div>
-          ) : (
-            <div className="w-full h-64">
-              <UsageTrendChart data={usageTrend || []} loading={trendLoading} />
-            </div>
-          )}
+          <UsageTrendChart data={usageTrend || []} loading={trendLoading} />
         </div>
 
         <div className="rounded-2xl p-6 backdrop-blur-md bg-[var(--card)] border border-[var(--card-border)] shadow-[var(--card-shadow)]">
