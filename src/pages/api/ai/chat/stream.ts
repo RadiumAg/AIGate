@@ -4,8 +4,14 @@ import { checkQuota, recordUsage } from '@/lib/quota';
 import { v4 as uuidv4 } from 'uuid';
 import { getRegionFromRequest, extractClientIp } from '@/lib/ip-region';
 import type { UsageRecord } from '@/lib/types';
+import { corsMiddleware } from '@/lib/cors';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // 处理 CORS
+  if (corsMiddleware(req, res)) {
+    return;
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createTRPCRouter, publicProcedure } from '../trpc';
+import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import {
   getUserQuotaPolicy,
@@ -35,7 +35,7 @@ async function clearPolicyCacheKeys(): Promise<void> {
 }
 
 export const quotaRouter = createTRPCRouter({
-  getQuotaInfo: publicProcedure
+  getQuotaInfo: protectedProcedure
     .input(z.object({ userId: z.string(), apiKeyId: z.string().optional() }))
     .query(async ({ input }) => {
       try {
@@ -81,7 +81,7 @@ export const quotaRouter = createTRPCRouter({
     }),
 
   // 获取用户配额策略
-  getUserPolicy: publicProcedure
+  getUserPolicy: protectedProcedure
     .input(z.object({ userId: z.string() }))
     .query(async ({ input }) => {
       try {
@@ -97,7 +97,7 @@ export const quotaRouter = createTRPCRouter({
     }),
 
   // 设置用户配额策略
-  setUserPolicy: publicProcedure
+  setUserPolicy: protectedProcedure
     .input(
       z.object({
         userId: z.string(),
@@ -130,21 +130,23 @@ export const quotaRouter = createTRPCRouter({
     }),
 
   // 获取用户今日使用情况
-  getUserUsage: publicProcedure.input(z.object({ userId: z.string() })).query(async ({ input }) => {
-    try {
-      const usage = await getUserDailyUsage(input.userId);
-      return usage;
-    } catch (error) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: '获取用户使用情况失败',
-        cause: error,
-      });
-    }
-  }),
+  getUserUsage: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ input }) => {
+      try {
+        const usage = await getUserDailyUsage(input.userId);
+        return usage;
+      } catch (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: '获取用户使用情况失败',
+          cause: error,
+        });
+      }
+    }),
 
   // 检查用户配额
-  checkQuota: publicProcedure
+  checkQuota: protectedProcedure
     .input(
       z.object({
         userId: z.string(),
@@ -170,7 +172,7 @@ export const quotaRouter = createTRPCRouter({
     }),
 
   // 重置用户配额
-  resetQuota: publicProcedure
+  resetQuota: protectedProcedure
     .input(z.object({ userId: z.string() }))
     .mutation(async ({ input }) => {
       try {
@@ -186,7 +188,7 @@ export const quotaRouter = createTRPCRouter({
     }),
 
   // 获取所有配额策略
-  getAllPolicies: publicProcedure.query(async () => {
+  getAllPolicies: protectedProcedure.query(async () => {
     try {
       return await quotaPolicyDb.getAll();
     } catch (error) {
@@ -199,7 +201,7 @@ export const quotaRouter = createTRPCRouter({
   }),
 
   // 创建配额策略
-  createPolicy: publicProcedure
+  createPolicy: protectedProcedure
     .input(
       z.object({
         name: z.string(),
@@ -239,7 +241,7 @@ export const quotaRouter = createTRPCRouter({
     }),
 
   // 更新配额策略
-  updatePolicy: publicProcedure
+  updatePolicy: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -292,26 +294,28 @@ export const quotaRouter = createTRPCRouter({
     }),
 
   // 删除配额策略
-  deletePolicy: publicProcedure.input(z.object({ id: z.string() })).mutation(async ({ input }) => {
-    try {
-      const success = await quotaPolicyDb.delete(input.id);
-      if (!success) {
+  deletePolicy: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        const success = await quotaPolicyDb.delete(input.id);
+        if (!success) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: '配额策略不存在',
+          });
+        }
+
+        await clearPolicyCacheKeys();
+
+        return { success: true };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
         throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: '配额策略不存在',
+          code: 'INTERNAL_SERVER_ERROR',
+          message: '删除配额策略失败',
+          cause: error,
         });
       }
-
-      await clearPolicyCacheKeys();
-
-      return { success: true };
-    } catch (error) {
-      if (error instanceof TRPCError) throw error;
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: '删除配额策略失败',
-        cause: error,
-      });
-    }
-  }),
+    }),
 });

@@ -1,4 +1,4 @@
-import { createTRPCRouter, publicProcedure } from '../trpc';
+import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { usageRecordDb } from '../../../lib/database';
 import { and, gte, lte, count, sum, sql, isNotNull } from 'drizzle-orm';
 import { db } from '../../../lib/drizzle';
@@ -6,7 +6,7 @@ import { usageRecords } from '../../../lib/schema';
 
 export const dashboardRouter = createTRPCRouter({
   // 获取仪表盘统计数据
-  getStats: publicProcedure.query(async () => {
+  getStats: protectedProcedure.query(async () => {
     try {
       const stats = await usageRecordDb.getStats();
 
@@ -133,7 +133,7 @@ export const dashboardRouter = createTRPCRouter({
   }),
 
   // 获取最近活动
-  getRecentActivity: publicProcedure.query(async () => {
+  getRecentActivity: protectedProcedure.query(async () => {
     try {
       const recentRecords = await usageRecordDb.getByDateRange(
         new Date(Date.now() - 24 * 60 * 60 * 1000), // 最近24小时
@@ -162,7 +162,7 @@ export const dashboardRouter = createTRPCRouter({
   }),
 
   // 获取使用趋势数据（最近7天）
-  getUsageTrend: publicProcedure.query(async () => {
+  getUsageTrend: protectedProcedure.query(async () => {
     try {
       const endDate = new Date();
       const startDate = new Date();
@@ -201,7 +201,7 @@ export const dashboardRouter = createTRPCRouter({
   }),
 
   // 获取请求地区分布
-  getRegionDistribution: publicProcedure.query(async () => {
+  getRegionDistribution: protectedProcedure.query(async () => {
     try {
       const endDate = new Date();
       const startDate = new Date();
@@ -235,7 +235,7 @@ export const dashboardRouter = createTRPCRouter({
   }),
 
   // 获取最近 IP 请求记录
-  getRecentIpRequests: publicProcedure.query(async () => {
+  getRecentIpRequests: protectedProcedure.query(async () => {
     try {
       const results = await db
         .select({
@@ -270,7 +270,7 @@ export const dashboardRouter = createTRPCRouter({
   }),
 
   // 获取模型使用分布
-  getModelDistribution: publicProcedure.query(async () => {
+  getModelDistribution: protectedProcedure.query(async () => {
     try {
       const endDate = new Date();
       const startDate = new Date();

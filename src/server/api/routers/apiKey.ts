@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createTRPCRouter, publicProcedure } from '../trpc';
+import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { ApiKeySchema } from '../../../lib/types';
 import { redis, RedisKeys } from '../../../lib/redis';
@@ -83,7 +83,7 @@ function convertStatusFromDb(status: string): 'active' | 'disabled' {
 
 export const apiKeyRouter = createTRPCRouter({
   // 获取所有 API Keys
-  getAll: publicProcedure.query(async () => {
+  getAll: protectedProcedure.query(async () => {
     try {
       const apiKeys = await apiKeyDb.getAll();
 
@@ -110,7 +110,7 @@ export const apiKeyRouter = createTRPCRouter({
   }),
 
   // 根据 ID 获取 API Key
-  getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ input }) => {
+  getById: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ input }) => {
     try {
       const apiKey = await apiKeyDb.getById(input.id);
 
@@ -144,7 +144,7 @@ export const apiKeyRouter = createTRPCRouter({
   }),
 
   // 创建 API Key
-  create: publicProcedure
+  create: protectedProcedure
     .input(ApiKeySchema.omit({ id: true, createdAt: true }))
     .mutation(async ({ input }) => {
       try {
@@ -190,7 +190,7 @@ export const apiKeyRouter = createTRPCRouter({
     }),
 
   // 更新 API Key
-  update: publicProcedure.input(ApiKeySchema).mutation(async ({ input }) => {
+  update: protectedProcedure.input(ApiKeySchema).mutation(async ({ input }) => {
     try {
       // 更新数据库中的 API Key
       const updatedApiKey = await apiKeyDb.update(input.id, {
@@ -240,7 +240,7 @@ export const apiKeyRouter = createTRPCRouter({
   }),
 
   // 删除 API Key
-  delete: publicProcedure.input(z.object({ id: z.string() })).mutation(async ({ input }) => {
+  delete: protectedProcedure.input(z.object({ id: z.string() })).mutation(async ({ input }) => {
     try {
       // 先获取 API Key 信息以便清除缓存
       const apiKey = await apiKeyDb.getById(input.id);
@@ -285,57 +285,59 @@ export const apiKeyRouter = createTRPCRouter({
   }),
 
   // 切换 API Key 状态
-  toggleStatus: publicProcedure.input(z.object({ id: z.string() })).mutation(async ({ input }) => {
-    try {
-      // 获取当前 API Key
-      const currentApiKey = await apiKeyDb.getById(input.id);
+  toggleStatus: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        // 获取当前 API Key
+        const currentApiKey = await apiKeyDb.getById(input.id);
 
-      if (!currentApiKey) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'API Key 不存在',
+        if (!currentApiKey) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'API Key 不存在',
+          });
+        }
+
+        // 切换状态
+        const newStatus = currentApiKey.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+
+        const updatedApiKey = await apiKeyDb.update(input.id, {
+          status: newStatus,
         });
-      }
 
-      // 切换状态
-      const newStatus = currentApiKey.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+        if (!updatedApiKey) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: '状态切换失败',
+          });
+        }
 
-      const updatedApiKey = await apiKeyDb.update(input.id, {
-        status: newStatus,
-      });
+        // 如果禁用了 API Key，清除 Redis 缓存
+        if (newStatus === 'INACTIVE') {
+          try {
+            const cacheKey = RedisKeys.apiKeys(convertProviderFromDb(currentApiKey.provider));
+            await redis.del(cacheKey);
+          } catch (redisError) {
+            console.warn('Redis 缓存清除失败:', redisError);
+          }
+        }
 
-      if (!updatedApiKey) {
+        return { success: true };
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: '状态切换失败',
+          message: '切换 API Key 状态失败',
+          cause: error,
         });
       }
-
-      // 如果禁用了 API Key，清除 Redis 缓存
-      if (newStatus === 'INACTIVE') {
-        try {
-          const cacheKey = RedisKeys.apiKeys(convertProviderFromDb(currentApiKey.provider));
-          await redis.del(cacheKey);
-        } catch (redisError) {
-          console.warn('Redis 缓存清除失败:', redisError);
-        }
-      }
-
-      return { success: true };
-    } catch (error) {
-      if (error instanceof TRPCError) {
-        throw error;
-      }
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: '切换 API Key 状态失败',
-        cause: error,
-      });
-    }
-  }),
+    }),
 
   // 测试 API Key 有效性
-  testKey: publicProcedure
+  testKey: protectedProcedure
     .input(
       z.object({
         provider: z.enum(['openai', 'anthropic', 'google', 'deepseek', 'moonshot', 'spark']),
@@ -407,7 +409,7 @@ export const apiKeyRouter = createTRPCRouter({
     }),
 
   // 获取 API Key 使用统计
-  getUsageStats: publicProcedure.input(z.object({ id: z.string() })).query(async () => {
+  getUsageStats: protectedProcedure.input(z.object({ id: z.string() })).query(async () => {
     try {
       // 获取最近7天的使用记录
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);

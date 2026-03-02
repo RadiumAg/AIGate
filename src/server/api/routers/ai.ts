@@ -3,7 +3,7 @@ import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { ChatCompletionRequestSchema } from '@/lib/types';
 import type { ChatCompletionRequest, ChatCompletionResponse, UsageRecord } from '@/lib/types';
-import { checkQuota, recordUsage } from '@/lib/quota';
+import { checkQuota, recordUsage, getDailyUsage, getQuotaPolicyByEmail } from '@/lib/quota';
 import { getProviderByModel, providers } from '@/lib/ai-providers';
 import type { AIProvider } from '@/lib/ai-providers';
 import { v4 as uuidv4 } from 'uuid';
@@ -219,4 +219,52 @@ export const aiRouter = createTRPCRouter({
     const estimatedTokens = provider.estimateTokens(input);
     return { estimatedTokens };
   }),
+
+  // 获取配额信息（包括剩余 Token 或请求次数）
+  getQuotaInfo: publicProcedure
+    .input(z.object({ userId: z.string(), apiKeyId: z.string().optional() }))
+    .query(async ({ input }) => {
+      try {
+        const policy = await getQuotaPolicyByEmail(input.userId);
+        // 使用 userId + apiKey 组合标识符查询配额使用情况
+        const usage = await getDailyUsage({
+          email: input.userId,
+          apiKey: input.apiKeyId,
+        });
+        const today = new Date().toISOString().split('T')[0];
+
+        // 计算剩余配额
+        let remaining;
+        if (policy.limitType === 'token') {
+          // Token 限制模式
+          remaining = {
+            type: 'token' as const,
+            daily: policy.dailyTokenLimit ? policy.dailyTokenLimit - usage.tokensUsed : null,
+            monthly: policy.monthlyTokenLimit ? policy.monthlyTokenLimit - usage.tokensUsed : null,
+          };
+        } else {
+          // 请求次数限制模式
+          remaining = {
+            type: 'request' as const,
+            daily: policy.dailyRequestLimit ? policy.dailyRequestLimit - usage.requestsToday : null,
+          };
+        }
+
+        return {
+          policy,
+          usage: {
+            tokensUsed: usage.tokensUsed,
+            requestsToday: usage.requestsToday,
+            date: today,
+          },
+          remaining,
+        };
+      } catch (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: '获取配额信息失败',
+          cause: error,
+        });
+      }
+    }),
 });

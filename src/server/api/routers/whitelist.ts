@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createTRPCRouter, publicProcedure } from '../trpc';
+import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { whitelistRuleDb } from '@/lib/database';
 
@@ -18,7 +18,7 @@ const WhitelistRuleSchema = z.object({
 
 export const whitelistRouter = createTRPCRouter({
   // 获取所有白名单规则
-  getAll: publicProcedure.query(async () => {
+  getAll: protectedProcedure.query(async () => {
     try {
       const rules = await whitelistRuleDb.getAll();
       return rules.map((rule) => ({
@@ -36,7 +36,7 @@ export const whitelistRouter = createTRPCRouter({
   }),
 
   // 根据 ID 获取白名单规则
-  getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ input }) => {
+  getById: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ input }) => {
     try {
       const rule = await whitelistRuleDb.getById(input.id);
       if (!rule) {
@@ -61,7 +61,7 @@ export const whitelistRouter = createTRPCRouter({
   }),
 
   // 创建白名单规则
-  create: publicProcedure
+  create: protectedProcedure
     .input(WhitelistRuleSchema.omit({ id: true, createdAt: true, updatedAt: true }))
     .mutation(async ({ input }) => {
       try {
@@ -85,7 +85,7 @@ export const whitelistRouter = createTRPCRouter({
     }),
 
   // 更新白名单规则
-  update: publicProcedure
+  update: protectedProcedure
     .input(WhitelistRuleSchema.omit({ createdAt: true, updatedAt: true }))
     .mutation(async ({ input }) => {
       try {
@@ -117,7 +117,7 @@ export const whitelistRouter = createTRPCRouter({
     }),
 
   // 删除白名单规则
-  delete: publicProcedure.input(z.object({ id: z.string() })).mutation(async ({ input }) => {
+  delete: protectedProcedure.input(z.object({ id: z.string() })).mutation(async ({ input }) => {
     try {
       const success = await whitelistRuleDb.delete(input.id);
       if (!success) {
@@ -138,28 +138,30 @@ export const whitelistRouter = createTRPCRouter({
   }),
 
   // 切换白名单规则状态
-  toggleStatus: publicProcedure.input(z.object({ id: z.string() })).mutation(async ({ input }) => {
-    try {
-      const rule = await whitelistRuleDb.toggleStatus(input.id);
-      if (!rule) {
+  toggleStatus: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        const rule = await whitelistRuleDb.toggleStatus(input.id);
+        if (!rule) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: '白名单规则不存在',
+          });
+        }
+        return { success: true };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
         throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: '白名单规则不存在',
+          code: 'INTERNAL_SERVER_ERROR',
+          message: '切换白名单规则状态失败',
+          cause: error,
         });
       }
-      return { success: true };
-    } catch (error) {
-      if (error instanceof TRPCError) throw error;
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: '切换白名单规则状态失败',
-        cause: error,
-      });
-    }
-  }),
+    }),
 
   // 获取白名单规则统计信息
-  getStats: publicProcedure.query(async () => {
+  getStats: protectedProcedure.query(async () => {
     try {
       return await whitelistRuleDb.getStats();
     } catch (error) {
@@ -172,7 +174,7 @@ export const whitelistRouter = createTRPCRouter({
   }),
 
   // 匹配用户邮箱到策略
-  matchUserPolicy: publicProcedure
+  matchUserPolicy: protectedProcedure
     .input(z.object({ email: z.string().email() }))
     .query(async ({ input }) => {
       try {
