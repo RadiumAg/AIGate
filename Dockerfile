@@ -44,7 +44,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 USER nextjs
 
 # 使用环境变量配置端口，默认为 3000
+ARG PORT=3000
 ENV PORT=${PORT}
 ENV HOSTNAME="0.0.0.0"
+
 EXPOSE ${PORT}
 
+CMD ["node", "server.js"]
