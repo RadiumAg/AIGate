@@ -11,39 +11,66 @@
 - ✅ **管理后台**：完整的用户、API Key、配额策略管理界面
 - ✅ **深色模式**：支持明暗主题切换
 
-## 快速开始
+## 一键部署
 
-````bash
+项目提供 `deploy.sh` 脚本，支持一键部署和交互式配置。
+
+### 快速部署
+
+```bash
+# 1. 配置环境变量（交互式）
+./deploy.sh config
+
+# 2. 一键部署
+./deploy.sh up
+```
+
+### 部署命令
+
+| 命令                  | 说明                         |
+| --------------------- | ---------------------------- |
+| `./deploy.sh`         | 首次部署 / 全量启动（默认）  |
+| `./deploy.sh config`  | 交互式配置环境变量           |
+| `./deploy.sh update`  | 更新应用（重新构建 + 迁移）  |
+| `./deploy.sh down`    | 停止并移除所有容器           |
+| `./deploy.sh restart` | 重启应用容器                 |
+| `./deploy.sh logs`    | 查看应用日志                 |
+| `./deploy.sh migrate` | 仅执行数据库迁移             |
+| `./deploy.sh status`  | 查看服务状态                 |
+| `./deploy.sh clean`   | 停止并清除所有数据（危险！） |
+
+### 配置说明
+
+运行 `./deploy.sh config` 可交互式配置以下环境变量：
+
+- **ADMIN_EMAIL** / **ADMIN_PASSWORD** - 管理员账号密码
+- **NEXT_PUBLIC_ADMIN_EMAIL** / **NEXT_PUBLIC_ADMIN_PASSWORD** - 前端显示的管理员信息
+- **DATABASE_URL** - PostgreSQL 连接地址
+- **REDIS_URL** - Redis 连接地址
+
+配置会自动保存到 `.env` 文件，并在部署时加载。
+
+## 快速开始（开发模式）
+
+如需本地开发，可手动安装依赖：
+
 ```bash
 # 1. 安装依赖
-cd /Users/zly/Desktop/work/AIGate
-rm -rf node_modules package-lock.json pnpm-lock.yaml
 pnpm install
-# 2. 设置数据库
-createdb aigate
+
+# 2. 设置环境变量
 cp .env.example .env.local
 # 编辑 .env.local 设置 DATABASE_URL
 
 # 3. 初始化数据库
-pnpm db:generate
 pnpm db:push
 pnpm db:seed
-### 3. 初始化数据库
-
-```bash
-# 生成 Drizzle 迁移文件
-pnpm db:generate
-
-# 推送数据库 Schema
-pnpm db:push
-
-# 运行种子数据
-pnpm db:seed
-````
 
 # 4. 启动项目
+pnpm dev
+```
 
-pnpm dev## API 使用
+## API 使用
 
 ### 1. 测试配额系统
 

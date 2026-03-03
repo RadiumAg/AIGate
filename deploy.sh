@@ -88,12 +88,14 @@ cmd_config() {
   local current_admin_password=$(get_env_value "ADMIN_PASSWORD" "admin123")
   local current_db_url=$(get_env_value "DATABASE_URL" "postgresql://postgres:12345678@postgres:5432/aigate")
   local current_redis_url=$(get_env_value "REDIS_URL" "redis://redis:6379")
+  local current_app_port=$(get_env_value "APP_PORT" "3000")
   
   echo "当前配置："
   echo "  ADMIN_EMAIL: $current_admin_email"
   echo "  ADMIN_PASSWORD: ********"
   echo "  DATABASE_URL: $current_db_url"
   echo "  REDIS_URL: $current_redis_url"
+  echo "  APP_PORT: $current_app_port"
   echo ""
   
   # 管理员邮箱
@@ -115,6 +117,12 @@ cmd_config() {
   read -p "请输入 Redis URL [$current_redis_url]: " input_redis_url
   local redis_url=${input_redis_url:-$current_redis_url}
   
+  # 应用端口
+  echo ""
+  log_info "应用端口配置："
+  read -p "请输入应用端口 [$current_app_port]: " input_app_port
+  local app_port=${input_app_port:-$current_app_port}
+  
   # 确认
   echo ""
   log_info "配置预览："
@@ -124,6 +132,7 @@ cmd_config() {
   echo "  NEXT_PUBLIC_ADMIN_PASSWORD: ********"
   echo "  DATABASE_URL: $db_url"
   echo "  REDIS_URL: $redis_url"
+  echo "  APP_PORT: $app_port"
   echo ""
   
   read -p "确认保存？(Y/n) " confirm
@@ -135,13 +144,14 @@ cmd_config() {
     set_env_value "NEXT_PUBLIC_ADMIN_PASSWORD" "$admin_password"
     set_env_value "DATABASE_URL" "$db_url"
     set_env_value "REDIS_URL" "$redis_url"
+    set_env_value "APP_PORT" "$app_port"
     
     # 其他必要配置
     if ! grep -q "^NEXTAUTH_SECRET=" "$ENV_FILE" 2>/dev/null; then
       set_env_value "NEXTAUTH_SECRET" "$(openssl rand -base64 32 2>/dev/null || date +%s | sha256sum | base64 | head -c 32)"
     fi
     if ! grep -q "^NEXTAUTH_URL=" "$ENV_FILE" 2>/dev/null; then
-      set_env_value "NEXTAUTH_URL" "http://localhost:3000"
+      set_env_value "NEXTAUTH_URL" "http://localhost:${app_port}"
     fi
     if ! grep -q "^ADMIN_NAME=" "$ENV_FILE" 2>/dev/null; then
       set_env_value "ADMIN_NAME" "系统管理员"
@@ -187,9 +197,12 @@ cmd_up() {
   log_info "4/4 执行数据库迁移并启动应用..."
   docker compose -p "$PROJECT_NAME" up -d
 
+  # 获取配置的端口
+  local app_port=$(get_env_value "APP_PORT" "3000")
+  
   echo ""
   log_ok "========== 部署完成 =========="
-  log_ok "应用地址：http://localhost:${APP_PORT:-3000}"
+  log_ok "应用地址：http://localhost:${app_port}"
   log_info "查看日志：./deploy.sh logs"
   log_info "查看状态：./deploy.sh status"
 }
