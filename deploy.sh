@@ -193,8 +193,17 @@ cmd_up() {
   check_env
 
   log_info "1/4 检查并拉取基础镜像..."
+  local node_image="node:20-alpine"
   local postgres_image="postgres:15-alpine"
   local redis_image="redis:7-alpine"
+  
+  # 检查 Node.js 镜像
+  if check_image_exists "$node_image"; then
+    log_info "  ✓ Node.js 镜像已存在"
+  else
+    log_info "  ↓ 拉取 Node.js 镜像..."
+    docker pull "$node_image" || true
+  fi
   
   # 检查 PostgreSQL 镜像
   if check_image_exists "$postgres_image"; then
