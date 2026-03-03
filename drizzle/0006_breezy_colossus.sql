@@ -1,1 +1,0 @@
-ALTER TABLE "whitelist_rules" DROP COLUMN "pattern";

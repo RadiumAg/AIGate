@@ -7,8 +7,86 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
-COPY drizzle ./drizzle
 COPY drizzle.config.ts ./
-COPY src/lib/schema.ts ./src/lib/schema.ts
+COPY src/lib/schema.ts ./src/lib/
 
-CMD ["pnpm", "db:migrate"]
+# 创建入口脚本，等待数据库就绪后再执行 push
+COPY --chmod=+x <<'EOF' /wait-and-push.sh
+#!/bin/sh
+set -e
+
+echo "=========================================="
+echo "Starting database push..."
+echo "=========================================="
+echo "DATABASE_URL: ${DATABASE_URL:-not set}"
+echo ""
+
+echo "Step 1: Waiting for PostgreSQL to be ready..."
+
+# 等待数据库就绪，最多等待 120 秒
+for i in $(seq 1 120); do
+  DB_URL="$DATABASE_URL"
+  
+  if psql "$DB_URL" -c '\q' 2>/dev/null; then
+    echo "PostgreSQL is ready!"
+    break
+  fi
+  
+  if [ $i -eq 120 ]; then
+    echo ""
+    echo "=========================================="
+    echo "ERROR: Timeout waiting for PostgreSQL"
+    echo "=========================================="
+    psql "$DB_URL" -c '\q' 2>&1 || true
+    exit 1
+  fi
+  
+  echo "Waiting for PostgreSQL... ($i/120)"
+  sleep 1
+done
+
+echo ""
+echo "Step 2: Ensuring database exists..."
+
+# 提取数据库连接信息
+DB_NAME=$(echo "$DATABASE_URL" | sed -E 's|.*/([^/]+)$|\1|')
+DB_HOST=$(echo "$DATABASE_URL" | sed -E 's|.*@([^/]+)/.*|\1|')
+DB_USER=$(echo "$DATABASE_URL" | sed -E 's|.*://([^:]+):.*|\1|')
+DB_PASS=$(echo "$DATABASE_URL" | sed -E 's|.*://[^:]+:([^@]+)@.*|\1|')
+
+echo "Database: $DB_NAME"
+echo "Host: $DB_HOST"
+echo "User: $DB_USER"
+
+# 连接到默认 postgres 数据库创建目标数据库
+echo "Creating database if not exists: $DB_NAME"
+psql "postgresql://$DB_USER:$DB_PASS@$DB_HOST/postgres" -c "SELECT 1 FROM pg_database WHERE datname = '$DB_NAME'" | grep -q 1 || \
+  psql "postgresql://$DB_USER:$DB_PASS@$DB_HOST/postgres" -c "CREATE DATABASE $DB_NAME" 2>&1 || \
+  echo "Database may already exist, continuing..."
+
+echo ""
+echo "Step 3: Pushing schema to database..."
+echo "=========================================="
+
+# 执行 drizzle-kit push
+if pnpm db:push; then
+    echo ""
+    echo "=========================================="
+    echo "✓ Schema pushed successfully!"
+    echo "=========================================="
+else
+    echo ""
+    echo "=========================================="
+    echo "✗ Schema push failed!"
+    echo "=========================================="
+    echo ""
+    echo "Trying to get more details..."
+    echo ""
+    echo "--- Drizzle config ---"
+    cat drizzle.config.ts
+    
+    exit 1
+fi
+EOF
+
+CMD ["/wait-and-push.sh"]

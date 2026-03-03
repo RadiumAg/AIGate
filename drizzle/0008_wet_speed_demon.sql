@@ -1,1 +1,0 @@
-ALTER TABLE "usage_records" ADD COLUMN "client_ip" text;

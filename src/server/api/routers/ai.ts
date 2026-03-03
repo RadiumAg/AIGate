@@ -223,7 +223,7 @@ export const aiRouter = createTRPCRouter({
   // 获取配额信息（包括剩余 Token 或请求次数）
   getQuotaInfo: publicProcedure
     .input(z.object({ userId: z.string(), apiKeyId: z.string().optional() }))
-    .query(async ({ input }) => {
+    .mutation(async ({ input }) => {
       try {
         const policy = await getQuotaPolicyByEmail(input.userId);
         // 使用 userId + apiKey 组合标识符查询配额使用情况
