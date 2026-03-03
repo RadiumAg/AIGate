@@ -233,7 +233,7 @@ cmd_up() {
   done
   
   # 构建时跳过远程检查
-  docker compose -p "$PROJECT_NAME" build --pull=missing
+  docker compose -p "$PROJECT_NAME" build --pull=false
 
   log_info "3/4 启动基础设施（PostgreSQL + Redis）..."
   docker compose -p "$PROJECT_NAME" up -d postgres redis
@@ -260,7 +260,7 @@ cmd_update() {
   check_dependencies
 
   log_info "1/3 重新构建镜像..."
-  docker compose -p "$PROJECT_NAME" build --pull=missing app migrate
+  docker compose -p "$PROJECT_NAME" build app migrate
 
   log_info "2/3 执行数据库迁移..."
   docker compose -p "$PROJECT_NAME" run --rm migrate
