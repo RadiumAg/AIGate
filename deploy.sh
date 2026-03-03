@@ -222,7 +222,18 @@ cmd_up() {
   fi
 
   log_info "2/4 构建应用镜像..."
-  docker compose -p "$PROJECT_NAME" build
+  # 预先确保所有基础镜像都已拉取到本地
+  local base_images=("node:20-alpine" "postgres:15-alpine" "redis:7-alpine")
+  
+  for image in "${base_images[@]}"; do
+    if ! check_image_exists "$image"; then
+      log_info "  ↓ 拉取缺失的基础镜像: $image"
+      docker pull "$image" || true
+    fi
+  done
+  
+  # 构建时跳过远程检查
+  docker compose -p "$PROJECT_NAME" build --pull=missing
 
   log_info "3/4 启动基础设施（PostgreSQL + Redis）..."
   docker compose -p "$PROJECT_NAME" up -d postgres redis
@@ -249,7 +260,7 @@ cmd_update() {
   check_dependencies
 
   log_info "1/3 重新构建镜像..."
-  docker compose -p "$PROJECT_NAME" build app migrate
+  docker compose -p "$PROJECT_NAME" build --pull=missing app migrate
 
   log_info "2/3 执行数据库迁移..."
   docker compose -p "$PROJECT_NAME" run --rm migrate
