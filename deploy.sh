@@ -48,6 +48,16 @@ check_dependencies() {
   log_ok "Docker 和 Docker Compose 已就绪"
 }
 
+# 检查镜像是否存在
+check_image_exists() {
+  local image=$1
+  if docker image inspect "$image" >/dev/null 2>&1; then
+    return 0  # 镜像存在
+  else
+    return 1  # 镜像不存在
+  fi
+}
+
 # 读取 .env 中的值
 get_env_value() {
   local key=$1
@@ -182,8 +192,25 @@ cmd_up() {
   check_dependencies
   check_env
 
-  log_info "1/4 拉取基础镜像..."
-  docker compose -p "$PROJECT_NAME" pull postgres redis 2>/dev/null || true
+  log_info "1/4 检查并拉取基础镜像..."
+  local postgres_image="postgres:15-alpine"
+  local redis_image="redis:7-alpine"
+  
+  # 检查 PostgreSQL 镜像
+  if check_image_exists "$postgres_image"; then
+    log_info "  ✓ PostgreSQL 镜像已存在"
+  else
+    log_info "  ↓ 拉取 PostgreSQL 镜像..."
+    docker pull "$postgres_image" || true
+  fi
+  
+  # 检查 Redis 镜像
+  if check_image_exists "$redis_image"; then
+    log_info "  ✓ Redis 镜像已存在"
+  else
+    log_info "  ↓ 拉取 Redis 镜像..."
+    docker pull "$redis_image" || true
+  fi
 
   log_info "2/4 构建应用镜像..."
   docker compose -p "$PROJECT_NAME" build
