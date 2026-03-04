@@ -11,7 +11,48 @@ const DEFAULT_QUOTA_POLICY: QuotaPolicy = {
   rpmLimit: 10,
 };
 
-// 根据邮箱匹配白名单规则并获取配额策略
+// 根据 API Key ID 获取配额策略（新的主要方式）
+export async function getQuotaPolicyByApiKey(apiKeyId: string): Promise<QuotaPolicy> {
+  try {
+    const cacheKey = `policy:apiKey:${apiKeyId}`;
+    const cachedPolicy = await redis.get(cacheKey);
+    if (cachedPolicy) {
+      return JSON.parse(cachedPolicy);
+    }
+
+    // 通过 apiKeyId 找到对应的白名单规则
+    const rule = await whitelistRuleDb.getByApiKeyId(apiKeyId);
+
+    if (!rule) {
+      console.warn(`[getQuotaPolicyByApiKey] No whitelist rule found for apiKeyId: ${apiKeyId}`);
+      return DEFAULT_QUOTA_POLICY;
+    }
+
+    // 根据策略名称从数据库获取完整的配额策略
+    const policies = await quotaPolicyDb.getAll();
+    const matchedPolicy = policies.find((p) => p.name === rule.policyName);
+
+    const policy = matchedPolicy
+      ? {
+          ...matchedPolicy,
+          description: matchedPolicy.description || undefined,
+          limitType: (matchedPolicy.limitType as 'token' | 'request') || 'token',
+          dailyTokenLimit: matchedPolicy.dailyTokenLimit || undefined,
+          monthlyTokenLimit: matchedPolicy.monthlyTokenLimit || undefined,
+          dailyRequestLimit: matchedPolicy.dailyRequestLimit || undefined,
+        }
+      : DEFAULT_QUOTA_POLICY;
+
+    // 缓存策略（缓存1小时）
+    await redis.setEx(cacheKey, 60 * 60, JSON.stringify(policy));
+    return policy;
+  } catch (error) {
+    console.error('Error getting quota policy by apiKey:', error);
+    return DEFAULT_QUOTA_POLICY;
+  }
+}
+
+// 根据邮箱匹配白名单规则并获取配额策略（兼容旧方式）
 export async function getQuotaPolicyByEmail(userId: string): Promise<QuotaPolicy> {
   try {
     const cacheKey = `policy:userId:${userId}`;
@@ -55,13 +96,18 @@ export async function getQuotaPolicyByRequest(requestInfo: {
   domain?: string;
 }): Promise<QuotaPolicy> {
   try {
-    // 优先使用邮箱匹配
+    // 优先使用 apiKey 匹配（新的主要方式）
+    if (requestInfo.apiKey) {
+      return await getQuotaPolicyByApiKey(requestInfo.apiKey);
+    }
+
+    // 兼容旧方式：使用 userId 匹配
     if (requestInfo.userId) {
       return await getQuotaPolicyByEmail(requestInfo.userId);
     }
 
     // 可以在这里扩展其他匹配方式
-    // 比如根据 API Key、IP 地址等匹配
+    // 比如根据 IP 地址等匹配
 
     return DEFAULT_QUOTA_POLICY;
   } catch (error) {

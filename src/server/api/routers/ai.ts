@@ -3,7 +3,7 @@ import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { ChatCompletionRequestSchema } from '@/lib/types';
 import type { ChatCompletionRequest, ChatCompletionResponse, UsageRecord } from '@/lib/types';
-import { checkQuota, recordUsage, getDailyUsage, getQuotaPolicyByEmail } from '@/lib/quota';
+import { checkQuota, recordUsage, getDailyUsage, getQuotaPolicyByApiKey } from '@/lib/quota';
 import { getProviderByModel, providers } from '@/lib/ai-providers';
 import type { AIProvider } from '@/lib/ai-providers';
 import { v4 as uuidv4 } from 'uuid';
@@ -241,11 +241,13 @@ export const aiRouter = createTRPCRouter({
 
   // 获取配额信息（包括剩余 Token 或请求次数）
   getQuotaInfo: publicProcedure
-    .input(z.object({ userId: z.string(), apiKeyId: z.string().optional() }))
+    .input(z.object({ userId: z.string(), apiKeyId: z.string() }))
     .mutation(async ({ input }) => {
       try {
-        const policy = await getQuotaPolicyByEmail(input.userId);
-        // 使用 userId + apiKey 组合标识符查询配额使用情况
+        // 优先通过 apiKeyId 获取配额策略
+        const policy = await getQuotaPolicyByApiKey(input.apiKeyId);
+
+        // 使用 finalUserId + apiKeyId 组合标识符查询配额使用情况
         const usage = await getDailyUsage({
           email: input.userId,
           apiKey: input.apiKeyId,

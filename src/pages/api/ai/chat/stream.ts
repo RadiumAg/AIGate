@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getRegionFromRequest, extractClientIp } from '@/lib/ip-region';
 import type { UsageRecord } from '@/lib/types';
 import { corsMiddleware } from '@/lib/cors';
+import { apiKeyDb } from '@/lib/database';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // 处理 CORS
@@ -51,7 +52,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const finalUserId = validationResult.generatedUserId || userId;
 
     // 3. 获取 API Key 和 Provider
-    const { apiKeyDb } = await import('@/lib/database');
     const apiKey = await apiKeyDb.getById(apiKeyId);
 
     if (!apiKey || apiKey.status !== 'ACTIVE') {
