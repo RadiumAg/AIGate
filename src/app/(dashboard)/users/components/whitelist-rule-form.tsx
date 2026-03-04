@@ -131,8 +131,13 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
   const [showPresets, setShowPresets] = React.useState(false);
   const [presetFilter, setPresetFilter] = React.useState('');
   const [selectedPresetIndex, setSelectedPresetIndex] = React.useState(0);
+  const [showUserIdPresets, setShowUserIdPresets] = React.useState(false);
+  const [userIdPresetFilter, setUserIdPresetFilter] = React.useState('');
+  const [selectedUserIdPresetIndex, setSelectedUserIdPresetIndex] = React.useState(0);
   const presetDropdownRef = React.useRef<HTMLDivElement>(null);
+  const userIdPresetDropdownRef = React.useRef<HTMLDivElement>(null);
   const validationInputRef = React.useRef<HTMLInputElement>(null);
+  const userIdPatternInputRef = React.useRef<HTMLInputElement>(null);
 
   const filteredPresets = React.useMemo(() => {
     if (!presetFilter) return USERID_PRESENTS;
@@ -143,6 +148,16 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
         preset.description.toLowerCase().includes(lowerFilter)
     );
   }, [presetFilter]);
+
+  const filteredUserIdPresets = React.useMemo(() => {
+    if (!userIdPresetFilter) return PATTERN_PRESETS;
+    const lowerFilter = userIdPresetFilter.toLowerCase();
+    return PATTERN_PRESETS.filter(
+      (preset) =>
+        preset.trigger.toLowerCase().includes(lowerFilter) ||
+        preset.description.toLowerCase().includes(lowerFilter)
+    );
+  }, [userIdPresetFilter]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -170,6 +185,22 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
     }
   };
 
+  const handleUserIdPatternChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFormData({ ...formData, userIdPattern: value });
+
+    const atIndex = value.lastIndexOf('@');
+    if (atIndex >= 0) {
+      const afterAt = value.substring(atIndex);
+      setUserIdPresetFilter(afterAt);
+      setShowUserIdPresets(true);
+      setSelectedUserIdPresetIndex(0);
+    } else {
+      setShowUserIdPresets(false);
+      setUserIdPresetFilter('');
+    }
+  };
+
   const handleSelectPreset = (preset: PatternPreset) => {
     const currentValue = formData.validationPattern || '';
     const atIndex = currentValue.lastIndexOf('@');
@@ -181,6 +212,19 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
     setShowPresets(false);
     setPresetFilter('');
     validationInputRef.current?.focus();
+  };
+
+  const handleSelectUserIdPreset = (preset: PatternPreset) => {
+    const currentValue = formData.userIdPattern || '';
+    const atIndex = currentValue.lastIndexOf('@');
+
+    const newValue =
+      atIndex >= 0 ? currentValue.substring(0, atIndex) + preset.pattern : preset.pattern;
+
+    setFormData({ ...formData, userIdPattern: newValue });
+    setShowUserIdPresets(false);
+    setUserIdPresetFilter('');
+    userIdPatternInputRef.current?.focus();
   };
 
   const handleValidationKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -200,6 +244,23 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
     }
   };
 
+  const handleUserIdPatternKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showUserIdPresets || filteredUserIdPresets.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedUserIdPresetIndex((prev) => Math.min(prev + 1, filteredUserIdPresets.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedUserIdPresetIndex((prev) => Math.max(prev - 1, 0));
+    } else if (e.key === 'Enter' && showUserIdPresets) {
+      e.preventDefault();
+      handleSelectUserIdPreset(filteredUserIdPresets[selectedUserIdPresetIndex]);
+    } else if (e.key === 'Escape') {
+      setShowUserIdPresets(false);
+    }
+  };
+
   const handleToggleValidation = () => {
     setFormData({ ...formData, validationEnabled: !formData.validationEnabled });
   };
@@ -213,6 +274,12 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
     const handleClickOutside = (event: MouseEvent) => {
       if (presetDropdownRef.current && !presetDropdownRef.current.contains(event.target as Node)) {
         setShowPresets(false);
+      }
+      if (
+        userIdPresetDropdownRef.current &&
+        !userIdPresetDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowUserIdPresets(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -303,14 +370,52 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             UserId 格式生成规则 (userIdPattern)
           </label>
-          <input
-            type="text"
-            name="userIdPattern"
-            value={formData.userIdPattern || ''}
-            onChange={handleChange}
-            placeholder="输入正则表达式，如 ^[a-zA-Z0-9_]+$"
-            className={inputClassName}
-          />
+          <div className="relative" ref={userIdPresetDropdownRef}>
+            <input
+              ref={userIdPatternInputRef}
+              type="text"
+              name="userIdPattern"
+              value={formData.userIdPattern || ''}
+              onChange={handleUserIdPatternChange}
+              onKeyDown={handleUserIdPatternKeyDown}
+              onFocus={() => {
+                const value = formData.userIdPattern || '';
+                if (value.includes('@')) {
+                  setUserIdPresetFilter(value.substring(value.lastIndexOf('@')));
+                  setShowUserIdPresets(true);
+                }
+              }}
+              placeholder="输入 @ 可快速选择预设模板（如 @ip 、 @user_id 、 @any）"
+              className={inputClassName}
+            />
+
+            {showUserIdPresets && filteredUserIdPresets.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                {filteredUserIdPresets.map((preset, index) => (
+                  <button
+                    key={preset.trigger}
+                    type="button"
+                    onClick={() => handleSelectUserIdPreset(preset)}
+                    className={`w-full text-left px-3 py-2 flex items-start gap-3 transition-colors bg-transparent border-0 ${
+                      index === selectedUserIdPresetIndex ? 'bg-accent' : 'hover:bg-muted'
+                    }`}
+                  >
+                    <code className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 whitespace-nowrap mt-0.5">
+                      {preset.label}
+                    </code>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm text-gray-800 dark:text-gray-200">
+                        {preset.description}
+                      </p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">
+                        {preset.pattern}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             用于校验传入的 userId 格式，不符合此模式的请求将被拒绝。 留空表示不进行格式校验。
           </p>
@@ -328,7 +433,7 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
                 启用校验规则
               </label>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                开启后，通过 X-Request-User 传入的 userId 必须匹配校验规则才允许请求
+                开启后，传入的 userId 必须匹配校验规则才允许请求
               </p>
             </div>
             <button

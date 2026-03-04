@@ -31,21 +31,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 1. 根据 apiKeyId 获取白名单规则
     const { whitelistRuleDb } = await import('@/lib/database');
     const whitelistRule = await whitelistRuleDb.getByApiKeyId(apiKeyId);
-        
+
     if (!whitelistRule || whitelistRule.status !== 'active') {
       return res.status(403).json({
         error: '该 API Key 未绑定有效的白名单规则',
       });
     }
-    
+
     // 2. 根据白名单规则校验 userId 格式
-    const validationResult = await whitelistRuleDb.createUserById(userId, whitelistRule.userIdPattern);
-    
+    const validationResult = await whitelistRuleDb.validateUserByApiKey(apiKeyId, userId);
+
     if (!validationResult.valid) {
       return res.status(403).json({
         error: validationResult.reason || '用户校验未通过',
       });
     }
+
+    // 使用生成的 userId（如果有的话）
+    const finalUserId = validationResult.generatedUserId || userId;
 
     // 3. 获取 API Key 和 Provider
     const { apiKeyDb } = await import('@/lib/database');
@@ -73,9 +76,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 3. 估算 Token 消耗
     const estimatedTokens = provider.estimateTokens(request);
 
-    // 4. 检查配额（使用 userId + apiKeyId 组合作为标识符，确保不同 API Key 配额分开计算）
-    const identifier = `${userId}:${apiKeyId}`;
-    const quotaCheck = await checkQuota({ userId, apiKey: apiKeyId }, estimatedTokens);
+    // 4. 检查配额（使用 finalUserId + apiKeyId 组合作为标识符，确保不同 API Key 配额分开计算）
+    const identifier = `${finalUserId}:${apiKeyId}`;
+    const quotaCheck = await checkQuota({ userId: finalUserId, apiKey: apiKeyId }, estimatedTokens);
     if (!quotaCheck.allowed) {
       return res.status(429).json({
         error: quotaCheck.reason || '配额已用完',

@@ -443,74 +443,109 @@ export const whitelistRuleDb = {
   },
 
   /**
-   * 根据 userId 匹配白名单规则并校验是否符合校验规则
+   * 根据 apiKeyId 和 userId 进行白名单规则校验
+   * 首先根据 apiKeyId 找到对应的白名单规则，然后使用该规则的配置进行校验
    * 返回匹配到的规则信息和校验结果
    */
-  createUserById: async (
-    userId: string,
-    userIdPattern?: string | null
+  validateUserByApiKey: async (
+    apiKeyId: string,
+    userId: string
   ): Promise<{
     matched: boolean;
     policyName: string;
     ruleId: string | null;
     valid: boolean;
+    generatedUserId?: string;
     reason?: string;
   }> => {
     try {
-      // 首先进行 userId 格式校验（如果配置了 userIdPattern）
-      if (userIdPattern) {
+      // 1. 根据 apiKeyId 找到对应的白名单规则
+      const rule = await whitelistRuleDb.getByApiKeyId(apiKeyId);
+
+      if (!rule) {
+        return {
+          matched: false,
+          policyName: '默认策略',
+          ruleId: null,
+          valid: false,
+          reason: `API Key "${apiKeyId}" 未绑定白名单规则`,
+        };
+      }
+
+      if (rule.status !== 'active') {
+        return {
+          matched: false,
+          policyName: rule.policyName,
+          ruleId: rule.id,
+          valid: false,
+          reason: '白名单规则未激活',
+        };
+      }
+
+      // 2. 首先进行 userId 格式校验（如果配置了 userIdPattern）
+      if (rule.userIdPattern) {
         try {
-          const regex = new RegExp(userIdPattern);
-          if (!regex.test(userId)) {
+          const userIdRegex = new RegExp(rule.userIdPattern);
+          if (!userIdRegex.test(userId)) {
             return {
-              matched: false,
-              policyName: '默认策略',
-              ruleId: null,
+              matched: true,
+              policyName: rule.policyName,
+              ruleId: rule.id,
               valid: false,
-              reason: `userId "${userId}" 不符合格式要求: ${userIdPattern}`,
+              reason: `userId "${userId}" 不符合格式要求: ${rule.userIdPattern}`,
             };
           }
         } catch (patternError) {
-          console.error(`Invalid userIdPattern: ${userIdPattern}`, patternError);
+          console.error(`Invalid userIdPattern: ${rule.userIdPattern}`, patternError);
           // 如果正则表达式无效，跳过校验但记录错误
         }
       }
 
-      const activeRules = await whitelistRuleDb.getActiveRules();
+      // 3. 使用 validationPattern 生成/校验最终的 userId
+      let generatedUserId = userId;
 
-      for (const rule of activeRules) {
-        // 如果启用了校验规则，用正则匹配 userId
-        if (rule.validationEnabled && rule.validationPattern) {
-          try {
-            const regex = new RegExp(rule.validationPattern);
-            if (regex.test(userId)) {
-              return {
-                matched: true,
-                policyName: rule.policyName,
-                ruleId: rule.id,
-                valid: true,
-              };
-            }
-          } catch {
-            console.error(`Invalid validation pattern: ${rule.validationPattern}`);
+      if (rule.validationEnabled && rule.validationPattern) {
+        try {
+          const validationRegex = new RegExp(rule.validationPattern);
+
+          // 如果 validationPattern 包含占位符（如 @ip、@user_id 等），需要替换
+          if (rule.validationPattern.includes('@')) {
+            // 这里可以实现占位符替换逻辑
+            // 例如：@ip 替换为客户端 IP，@user_id 替换为传入的 userId
+            generatedUserId = rule.validationPattern
+              .replace(/@user_id/g, userId)
+              .replace(/@ip/g, 'client_ip_placeholder') // 需要从请求中获取真实 IP
+              .replace(/@any/g, userId);
           }
-        } else {
-          // 未启用校验规则的规则，视为匹配所有用户
+
+          // 验证生成的 userId 是否符合 validationPattern
+          if (!validationRegex.test(generatedUserId)) {
+            return {
+              matched: true,
+              policyName: rule.policyName,
+              ruleId: rule.id,
+              valid: false,
+              reason: `生成的 userId "${generatedUserId}" 不符合校验规则: ${rule.validationPattern}`,
+            };
+          }
+        } catch (regexError) {
+          console.error(`Invalid validationPattern: ${rule.validationPattern}`, regexError);
           return {
             matched: true,
             policyName: rule.policyName,
             ruleId: rule.id,
-            valid: true,
+            valid: false,
+            reason: '校验规则格式错误',
           };
         }
       }
 
       return {
-        matched: false,
-        policyName: '默认策略',
-        ruleId: null,
-        valid: false,
-        reason: `userId "${userId}" 未匹配到任何白名单规则`,
+        matched: true,
+        policyName: rule.policyName,
+        ruleId: rule.id,
+        valid: true,
+        generatedUserId,
       };
     } catch (error) {
       console.error('Database error:', error);
@@ -518,7 +553,8 @@ export const whitelistRuleDb = {
         matched: false,
         policyName: '默认策略',
         ruleId: null,
-        valid: true,
+        valid: false,
+        reason: '系统错误',
       };
     }
   },

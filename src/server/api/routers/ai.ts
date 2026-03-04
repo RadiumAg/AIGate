@@ -113,11 +113,8 @@ export const aiRouter = createTRPCRouter({
           });
         }
 
-        // 2. 根据白名单规则校验 userId 格式
-        const validationResult = await whitelistRuleDb.createUserById(
-          userId,
-          whitelistRule.userIdPattern
-        );
+        // 2. 根据 apiKeyId 和 userId 进行白名单规则校验
+        const validationResult = await whitelistRuleDb.validateUserByApiKey(apiKeyId, userId);
 
         if (!validationResult.valid) {
           throw new TRPCError({
@@ -125,6 +122,9 @@ export const aiRouter = createTRPCRouter({
             message: validationResult.reason || '用户校验未通过',
           });
         }
+
+        // 使用生成的 userId（如果有的话）
+        const finalUserId = validationResult.generatedUserId || userId;
 
         // 3. 获取 API Key 和 Provider
         const apiKey = await apiKeyDb.getById(apiKeyId);
@@ -155,9 +155,12 @@ export const aiRouter = createTRPCRouter({
         // 3. 估算 Token 消耗
         const estimatedTokens = provider.estimateTokens(request);
 
-        // 4. 检查配额（使用 userId + apiKeyId 组合作为标识符，确保不同 API Key 配额分开计算）
-        const identifier = `${userId}:${apiKeyId}`;
-        const quotaCheck = await checkQuota({ userId, apiKey: apiKeyId }, estimatedTokens);
+        // 4. 检查配额（使用 finalUserId + apiKeyId 组合作为标识符，确保不同 API Key 配额分开计算）
+        const identifier = `${finalUserId}:${apiKeyId}`;
+        const quotaCheck = await checkQuota(
+          { userId: finalUserId, apiKey: apiKeyId },
+          estimatedTokens
+        );
         if (!quotaCheck.allowed) {
           throw new TRPCError({
             code: 'TOO_MANY_REQUESTS',
