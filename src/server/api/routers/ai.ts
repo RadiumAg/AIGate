@@ -242,14 +242,20 @@ export const aiRouter = createTRPCRouter({
   // 获取配额信息（包括剩余 Token 或请求次数）
   getQuotaInfo: publicProcedure
     .input(z.object({ userId: z.string(), apiKeyId: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
+        const { userId, apiKeyId } = input;
+        const clientIp = ctx.req ? extractClientIp(ctx.req) : undefined;
         // 优先通过 apiKeyId 获取配额策略
         const policy = await getQuotaPolicyByApiKey(input.apiKeyId);
-
+        const validationResult = await whitelistRuleDb.validateUserByApiKey(
+          apiKeyId,
+          userId,
+          clientIp
+        );
         // 使用 finalUserId + apiKeyId 组合标识符查询配额使用情况
         const usage = await getDailyUsage({
-          email: input.userId,
+          userId: validationResult.generatedUserId || userId,
           apiKey: input.apiKeyId,
         });
         const today = new Date().toISOString().split('T')[0];

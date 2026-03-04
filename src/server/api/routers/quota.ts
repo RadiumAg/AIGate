@@ -42,7 +42,7 @@ export const quotaRouter = createTRPCRouter({
         const policy = await getUserQuotaPolicy(input.userId);
         // 使用新的 getDailyUsage 函数，支持 apiKey 参数
         const usage = await getDailyUsage({
-          email: input.userId,
+          userId: input.userId,
           apiKey: input.apiKeyId,
         });
         const today = new Date().toISOString().split('T')[0];

@@ -305,7 +305,7 @@ export async function recordUsage(
 
 // 获取今日使用情况
 export async function getDailyUsage(requestInfo: {
-  email?: string;
+  userId?: string;
   apiKey?: string;
   ip?: string;
   domain?: string;
@@ -318,8 +318,8 @@ export async function getDailyUsage(requestInfo: {
     const policy = await getQuotaPolicyByRequest(requestInfo);
     const today = getTodayString();
     // 使用 userId + apiKey 组合作为标识符，确保不同 API Key 的配额分开计算
-    const identifier = requestInfo.email
-      ? `${requestInfo.email}:${requestInfo.apiKey || 'default'}`
+    const identifier = requestInfo.userId
+      ? `${requestInfo.userId}:${requestInfo.apiKey || 'default'}`
       : requestInfo.ip || requestInfo.apiKey || 'anonymous';
 
     const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);
@@ -376,7 +376,7 @@ export async function getUserDailyUsage(userId: string): Promise<{
   policy: QuotaPolicy;
 }> {
   console.warn('getUserDailyUsage is deprecated. Use getDailyUsage instead.');
-  return await getDailyUsage({ email: userId });
+  return await getDailyUsage({ userId: userId });
 }
 
 export async function resetUserQuota(userId: string): Promise<void> {
