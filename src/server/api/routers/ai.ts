@@ -8,6 +8,7 @@ import { getProviderByModel, providers } from '@/lib/ai-providers';
 import type { AIProvider } from '@/lib/ai-providers';
 import { v4 as uuidv4 } from 'uuid';
 import { getRegionFromRequest, extractClientIp } from '@/lib/ip-region';
+import { apiKeyDb, whitelistRuleDb } from '../../../lib/database';
 
 // 请求处理参数类型
 interface RequestHandlerParams {
@@ -102,9 +103,21 @@ export const aiRouter = createTRPCRouter({
       const requestId = uuidv4();
 
       try {
-        // 1. 根据 userId 匹配白名单规则并校验
-        const { whitelistRuleDb } = await import('../../../lib/database');
-        const validationResult = await whitelistRuleDb.validateUserById(userId);
+        // 1. 根据 apiKeyId 获取白名单规则
+        const whitelistRule = await whitelistRuleDb.getByApiKeyId(apiKeyId);
+
+        if (!whitelistRule || whitelistRule.status !== 'active') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: '该 API Key 未绑定有效的白名单规则',
+          });
+        }
+
+        // 2. 根据白名单规则校验 userId 格式
+        const validationResult = await whitelistRuleDb.createUserById(
+          userId,
+          whitelistRule.userIdPattern
+        );
 
         if (!validationResult.valid) {
           throw new TRPCError({
@@ -113,8 +126,7 @@ export const aiRouter = createTRPCRouter({
           });
         }
 
-        // 2. 获取 API Key 和 Provider
-        const { apiKeyDb } = await import('../../../lib/database');
+        // 3. 获取 API Key 和 Provider
         const apiKey = await apiKeyDb.getById(apiKeyId);
 
         if (!apiKey || apiKey.status !== 'ACTIVE') {

@@ -11,7 +11,9 @@ const WhitelistRuleSchema = z.object({
   priority: z.number(),
   status: z.enum(['active', 'inactive']),
   validationPattern: z.string().optional().nullable(),
+  userIdPattern: z.string().optional().nullable(),
   validationEnabled: z.boolean().default(false),
+  apiKeyId: z.string().optional().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -65,9 +67,22 @@ export const whitelistRouter = createTRPCRouter({
     .input(WhitelistRuleSchema.omit({ id: true, createdAt: true, updatedAt: true }))
     .mutation(async ({ input }) => {
       try {
-        const { validationEnabled, ...rest } = input;
+        const { validationEnabled, apiKeyId, ...rest } = input;
+
+        // 验证 API Key 约束：每个 API Key 只能绑定一个白名单规则
+        if (apiKeyId) {
+          const existingRule = await whitelistRuleDb.getByApiKeyId(apiKeyId);
+          if (existingRule) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: '该 API Key 已经绑定了其他白名单规则',
+            });
+          }
+        }
+
         const rule = await whitelistRuleDb.create({
           ...rest,
+          apiKeyId: apiKeyId || null,
           validationEnabled: validationEnabled ? 1 : 0,
         });
         return {
@@ -76,6 +91,7 @@ export const whitelistRouter = createTRPCRouter({
           createdAt: rule.createdAt.toISOString().split('T')[0],
         };
       } catch (error) {
+        if (error instanceof TRPCError) throw error;
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: '创建白名单规则失败',
@@ -89,9 +105,23 @@ export const whitelistRouter = createTRPCRouter({
     .input(WhitelistRuleSchema.omit({ createdAt: true, updatedAt: true }))
     .mutation(async ({ input }) => {
       try {
-        const { id, validationEnabled, ...updates } = input;
+        const { id, validationEnabled, apiKeyId, ...updates } = input;
+
+        // 验证 API Key 约束：每个 API Key 只能绑定一个白名单规则
+        if (apiKeyId) {
+          const existingRule = await whitelistRuleDb.getByApiKeyId(apiKeyId);
+          // 如果找到的规则不是当前正在更新的规则，则抛出错误
+          if (existingRule && existingRule.id !== id) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: '该 API Key 已经绑定了其他白名单规则',
+            });
+          }
+        }
+
         const rule = await whitelistRuleDb.update(id, {
           ...updates,
+          apiKeyId: apiKeyId || null,
           validationEnabled: validationEnabled ? 1 : 0,
         });
         if (!rule) {

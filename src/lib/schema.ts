@@ -89,7 +89,9 @@ export const whitelistRules = pgTable('whitelist_rules', {
   priority: integer('priority').notNull().default(1),
   status: whitelistStatusEnum('status').default('active').notNull(),
   validationPattern: text('validation_pattern'),
+  userIdPattern: text('user_id_pattern'), // 用于校验传入 userId 格式的正则表达式
   validationEnabled: integer('validation_enabled').notNull().default(0),
+  apiKeyId: text('api_key_id'), // 关联的 API Key ID
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

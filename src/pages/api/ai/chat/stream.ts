@@ -28,17 +28,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const region = getRegionFromRequest(req);
     const requestId = uuidv4();
 
-    // 1. 根据 userId 匹配白名单规则并校验
+    // 1. 根据 apiKeyId 获取白名单规则
     const { whitelistRuleDb } = await import('@/lib/database');
-    const validationResult = await whitelistRuleDb.validateUserById(userId);
-
+    const whitelistRule = await whitelistRuleDb.getByApiKeyId(apiKeyId);
+        
+    if (!whitelistRule || whitelistRule.status !== 'active') {
+      return res.status(403).json({
+        error: '该 API Key 未绑定有效的白名单规则',
+      });
+    }
+    
+    // 2. 根据白名单规则校验 userId 格式
+    const validationResult = await whitelistRuleDb.createUserById(userId, whitelistRule.userIdPattern);
+    
     if (!validationResult.valid) {
       return res.status(403).json({
         error: validationResult.reason || '用户校验未通过',
       });
     }
 
-    // 2. 获取 API Key 和 Provider
+    // 3. 获取 API Key 和 Provider
     const { apiKeyDb } = await import('@/lib/database');
     const apiKey = await apiKeyDb.getById(apiKeyId);
 

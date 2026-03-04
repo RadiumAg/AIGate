@@ -10,7 +10,9 @@ interface WhitelistRule {
   priority: number;
   status: 'active' | 'inactive';
   validationPattern?: string | null;
+  userIdPattern?: string | null;
   validationEnabled: boolean;
+  apiKeyId?: string | null;
   createdAt: string;
   description?: string | null;
 }
@@ -29,6 +31,27 @@ interface PatternPreset {
 }
 
 const PATTERN_PRESETS: PatternPreset[] = [
+  {
+    trigger: '@ip',
+    label: '@ip',
+    description: 'ipv4占用符',
+    pattern: '@ip',
+  },
+  {
+    trigger: '@user_id',
+    label: '@user_id',
+    description: 'userId占用符',
+    pattern: '@user_id',
+  },
+  {
+    trigger: '@any',
+    label: '@any',
+    description: '匹配任意非空字符串',
+    pattern: '@any',
+  },
+];
+
+const USERID_PRESENTS = [
   {
     trigger: '@ip',
     label: '@ip',
@@ -92,6 +115,7 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
   const { ruleData, onSave, onCancel } = props;
 
   const { data: policies = [] } = trpc.quota.getAllPolicies.useQuery();
+  const { data: apiKeys = [] } = trpc.apiKey.getAll.useQuery();
 
   const [formData, setFormData] = React.useState<Omit<WhitelistRule, 'id' | 'createdAt'>>({
     policyName: ruleData?.policyName || policies[0]?.name || '默认策略',
@@ -99,7 +123,9 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
     priority: ruleData?.priority || 1,
     status: ruleData?.status || 'active',
     validationPattern: ruleData?.validationPattern || '',
+    userIdPattern: ruleData?.userIdPattern || '',
     validationEnabled: ruleData?.validationEnabled || false,
+    apiKeyId: ruleData?.apiKeyId || null,
   });
 
   const [showPresets, setShowPresets] = React.useState(false);
@@ -109,9 +135,9 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
   const validationInputRef = React.useRef<HTMLInputElement>(null);
 
   const filteredPresets = React.useMemo(() => {
-    if (!presetFilter) return PATTERN_PRESETS;
+    if (!presetFilter) return USERID_PRESENTS;
     const lowerFilter = presetFilter.toLowerCase();
-    return PATTERN_PRESETS.filter(
+    return USERID_PRESENTS.filter(
       (preset) =>
         preset.trigger.toLowerCase().includes(lowerFilter) ||
         preset.description.toLowerCase().includes(lowerFilter)
@@ -247,10 +273,53 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
           数字越大优先级越高，匹配时优先使用高优先级规则
         </p>
       </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          关联 API Key
+        </label>
+        <select
+          name="apiKeyId"
+          value={formData.apiKeyId || ''}
+          onChange={handleChange}
+          className={inputClassName}
+        >
+          <option value="">不关联 API Key</option>
+          {apiKeys.map((apiKey) => (
+            <option key={apiKey.id} value={apiKey.id}>
+              {apiKey.name} ({apiKey.provider})
+            </option>
+          ))}
+        </select>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          选择关联的 API Key，每个 API Key 只能绑定一个白名单规则
+        </p>
+      </div>
 
       <div className="border-t border-gray-200 dark:border-gray-600 pt-4">
         <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-          用户校验规则
+          UserId 格式生成规则
+        </h3>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            UserId 格式生成规则 (userIdPattern)
+          </label>
+          <input
+            type="text"
+            name="userIdPattern"
+            value={formData.userIdPattern || ''}
+            onChange={handleChange}
+            placeholder="输入正则表达式，如 ^[a-zA-Z0-9_]+$"
+            className={inputClassName}
+          />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            用于校验传入的 userId 格式，不符合此模式的请求将被拒绝。 留空表示不进行格式校验。
+          </p>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-200 dark:border-gray-600 pt-4">
+        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+          用户UserId校验规则
         </h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
@@ -266,7 +335,7 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
               type="button"
               onClick={handleToggleValidation}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                formData.validationEnabled ? 'bg-[var(--primary)]' : 'bg-[var(--muted)]'
+                formData.validationEnabled ? 'bg-primary' : 'bg-muted'
               }`}
             >
               <span
@@ -307,9 +376,7 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
                       type="button"
                       onClick={() => handleSelectPreset(preset)}
                       className={`w-full text-left px-3 py-2 flex items-start gap-3 transition-colors bg-transparent border-0 ${
-                        index === selectedPresetIndex
-                          ? 'bg-[var(--accent)]'
-                          : 'hover:bg-[var(--muted)]'
+                        index === selectedPresetIndex ? 'bg-accent' : 'hover:bg-muted'
                       }`}
                     >
                       <code className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 whitespace-nowrap mt-0.5">

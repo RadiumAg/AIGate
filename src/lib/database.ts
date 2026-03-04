@@ -330,6 +330,21 @@ export const whitelistRuleDb = {
     }
   },
 
+  // 根据 API Key ID 获取白名单规则
+  getByApiKeyId: async (apiKeyId: string): Promise<WhitelistRule | null> => {
+    try {
+      const result = await db
+        .select()
+        .from(whitelistRules)
+        .where(eq(whitelistRules.apiKeyId, apiKeyId))
+        .limit(1);
+      return result[0] || null;
+    } catch (error) {
+      console.error('Database error:', error);
+      return null;
+    }
+  },
+
   create: async (
     rule: Omit<NewWhitelistRule, 'id' | 'createdAt' | 'updatedAt'>
   ): Promise<WhitelistRule> => {
@@ -431,8 +446,9 @@ export const whitelistRuleDb = {
    * 根据 userId 匹配白名单规则并校验是否符合校验规则
    * 返回匹配到的规则信息和校验结果
    */
-  validateUserById: async (
-    userId: string
+  createUserById: async (
+    userId: string,
+    userIdPattern?: string | null
   ): Promise<{
     matched: boolean;
     policyName: string;
@@ -441,6 +457,25 @@ export const whitelistRuleDb = {
     reason?: string;
   }> => {
     try {
+      // 首先进行 userId 格式校验（如果配置了 userIdPattern）
+      if (userIdPattern) {
+        try {
+          const regex = new RegExp(userIdPattern);
+          if (!regex.test(userId)) {
+            return {
+              matched: false,
+              policyName: '默认策略',
+              ruleId: null,
+              valid: false,
+              reason: `userId "${userId}" 不符合格式要求: ${userIdPattern}`,
+            };
+          }
+        } catch (patternError) {
+          console.error(`Invalid userIdPattern: ${userIdPattern}`, patternError);
+          // 如果正则表达式无效，跳过校验但记录错误
+        }
+      }
+
       const activeRules = await whitelistRuleDb.getActiveRules();
 
       for (const rule of activeRules) {
