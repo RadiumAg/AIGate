@@ -484,20 +484,20 @@ export const whitelistRuleDb = {
       }
 
       // 2. 首先进行 userId 格式校验（如果配置了 userIdPattern）
-      if (rule.userIdPattern) {
+      if (rule.validationPattern) {
         try {
-          const userIdRegex = new RegExp(rule.userIdPattern);
+          const userIdRegex = new RegExp(rule.validationPattern);
           if (!userIdRegex.test(userId)) {
             return {
               matched: true,
               policyName: rule.policyName,
               ruleId: rule.id,
               valid: false,
-              reason: `userId "${userId}" 不符合格式要求: ${rule.userIdPattern}`,
+              reason: `userId "${userId}" 不符合格式要求: ${rule.validationPattern}`,
             };
           }
         } catch (patternError) {
-          console.error(`Invalid userIdPattern: ${rule.userIdPattern}`, patternError);
+          console.error(`Invalid validationPattern: ${rule.validationPattern}`, patternError);
           // 如果正则表达式无效，跳过校验但记录错误
         }
       }
@@ -505,37 +505,24 @@ export const whitelistRuleDb = {
       // 3. 使用 validationPattern 生成/校验最终的 userId
       let generatedUserId = userId;
 
-      if (rule.validationEnabled && rule.validationPattern) {
+      if (rule && rule.userIdPattern) {
         try {
-          const validationRegex = new RegExp(rule.validationPattern);
-
           // 如果 validationPattern 包含占位符（如 @ip、@user_id 等），需要替换
-          if (rule.validationPattern.includes('@')) {
+          if (rule.userIdPattern.includes('@')) {
             // 替换占位符：@ip 替换为客户端 IP，@user_id 替换为传入的 userId
-            generatedUserId = rule.validationPattern
+            generatedUserId = rule.userIdPattern
               .replace(/@user_id/g, userId)
               .replace(/@ip/g, clientIp || 'unknown_ip')
               .replace(/@any/g, userId);
           }
-
-          // 验证生成的 userId 是否符合 validationPattern
-          if (!validationRegex.test(generatedUserId)) {
-            return {
-              matched: true,
-              policyName: rule.policyName,
-              ruleId: rule.id,
-              valid: false,
-              reason: `生成的 userId "${generatedUserId}" 不符合校验规则: ${rule.validationPattern}`,
-            };
-          }
         } catch (regexError) {
-          console.error(`Invalid validationPattern: ${rule.validationPattern}`, regexError);
+          console.error(`生成失败: ${rule.validationPattern}`, regexError);
           return {
             matched: true,
             policyName: rule.policyName,
             ruleId: rule.id,
             valid: false,
-            reason: '校验规则格式错误',
+            reason: '生成失败用户Id失败',
           };
         }
       }
