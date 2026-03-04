@@ -7,21 +7,23 @@ import { Spinner } from '@/components/ui/spinner';
 import type { ApiKey } from '@/types/api-key';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface ApiKeyTableProps {
   keys: ApiKey[];
+  isTestingId?: string | null;
   onEdit: (key: ApiKey) => void;
   onDelete: (id: string) => void;
   onToggleStatus: (id: string) => void;
   onTest?: (key: ApiKey) => Promise<void>;
-  isTestingId?: string | null;
 }
 
 const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
   const { keys, onEdit, onDelete, onToggleStatus, onTest, isTestingId } = props;
 
-  const copyToClipboard = (text: string) => {
+  const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+    toast('已复制到剪贴板');
   };
 
   const columns: ColumnDef<ApiKey>[] = React.useMemo(
@@ -49,7 +51,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => copyToClipboard(row.original.key)}
+              onClick={() => handleCopyToClipboard(row.original.originKey)}
               className="h-8 w-8 text-muted-foreground hover:text-foreground"
             >
               <Copy className="h-4 w-4" />

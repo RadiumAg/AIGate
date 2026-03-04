@@ -17,7 +17,6 @@ const KeysPage: React.FC = () => {
   const updateMutation = trpc.apiKey.update.useMutation();
   const deleteMutation = trpc.apiKey.delete.useMutation();
   const toggleStatusMutation = trpc.apiKey.toggleStatus.useMutation();
-  const testKeyMutation = trpc.apiKey.testKey.useMutation();
 
   // 状态管理
   const [showDialog, setShowDialog] = React.useState(false);
@@ -105,22 +104,6 @@ const KeysPage: React.FC = () => {
     }
   };
 
-  const handleTestKey = async (key: ApiKey) => {
-    try {
-      const result = await testKeyMutation.mutateAsync({
-        provider: key.provider,
-        key: key.key,
-      });
-      if (result.isValid) {
-        setSuccess(`${key.name} 测试成功，API Key 有效`);
-      } else {
-        setError(`${key.name} 测试失败：${result.error}`);
-      }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : '测试失败');
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -178,12 +161,6 @@ const KeysPage: React.FC = () => {
           onEdit={handleEditKey}
           onDelete={handleDeleteKey}
           onToggleStatus={handleToggleStatus}
-          onTest={handleTestKey}
-          isTestingId={
-            testKeyMutation.isPending
-              ? keys.find((k) => testKeyMutation.variables?.provider === k.provider)?.id || null
-              : null
-          }
         />
       )}
 

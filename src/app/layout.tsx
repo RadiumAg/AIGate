@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { TRPCProvider } from '../components/trpc-provider';
+import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body>
+        <Toaster />
         <TRPCProvider>{children}</TRPCProvider>
       </body>
     </html>

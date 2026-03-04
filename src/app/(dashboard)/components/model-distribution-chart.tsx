@@ -3,6 +3,7 @@
 import React from 'react';
 import * as echarts from 'echarts';
 import { Spinner } from '@/components/ui/spinner';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ModelDistributionItem {
   name: string;
@@ -10,35 +11,48 @@ interface ModelDistributionItem {
   requests: number;
 }
 
+interface ChartDataItem {
+  name: string;
+  value: number;
+  requests: number;
+  tokenValue?: number;
+}
+
 interface ModelDistributionChartProps {
   data: ModelDistributionItem[];
   loading?: boolean;
 }
 
+type ChartMode = 'token' | 'request';
+
 const ModelDistributionChart: React.FC<ModelDistributionChartProps> = (props) => {
   const { data, loading = false } = props;
   const chartRef = React.useRef<HTMLDivElement>(null);
+  const [mode, setMode] = React.useState<ChartMode>('token');
 
   const initChart = React.useEffectEvent(() => {
     if (!chartRef.current || !data || data.length === 0 || loading) return;
 
     const chart = echarts.init(chartRef.current);
 
-    // 计算总请求次数
-    const totalRequests = data.reduce((sum, item) => sum + item.requests, 0);
+    // 根据 mode 计算总值和显示数据
+    const totalValues = data.reduce((sum, item) => {
+      return sum + (mode === 'token' ? item.value : item.requests);
+    }, 0);
 
     // 配置图表
     const option = {
       tooltip: {
         trigger: 'item',
-        formatter: (params: any) => {
+        formatter: (params: { data: ChartDataItem; name: string }) => {
           const item = params.data;
-          const percentage = ((item.value / totalRequests) * 100).toFixed(1);
+          const currentValue = mode === 'token' ? item.value : item.requests;
+          const percentage = ((currentValue / totalValues) * 100).toFixed(1);
           return `
             <div style="font-weight: bold;">${item.name}</div>
-            <div>请求次数: ${item.requests} 次</div>
-            <div>Token 消耗: ${item.value.toLocaleString()} tokens</div>
-            <div>占比: ${percentage}%</div>
+            <div>请求次数：${item.requests} 次</div>
+            <div>Token 消耗：${item.value.toLocaleString()} tokens</div>
+            <div>占比：${percentage}%</div>
           `;
         },
       },
@@ -52,7 +66,7 @@ const ModelDistributionChart: React.FC<ModelDistributionChartProps> = (props) =>
       },
       series: [
         {
-          name: '模型使用分布',
+          name: mode === 'token' ? 'Token 消耗分布' : '请求次数分布',
           type: 'pie',
           radius: ['40%', '70%'],
           avoidLabelOverlap: false,
@@ -64,8 +78,9 @@ const ModelDistributionChart: React.FC<ModelDistributionChartProps> = (props) =>
           label: {
             show: true,
             position: 'outside',
-            formatter: (params: any) => {
-              const percentage = ((params.value / totalRequests) * 100).toFixed(1);
+            formatter: (params: { value: number; data: ChartDataItem; name: string }) => {
+              const currentValue = mode === 'token' ? params.value : params.data.requests;
+              const percentage = ((currentValue / totalValues) * 100).toFixed(1);
               return `${params.name}: ${percentage}%`;
             },
           },
@@ -74,8 +89,9 @@ const ModelDistributionChart: React.FC<ModelDistributionChartProps> = (props) =>
           },
           data: data.map((item) => ({
             name: item.name,
-            value: item.value,
+            value: mode === 'token' ? item.value : item.requests,
             requests: item.requests,
+            tokenValue: item.value,
           })),
         },
       ],
@@ -99,25 +115,33 @@ const ModelDistributionChart: React.FC<ModelDistributionChartProps> = (props) =>
   React.useEffect(() => {
     const cleanup = initChart();
     return cleanup;
-  }, [data]);
+  }, [data, mode]);
 
-  if (loading) {
-    return (
-      <div className="w-full h-64 flex items-center justify-center">
-        <Spinner className="h-8 w-8 text-indigo-600" />
-      </div>
-    );
-  }
+  return (
+    <div className="w-full">
+      {/* Tabs 切换 */}
+      <Tabs value={mode} onValueChange={(value) => setMode(value as ChartMode)} className="w-full">
+        <div className="flex justify-center mb-4">
+          <TabsList>
+            <TabsTrigger value="token">Token 占比</TabsTrigger>
+            <TabsTrigger value="request">请求次数占比</TabsTrigger>
+          </TabsList>
+        </div>
 
-  if (!data || data.length === 0) {
-    return (
-      <div className="w-full h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
-        <p className="text-gray-500 dark:text-gray-400">暂无模型使用数据</p>
-      </div>
-    );
-  }
-
-  return <div ref={chartRef} className="w-full h-64"></div>;
+        {loading ? (
+          <div className="w-full h-64 flex items-center justify-center">
+            <Spinner className="h-8 w-8 text-indigo-600" />
+          </div>
+        ) : !data || data.length === 0 ? (
+          <div className="w-full h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <p className="text-gray-500 dark:text-gray-400">暂无模型使用数据</p>
+          </div>
+        ) : (
+          <div ref={chartRef} className="w-full h-64"></div>
+        )}
+      </Tabs>
+    </div>
+  );
 };
 
 export default ModelDistributionChart;

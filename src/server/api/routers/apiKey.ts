@@ -90,6 +90,7 @@ export const apiKeyRouter = createTRPCRouter({
       // 转换数据格式以匹配前端期望
       const maskedApiKeys = apiKeys.map((key) => ({
         id: key.id,
+        originKey: key.key,
         name: key.name,
         provider: convertProviderFromDb(key.provider),
         key: maskApiKey(key.key),
@@ -331,78 +332,6 @@ export const apiKeyRouter = createTRPCRouter({
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: '切换 API Key 状态失败',
-          cause: error,
-        });
-      }
-    }),
-
-  // 测试 API Key 有效性
-  testKey: protectedProcedure
-    .input(
-      z.object({
-        provider: z.enum(['openai', 'anthropic', 'google', 'deepseek', 'moonshot', 'spark']),
-        key: z.string(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      try {
-        const { provider, key } = input;
-
-        // 根据不同的提供商测试 API Key
-        let isValid = false;
-        let error = '';
-
-        switch (provider) {
-          case 'openai':
-          case 'deepseek':
-          case 'moonshot':
-            try {
-              const { default: OpenAI } = await import('openai');
-              const baseURL =
-                provider === 'deepseek'
-                  ? 'https://api.deepseek.com'
-                  : provider === 'moonshot'
-                    ? 'https://api.moonshot.cn/v1'
-                    : undefined;
-
-              const client = new OpenAI({ apiKey: key, baseURL });
-              await client.models.list();
-              isValid = true;
-            } catch (e: unknown) {
-              error = e instanceof Error ? e.message : 'Unknown error';
-            }
-            break;
-
-          case 'anthropic':
-            try {
-              // Anthropic 没有直接的测试接口，这里简化处理
-              isValid = key.startsWith('sk-ant-');
-              if (!isValid) {
-                error = 'Invalid Anthropic API key format';
-              }
-            } catch (e: unknown) {
-              error = e instanceof Error ? e.message : 'Unknown error';
-            }
-            break;
-
-          case 'google':
-            try {
-              // 简单测试 Google API key 格式
-              isValid = key.length > 10;
-              if (!isValid) {
-                error = 'Invalid Google API key format';
-              }
-            } catch (e: unknown) {
-              error = e instanceof Error ? e.message : 'Unknown error';
-            }
-            break;
-        }
-
-        return { isValid, error };
-      } catch (error) {
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: '测试 API Key 失败',
           cause: error,
         });
       }
