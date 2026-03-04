@@ -449,7 +449,8 @@ export const whitelistRuleDb = {
    */
   validateUserByApiKey: async (
     apiKeyId: string,
-    userId: string
+    userId: string,
+    clientIp?: string
   ): Promise<{
     matched: boolean;
     policyName: string;
@@ -510,11 +511,10 @@ export const whitelistRuleDb = {
 
           // 如果 validationPattern 包含占位符（如 @ip、@user_id 等），需要替换
           if (rule.validationPattern.includes('@')) {
-            // 这里可以实现占位符替换逻辑
-            // 例如：@ip 替换为客户端 IP，@user_id 替换为传入的 userId
+            // 替换占位符：@ip 替换为客户端 IP，@user_id 替换为传入的 userId
             generatedUserId = rule.validationPattern
               .replace(/@user_id/g, userId)
-              .replace(/@ip/g, 'client_ip_placeholder') // 需要从请求中获取真实 IP
+              .replace(/@ip/g, clientIp || 'unknown_ip')
               .replace(/@any/g, userId);
           }
 

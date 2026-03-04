@@ -114,7 +114,11 @@ export const aiRouter = createTRPCRouter({
         }
 
         // 2. 根据 apiKeyId 和 userId 进行白名单规则校验
-        const validationResult = await whitelistRuleDb.validateUserByApiKey(apiKeyId, userId);
+        const validationResult = await whitelistRuleDb.validateUserByApiKey(
+          apiKeyId,
+          userId,
+          clientIp
+        );
 
         if (!validationResult.valid) {
           throw new TRPCError({

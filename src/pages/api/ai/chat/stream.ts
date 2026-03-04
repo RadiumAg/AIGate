@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // 2. 根据白名单规则校验 userId 格式
-    const validationResult = await whitelistRuleDb.validateUserByApiKey(apiKeyId, userId);
+    const validationResult = await whitelistRuleDb.validateUserByApiKey(apiKeyId, userId, clientIp);
 
     if (!validationResult.valid) {
       return res.status(403).json({
