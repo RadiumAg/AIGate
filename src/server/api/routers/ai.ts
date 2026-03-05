@@ -213,8 +213,6 @@ export const aiRouter = createTRPCRouter({
 
   // 获取支持的模型列表
   getSupportedModels: publicProcedure.query(async () => {
-    const { providers } = await import('../../../lib/ai-providers');
-
     const models = Object.values(providers).flatMap((provider) =>
       provider.models.map((model) => ({
         model,

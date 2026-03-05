@@ -345,6 +345,28 @@ export const whitelistRuleDb = {
     }
   },
 
+  // 通过 apiKeyId 获取白名单规则及其关联的配额策略
+  getByApiKeyIdWithPolicy: async (
+    apiKeyId: string
+  ): Promise<{ rule: WhitelistRule; policy: QuotaPolicy } | null> => {
+    try {
+      const result = await db
+        .select({
+          rule: whitelistRules,
+          policy: quotaPolicies,
+        })
+        .from(whitelistRules)
+        .innerJoin(quotaPolicies, eq(whitelistRules.policyName, quotaPolicies.name))
+        .where(eq(whitelistRules.apiKeyId, apiKeyId))
+        .limit(1);
+
+      return result[0] || null;
+    } catch (error) {
+      console.error('Database error:', error);
+      return null;
+    }
+  },
+
   create: async (
     rule: Omit<NewWhitelistRule, 'id' | 'createdAt' | 'updatedAt'>
   ): Promise<WhitelistRule> => {

@@ -1,6 +1,6 @@
 import { redis, RedisKeys, getTodayString, getCurrentMinuteString } from './redis';
 import { QuotaPolicy, QuotaCheckResult, UsageRecord } from './types';
-import { whitelistRuleDb, quotaPolicyDb, usageRecordDb } from './database';
+import { whitelistRuleDb, usageRecordDb } from './database';
 // 默认配额策略
 const DEFAULT_QUOTA_POLICY: QuotaPolicy = {
   id: 'default',
@@ -20,28 +20,23 @@ export async function getQuotaPolicyByApiKey(apiKeyId: string): Promise<QuotaPol
       return JSON.parse(cachedPolicy);
     }
 
-    // 通过 apiKeyId 找到对应的白名单规则
-    const rule = await whitelistRuleDb.getByApiKeyId(apiKeyId);
+    // 通过 apiKeyId 直接获取白名单规则及其关联的配额策略（使用 JOIN 查询）
+    const result = await whitelistRuleDb.getByApiKeyIdWithPolicy(apiKeyId);
 
-    if (!rule) {
+    if (!result) {
       console.warn(`[getQuotaPolicyByApiKey] No whitelist rule found for apiKeyId: ${apiKeyId}`);
       return DEFAULT_QUOTA_POLICY;
     }
 
-    // 根据策略名称从数据库获取完整的配额策略
-    const policies = await quotaPolicyDb.getAll();
-    const matchedPolicy = policies.find((p) => p.name === rule.policyName);
-
-    const policy = matchedPolicy
-      ? {
-          ...matchedPolicy,
-          description: matchedPolicy.description || undefined,
-          limitType: (matchedPolicy.limitType as 'token' | 'request') || 'token',
-          dailyTokenLimit: matchedPolicy.dailyTokenLimit || undefined,
-          monthlyTokenLimit: matchedPolicy.monthlyTokenLimit || undefined,
-          dailyRequestLimit: matchedPolicy.dailyRequestLimit || undefined,
-        }
-      : DEFAULT_QUOTA_POLICY;
+    // 直接使用 JOIN 查询返回的 policy，无需再次查询所有策略
+    const policy = {
+      ...result.policy,
+      description: result.policy.description || undefined,
+      limitType: (result.policy.limitType as 'token' | 'request') || 'token',
+      dailyTokenLimit: result.policy.dailyTokenLimit || undefined,
+      monthlyTokenLimit: result.policy.monthlyTokenLimit || undefined,
+      dailyRequestLimit: result.policy.dailyRequestLimit || undefined,
+    };
 
     // 缓存策略（缓存1小时）
     await redis.setEx(cacheKey, 60 * 60, JSON.stringify(policy));
@@ -54,7 +49,6 @@ export async function getQuotaPolicyByApiKey(apiKeyId: string): Promise<QuotaPol
 
 // 根据请求特征获取配额策略（可扩展支持更多匹配方式）
 export async function getQuotaPolicyByRequest(requestInfo: {
-  userId?: string;
   apiKey?: string;
   ip?: string;
   domain?: string;
