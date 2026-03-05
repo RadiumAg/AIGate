@@ -32,6 +32,9 @@ export const RedisKeys = {
   // API Key 配置缓存: api_keys:provider
   apiKeys: (provider: string) => `api_keys:${provider}`,
 
+  // 根据 API Key 获取配额策略的keyId
+  quotaPolicyByApiKey: (apiKeyId: string) => `policy:apiKey:${apiKeyId}`,
+
   // 请求日志: request_log:userId:requestId
   requestLog: (userId: string, requestId: string) => `request_log:${userId}:${requestId}`,
 };

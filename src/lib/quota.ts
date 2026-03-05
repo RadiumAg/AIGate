@@ -14,7 +14,7 @@ const DEFAULT_QUOTA_POLICY: QuotaPolicy = {
 // 根据 API Key ID 获取配额策略（新的主要方式）
 export async function getQuotaPolicyByApiKey(apiKeyId: string): Promise<QuotaPolicy> {
   try {
-    const cacheKey = `policy:apiKey:${apiKeyId}`;
+    const cacheKey = RedisKeys.quotaPolicyByApiKey(apiKeyId);
     const cachedPolicy = await redis.get(cacheKey);
     if (cachedPolicy) {
       return JSON.parse(cachedPolicy);
