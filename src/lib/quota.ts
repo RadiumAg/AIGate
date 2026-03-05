@@ -255,11 +255,7 @@ export async function getDailyUsage(requestInfo: {
   apiKey: string;
   ip?: string;
   domain?: string;
-}): Promise<{
-  tokensUsed: number;
-  requestsToday: number;
-  policy: QuotaPolicy;
-}> {
+}) {
   try {
     const policy = await getQuotaPolicyByRequest(requestInfo);
     const today = getTodayString();
@@ -268,7 +264,7 @@ export async function getDailyUsage(requestInfo: {
       ? `${requestInfo.userId}:${requestInfo.apiKey || 'default'}`
       : requestInfo.ip || requestInfo.apiKey || 'anonymous';
 
-    const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today, apiKey);
+    const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today, requestInfo.apiKey);
     const dailyRequestKey = RedisKeys.userDailyRequests(identifier, today);
 
     const tokensUsed = await redis.get(dailyUsageKey);
