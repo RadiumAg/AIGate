@@ -59,9 +59,6 @@ export async function getQuotaPolicyByRequest(requestInfo: {
       return await getQuotaPolicyByApiKey(requestInfo.apiKey);
     }
 
-    // 可以在这里扩展其他匹配方式
-    // 比如根据 IP 地址等匹配
-
     return DEFAULT_QUOTA_POLICY;
   } catch (error) {
     console.error('Error getting quota policy by request:', error);
