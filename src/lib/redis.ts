@@ -22,7 +22,8 @@ export const RedisKeys = {
     `user_quota:${userId}:${apiKey}:${date}`,
 
   // 用户每日请求次数: user_requests:userId:YYYY-MM-DD
-  userDailyRequests: (userId: string, date: string) => `user_requests:${userId}:${date}`,
+  userDailyRequests: (userId: string, date: string, apiKey: string) =>
+    `user_requests:${userId}:${date}:${apiKey}`,
 
   // 用户每分钟请求次数: user_rpm:userId:YYYY-MM-DD:HH:MM
   userRPM: (userId: string, dateTime: string) => `user_rpm:${userId}:${dateTime}`,

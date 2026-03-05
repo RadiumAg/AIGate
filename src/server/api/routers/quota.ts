@@ -15,9 +15,9 @@ import { quotaPolicyDb } from '@/lib/database';
  * 清除所有配额策略相关的 Redis 缓存
  * 包括 policy:userId:* 和 user_policy:* 两类缓存 key
  */
-async function clearPolicyCacheKeys(): Promise<void> {
+async function clearPolicyCacheKeys(apiKey: string): Promise<void> {
   try {
-    const patterns = [RedisKeys.userPolicy('userId:*'), RedisKeys.userPolicy('user_policy:*')];
+    const patterns = [RedisKeys.userDailyRequests('userId:*', 'date:*', apiKey)];
 
     for (const pattern of patterns) {
       let cursor = 0;

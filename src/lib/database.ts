@@ -276,23 +276,6 @@ export const usageRecordDb = {
   },
 };
 
-// 获取用户的配额策略
-export const getUserQuotaPolicyFromDb = async (userId: string): Promise<QuotaPolicy | null> => {
-  try {
-    // 由于当前项目没有用户表，通过白名单规则匹配用户策略
-    const matchResult = await whitelistRuleDb.matchUserPolicy(userId);
-
-    // 根据策略名称查找对应的配额策略
-    const policies = await quotaPolicyDb.getAll();
-    const matchedPolicy = policies.find((policy) => policy.name === matchResult.policyName);
-
-    // 如果找到匹配的策略则返回，否则返回第一个策略作为默认策略
-    return matchedPolicy || policies[0] || null;
-  } catch (error) {
-    console.error('Database error:', error);
-    return null;
-  }
-};
 // 获取活跃的 API Key
 export const getActiveApiKey = async (provider: string): Promise<string | null> => {
   try {
