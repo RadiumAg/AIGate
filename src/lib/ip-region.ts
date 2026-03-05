@@ -22,7 +22,7 @@ function getIp2RegionInstance(): IP2Region {
  * 优先从代理头中获取，兜底使用 socket 连接地址
  */
 export function extractClientIp(req: IncomingMessage): string | undefined {
-  const forwardedFor = req.headers['x-forwarded-for'];
+  const forwardedFor = req.headers['x-forwarded-for'] || req.headers['referer'];
   if (forwardedFor) {
     const firstIp = (Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor)
       .split(',')[0]
