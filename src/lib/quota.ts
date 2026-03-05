@@ -52,42 +52,6 @@ export async function getQuotaPolicyByApiKey(apiKeyId: string): Promise<QuotaPol
   }
 }
 
-// 根据邮箱匹配白名单规则并获取配额策略（兼容旧方式）
-export async function getQuotaPolicyByEmail(userId: string): Promise<QuotaPolicy> {
-  try {
-    const cacheKey = `policy:userId:${userId}`;
-    const cachedPolicy = await redis.get(cacheKey);
-    if (cachedPolicy) {
-      return JSON.parse(cachedPolicy);
-    }
-
-    // 通过白名单规则匹配获取策略名称
-    const { policyName } = await whitelistRuleDb.matchUserPolicy(userId);
-
-    // 根据策略名称从数据库获取完整的配额策略
-    const policies = await quotaPolicyDb.getAll();
-    const matchedPolicy = policies.find((p) => p.name === policyName);
-
-    const policy = matchedPolicy
-      ? {
-          ...matchedPolicy,
-          description: matchedPolicy.description || undefined,
-          limitType: (matchedPolicy.limitType as 'token' | 'request') || 'token',
-          dailyTokenLimit: matchedPolicy.dailyTokenLimit || undefined,
-          monthlyTokenLimit: matchedPolicy.monthlyTokenLimit || undefined,
-          dailyRequestLimit: matchedPolicy.dailyRequestLimit || undefined,
-        }
-      : DEFAULT_QUOTA_POLICY;
-
-    // 缓存策略（缓存1小时）
-    await redis.setEx(cacheKey, 60 * 60, JSON.stringify(policy));
-    return policy;
-  } catch (error) {
-    console.error('Error getting quota policy by email:', error);
-    return DEFAULT_QUOTA_POLICY;
-  }
-}
-
 // 根据请求特征获取配额策略（可扩展支持更多匹配方式）
 export async function getQuotaPolicyByRequest(requestInfo: {
   userId?: string;
@@ -99,11 +63,6 @@ export async function getQuotaPolicyByRequest(requestInfo: {
     // 优先使用 apiKey 匹配（新的主要方式）
     if (requestInfo.apiKey) {
       return await getQuotaPolicyByApiKey(requestInfo.apiKey);
-    }
-
-    // 兼容旧方式：使用 userId 匹配
-    if (requestInfo.userId) {
-      return await getQuotaPolicyByEmail(requestInfo.userId);
     }
 
     // 可以在这里扩展其他匹配方式
@@ -356,18 +315,12 @@ export async function resetQuota(identifier: string): Promise<void> {
   }
 }
 
-// 兼容性函数 - 保持向后兼容
-export async function getUserQuotaPolicy(userId: string): Promise<QuotaPolicy> {
-  console.warn('getUserQuotaPolicy is deprecated. Use getQuotaPolicyByEmail instead.');
-  return await getQuotaPolicyByEmail(userId);
-}
-
 export async function checkUserQuota(
   userId: string,
   estimatedTokens: number = 0
 ): Promise<QuotaCheckResult> {
   console.warn('checkUserQuota is deprecated. Use checkQuota instead.');
-  return await checkQuota({ userId: userId }, estimatedTokens);
+  return await checkQuota({ userId }, estimatedTokens);
 }
 
 export async function getUserDailyUsage(userId: string): Promise<{
@@ -376,7 +329,7 @@ export async function getUserDailyUsage(userId: string): Promise<{
   policy: QuotaPolicy;
 }> {
   console.warn('getUserDailyUsage is deprecated. Use getDailyUsage instead.');
-  return await getDailyUsage({ userId: userId });
+  return await getDailyUsage({ userId });
 }
 
 export async function resetUserQuota(userId: string): Promise<void> {

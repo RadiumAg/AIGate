@@ -96,39 +96,6 @@ export const quotaRouter = createTRPCRouter({
       }
     }),
 
-  // 设置用户配额策略
-  setUserPolicy: protectedProcedure
-    .input(
-      z.object({
-        userId: z.string(),
-        policy: z.object({
-          id: z.string(),
-          name: z.string(),
-          description: z.string().optional(),
-          dailyTokenLimit: z.number(),
-          monthlyTokenLimit: z.number(),
-          rpmLimit: z.number().default(60),
-        }),
-      })
-    )
-    .mutation(async ({ input }) => {
-      try {
-        const { userId, policy } = input;
-
-        // 将策略存储到 Redis 缓存
-        const policyKey = RedisKeys.userPolicy(userId);
-        await redis.setEx(policyKey, 24 * 60 * 60, JSON.stringify(policy)); // 缓存 24 小时
-
-        return { success: true };
-      } catch (error) {
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: '设置用户配额策略失败',
-          cause: error,
-        });
-      }
-    }),
-
   // 获取用户今日使用情况
   getUserUsage: protectedProcedure
     .input(z.object({ userId: z.string() }))
