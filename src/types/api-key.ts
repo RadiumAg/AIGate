@@ -7,10 +7,11 @@ export interface ApiKey {
   baseUrl?: string; // AI 服务商的自定义 baseUrl
   createdAt: string;
   lastUsed?: string;
+  originKey: string;
   status: 'active' | 'disabled';
 }
 
-export type ApiKeyFormData = Omit<ApiKey, 'id' | 'createdAt'>;
+export type ApiKeyFormData = Omit<ApiKey, 'id' | 'createdAt' | 'originKey'>;
 
 export interface ApiKeyTestResult {
   isValid: boolean;
