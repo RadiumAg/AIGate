@@ -162,7 +162,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           clientIp,
         };
 
-        recordUsage(actualUsage, identifier).catch((error) => {
+        recordUsage(actualUsage, apiKeyId, identifier).catch((error) => {
           console.error('Failed to record usage:', error);
         });
       }

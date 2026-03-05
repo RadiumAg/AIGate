@@ -2,11 +2,11 @@ import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import {
-  getUserQuotaPolicy,
   getUserDailyUsage,
   getDailyUsage,
   resetUserQuota,
   checkQuota,
+  getQuotaPolicyByApiKey,
 } from '@/lib/quota';
 import { redis, RedisKeys } from '@/lib/redis';
 import { quotaPolicyDb } from '@/lib/database';
@@ -36,10 +36,10 @@ async function clearPolicyCacheKeys(): Promise<void> {
 
 export const quotaRouter = createTRPCRouter({
   getQuotaInfo: protectedProcedure
-    .input(z.object({ userId: z.string(), apiKeyId: z.string().optional() }))
+    .input(z.object({ userId: z.string(), apiKeyId: z.string() }))
     .query(async ({ input }) => {
       try {
-        const policy = await getUserQuotaPolicy(input.userId);
+        const policy = await getQuotaPolicyByApiKey(input.apiKeyId);
         // 使用新的 getDailyUsage 函数，支持 apiKey 参数
         const usage = await getDailyUsage({
           userId: input.userId,
@@ -80,28 +80,12 @@ export const quotaRouter = createTRPCRouter({
       }
     }),
 
-  // 获取用户配额策略
-  getUserPolicy: protectedProcedure
-    .input(z.object({ userId: z.string() }))
-    .query(async ({ input }) => {
-      try {
-        const policy = await getUserQuotaPolicy(input.userId);
-        return policy;
-      } catch (error) {
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: '获取用户配额策略失败',
-          cause: error,
-        });
-      }
-    }),
-
   // 获取用户今日使用情况
   getUserUsage: protectedProcedure
-    .input(z.object({ userId: z.string() }))
+    .input(z.object({ userId: z.string(), apiKeyId: z.string() }))
     .query(async ({ input }) => {
       try {
-        const usage = await getUserDailyUsage(input.userId);
+        const usage = await getUserDailyUsage(input.userId, input.apiKeyId);
         return usage;
       } catch (error) {
         throw new TRPCError({
@@ -117,17 +101,15 @@ export const quotaRouter = createTRPCRouter({
     .input(
       z.object({
         userId: z.string(),
-        apiKeyId: z.string().optional(),
+        apiKeyId: z.string(),
         estimatedTokens: z.number().optional(),
       })
     )
     .query(async ({ input }) => {
       try {
+        const { userId, apiKeyId } = input;
         // 使用新的 checkQuota 函数，支持 apiKey 参数
-        const result = await checkQuota(
-          { userId: input.userId, apiKey: input.apiKeyId },
-          input.estimatedTokens
-        );
+        const result = await checkQuota({ userId, apiKey: apiKeyId }, input.estimatedTokens);
         return result;
       } catch (error) {
         throw new TRPCError({
@@ -140,10 +122,10 @@ export const quotaRouter = createTRPCRouter({
 
   // 重置用户配额
   resetQuota: protectedProcedure
-    .input(z.object({ userId: z.string() }))
+    .input(z.object({ userId: z.string(), apiKeyId: z.string() }))
     .mutation(async ({ input }) => {
       try {
-        await resetUserQuota(input.userId);
+        await resetUserQuota(input.userId, input.apiKeyId);
         return { success: true };
       } catch (error) {
         throw new TRPCError({

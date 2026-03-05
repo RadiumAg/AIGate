@@ -18,7 +18,8 @@ export { redis };
 // Redis 键名生成器
 export const RedisKeys = {
   // 用户每日配额使用情况: user_quota:userId:YYYY-MM-DD
-  userDailyQuota: (userId: string, date: string) => `user_quota:${userId}:${date}`,
+  userDailyQuota: (userId: string, date: string, apiKey: string) =>
+    `user_quota:${userId}:${apiKey}:${date}`,
 
   // 用户每日请求次数: user_requests:userId:YYYY-MM-DD
   userDailyRequests: (userId: string, date: string) => `user_requests:${userId}:${date}`,

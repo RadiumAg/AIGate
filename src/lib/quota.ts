@@ -69,8 +69,8 @@ export async function getQuotaPolicyByRequest(requestInfo: {
 // 检查配额限制
 export async function checkQuota(
   requestInfo: {
+    apiKey: string;
     userId?: string;
-    apiKey?: string;
     ip?: string;
     domain?: string;
   },
@@ -99,7 +99,7 @@ export async function checkQuota(
     // 根据 limitType 检查不同的限制
     if (policy.limitType === 'token') {
       // Token 限制模式
-      const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);
+      const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today, requestInfo.apiKey);
       const dailyUsage = await redis.get(dailyUsageKey);
       const currentDailyTokens = dailyUsage ? parseInt(dailyUsage) : 0;
 
@@ -160,7 +160,7 @@ export async function checkQuota(
     let remainingRequests: number | undefined;
 
     if (policy.limitType === 'token' && policy.dailyTokenLimit) {
-      const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);
+      const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today, requestInfo.apiKey);
       const dailyUsage = await redis.get(dailyUsageKey);
       const currentDailyTokens = dailyUsage ? parseInt(dailyUsage) : 0;
       remainingTokens = policy.dailyTokenLimit - currentDailyTokens;
@@ -191,51 +191,47 @@ export async function checkQuota(
 // 记录用量
 export async function recordUsage(
   record: UsageRecord,
-  identifier: string // 可以是邮箱、IP、API Key 等标识符
+  apiKey: string, // 可以是邮箱、IP、API Key 等标识符
+  userId: string
 ): Promise<void> {
   try {
     const today = getTodayString();
     const currentMinute = getCurrentMinuteString();
 
     // 获取用户的配额策略
-    const policy = await getQuotaPolicyByRequest({ userId: identifier });
+    const policy = await getQuotaPolicyByRequest({ apiKey });
 
     // 根据 limitType 更新不同的计数器
     if (policy.limitType === 'token') {
       // Token 模式：更新每日 Token 使用量
-      const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);
+      const dailyUsageKey = RedisKeys.userDailyQuota(userId, today, apiKey);
       await redis.incrBy(dailyUsageKey, Math.round(record.totalTokens));
       // 设置过期时间为 7 天
       await redis.expire(dailyUsageKey, 7 * 24 * 60 * 60);
-      console.log(
-        '[recordUsage] Token mode - Recorded',
-        record.totalTokens,
-        'tokens for',
-        identifier
-      );
+      console.log('[recordUsage] Token mode - Recorded', record.totalTokens, 'tokens for', apiKey);
     } else if (policy.limitType === 'request') {
       // 请求次数模式：更新每日请求次数
-      const dailyRequestKey = RedisKeys.userDailyRequests(identifier, today);
+      const dailyRequestKey = RedisKeys.userDailyRequests(apiKey, today);
       const newCount = await redis.incr(dailyRequestKey);
       // 设置过期时间为 7 天
       await redis.expire(dailyRequestKey, 7 * 24 * 60 * 60);
-      console.log('[recordUsage] Request mode - New request count:', newCount, 'for', identifier);
+      console.log('[recordUsage] Request mode - New request count:', newCount, 'for', apiKey);
     }
 
     // 更新每分钟请求次数（两种模式都要记录）
-    const rpmKey = RedisKeys.userRPM(identifier, currentMinute);
+    const rpmKey = RedisKeys.userRPM(apiKey, currentMinute);
     await redis.incr(rpmKey);
     // 设置过期时间为 2 分钟
     await redis.expire(rpmKey, 120);
 
     // 存储详细的请求日志
-    const logKey = RedisKeys.requestLog(identifier, record.id);
+    const logKey = RedisKeys.requestLog(apiKey, record.id);
     await redis.setEx(logKey, 24 * 60 * 60, JSON.stringify(record)); // 保存 24 小时
 
     // 写入用量记录到数据库
     await usageRecordDb.create({
       id: record.id,
-      userId: identifier,
+      userId: apiKey,
       model: record.model,
       provider: record.provider,
       promptTokens: record.promptTokens,
@@ -247,7 +243,7 @@ export async function recordUsage(
       timestamp: new Date(record.timestamp),
     });
 
-    console.log(`Usage recorded for identifier ${identifier}: ${record.totalTokens} tokens`);
+    console.log(`Usage recorded for identifier ${apiKey}: ${record.totalTokens} tokens`);
   } catch (error) {
     console.error('Error recording usage:', error);
   }
@@ -293,11 +289,11 @@ export async function getDailyUsage(requestInfo: {
   }
 }
 
-// 重置配额
-export async function resetQuota(identifier: string): Promise<void> {
+// 重置用户在某个apiKey下的配额
+export async function resetQuota(identifier: string, apiKey: string): Promise<void> {
   try {
     const today = getTodayString();
-    const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);
+    const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today, apiKey);
     await redis.del(dailyUsageKey);
 
     console.log(`Quota reset for identifier ${identifier}`);
@@ -314,16 +310,12 @@ export async function checkUserQuota(
   return await checkQuota({ userId }, estimatedTokens);
 }
 
-export async function getUserDailyUsage(userId: string): Promise<{
-  tokensUsed: number;
-  requestsToday: number;
-  policy: QuotaPolicy;
-}> {
+export async function getUserDailyUsage(userId: string, apiKeyId: string) {
   console.warn('getUserDailyUsage is deprecated. Use getDailyUsage instead.');
-  return await getDailyUsage({ userId });
+  return await getDailyUsage({ userId, apiKey: apiKeyId });
 }
 
-export async function resetUserQuota(userId: string): Promise<void> {
+export async function resetUserQuota(userId: string, apiKeyId: string): Promise<void> {
   console.warn('resetUserQuota is deprecated. Use resetQuota instead.');
   return await resetQuota(userId);
 }

@@ -65,7 +65,7 @@ async function handleNonStreamRequest(
     clientIp,
   };
 
-  recordUsage(actualUsage, identifier).catch((error) => {
+  recordUsage(actualUsage, apiKeyInfo.key, identifier).catch((error) => {
     console.error('Failed to record usage:', error);
   });
 
