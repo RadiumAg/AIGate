@@ -252,7 +252,7 @@ export async function recordUsage(
 // 获取今日使用情况
 export async function getDailyUsage(requestInfo: {
   userId?: string;
-  apiKey?: string;
+  apiKey: string;
   ip?: string;
   domain?: string;
 }): Promise<{
@@ -268,7 +268,7 @@ export async function getDailyUsage(requestInfo: {
       ? `${requestInfo.userId}:${requestInfo.apiKey || 'default'}`
       : requestInfo.ip || requestInfo.apiKey || 'anonymous';
 
-    const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today);
+    const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today, apiKey);
     const dailyRequestKey = RedisKeys.userDailyRequests(identifier, today);
 
     const tokensUsed = await redis.get(dailyUsageKey);
@@ -304,10 +304,11 @@ export async function resetQuota(identifier: string, apiKey: string): Promise<vo
 
 export async function checkUserQuota(
   userId: string,
+  apiKeyId: string,
   estimatedTokens: number = 0
 ): Promise<QuotaCheckResult> {
   console.warn('checkUserQuota is deprecated. Use checkQuota instead.');
-  return await checkQuota({ userId }, estimatedTokens);
+  return await checkQuota({ userId, apiKey: apiKeyId }, estimatedTokens);
 }
 
 export async function getUserDailyUsage(userId: string, apiKeyId: string) {
@@ -317,5 +318,5 @@ export async function getUserDailyUsage(userId: string, apiKeyId: string) {
 
 export async function resetUserQuota(userId: string, apiKeyId: string): Promise<void> {
   console.warn('resetUserQuota is deprecated. Use resetQuota instead.');
-  return await resetQuota(userId);
+  return await resetQuota(userId, apiKeyId);
 }
