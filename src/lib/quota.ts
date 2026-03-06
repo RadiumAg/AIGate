@@ -184,7 +184,7 @@ export async function recordUsage(
       await redis.expire(dailyUsageKey, 7 * 24 * 60 * 60);
     } else if (policy.limitType === 'request') {
       // 请求次数模式：更新每日请求次数
-      const dailyRequestKey = RedisKeys.userDailyRequests(apiKey, apiKey, today);
+      const dailyRequestKey = RedisKeys.userDailyRequests(userId, apiKey, today);
       const newCount = await redis.incr(dailyRequestKey);
       // 设置过期时间为 7 天
       await redis.expire(dailyRequestKey, 7 * 24 * 60 * 60);

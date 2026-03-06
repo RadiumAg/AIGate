@@ -106,7 +106,6 @@ export const aiRouter = createTRPCRouter({
       try {
         // 1. 根据 apiKeyId 获取白名单规则
         const whitelistRule = await whitelistRuleDb.getByApiKeyId(apiKeyId);
-        console.log(await whitelistRuleDb.getAll());
         if (!whitelistRule || whitelistRule.status !== 'active') {
           throw new TRPCError({
             code: 'FORBIDDEN',

@@ -3,19 +3,13 @@
 import React from 'react';
 import { trpc } from '@/components/trpc-provider';
 import { CheckCircle, RefreshCw, Trash2 } from 'lucide-react';
-import {
-  QuotaDebugProps,
-  TabType,
-  CheckQuotaResult,
-  GetUserUsageResult,
-  ResetQuotaResult,
-} from './types';
+import { QuotaDebugProps, TabType, GetUserUsageResult, ResetQuotaResult } from './types';
 import CheckQuotaTab from './check-quota-tab';
 import UsageTab from './usage-tab';
 import ResetTab from './reset-tab';
 
 const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
-  const [checkQuotaResult, setCheckQuotaResult] = React.useState<CheckQuotaResult | null>(null);
+  const [checkQuotaResult, setCheckQuotaResult] = React.useState<Record<string, any>>({});
   const [getUserUsageResult, setGetUserUsageResult] = React.useState<GetUserUsageResult | null>(
     null
   );
@@ -37,7 +31,7 @@ const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
     try {
       const result = await checkQuotaQuery.mutateAsync({ userId, apiKeyId });
       if (result) {
-        setCheckQuotaResult(result as CheckQuotaResult);
+        setCheckQuotaResult(result);
       }
     } catch (error: unknown) {
       const err = error as Error;

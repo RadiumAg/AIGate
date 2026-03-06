@@ -1,13 +1,7 @@
 import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
-import {
-  getUserDailyUsage,
-  getDailyUsage,
-  resetUserQuota,
-  checkQuota,
-  getQuotaPolicyByApiKey,
-} from '@/lib/quota';
+import { getUserDailyUsage, resetUserQuota } from '@/lib/quota';
 import { redis, RedisKeys } from '@/lib/redis';
 import { getTodayString } from '@/lib/date';
 import { quotaPolicyDb, whitelistRuleDb } from '@/lib/database';
@@ -22,8 +16,8 @@ async function clearTodayPolicy(apiKey: string): Promise<void> {
   try {
     const today = getTodayString();
     const patterns = [
-      RedisKeys.userDailyQuota('userId:*', apiKey, today),
-      RedisKeys.userDailyRequests('userId:*', apiKey, today),
+      RedisKeys.userDailyQuota('*', apiKey, today),
+      RedisKeys.userDailyRequests('*', apiKey, today),
     ];
 
     for (const pattern of patterns) {
@@ -42,57 +36,6 @@ async function clearTodayPolicy(apiKey: string): Promise<void> {
 }
 
 export const quotaRouter = createTRPCRouter({
-  getQuotaInfo: protectedProcedure
-    .input(z.object({ userId: z.string(), apiKeyId: z.string() }))
-    .query(async ({ input, ctx }) => {
-      try {
-        const today = getTodayString();
-        const { apiKeyId, userId } = input;
-        const policy = await getQuotaPolicyByApiKey(input.apiKeyId);
-        const clientIp = ctx.req ? extractClientIp(ctx.req) : undefined;
-        const validationResult = await whitelistRuleDb.validateUserByApiKey(
-          apiKeyId,
-          userId,
-          clientIp
-        );
-        // 使用新的 getDailyUsage 函数，支持 apiKey 参数
-        const usage = await getDailyUsage({
-          userId: validationResult.generatedUserId,
-          apiKey: input.apiKeyId,
-        });
-
-        let remaining;
-        if (policy.limitType === 'token') {
-          remaining = {
-            type: 'token' as const,
-            daily: policy.dailyTokenLimit ? policy.dailyTokenLimit - usage.tokensUsed : null,
-            monthly: policy.monthlyTokenLimit ? policy.monthlyTokenLimit - usage.tokensUsed : null,
-          };
-        } else {
-          remaining = {
-            type: 'request' as const,
-            daily: policy.dailyRequestLimit ? policy.dailyRequestLimit - usage.requestsToday : null,
-          };
-        }
-
-        return {
-          policy,
-          usage: {
-            tokensUsed: usage.tokensUsed,
-            requestsToday: usage.requestsToday,
-            date: today,
-          },
-          remaining,
-        };
-      } catch (error) {
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: '获取用户配额信息失败',
-          cause: error,
-        });
-      }
-    }),
-
   // 获取用户今日使用情况
   getUserUsage: protectedProcedure
     .input(z.object({ userId: z.string(), apiKeyId: z.string() }))

@@ -4,14 +4,13 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { CheckCircle, AlertCircle } from 'lucide-react';
-import { CheckQuotaResult } from './types';
 
 interface CheckQuotaTabProps {
   userId: string;
   apiKeyId: string;
-  result: CheckQuotaResult | null;
-  onCheck: () => void;
+  result: Record<string, any>;
   isLoading: boolean;
+  onCheck: () => void;
 }
 
 const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
@@ -62,20 +61,13 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
           ) : (
             <div className="space-y-2">
               <div className="flex items-center">
-                {result.allowed ? (
-                  <>
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-                    <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                      配额充足，允许请求
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle className="w-5 h-5 text-yellow-500 mr-2" />
-                    <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                      配额不足：{result.reason}
-                    </span>
-                  </>
+                <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+                {result.remaining && (
+                  <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                    {result?.remaining?.type === 'token'
+                      ? `剩余token ${result?.remaining?.daily}`
+                      : `剩余请求次数 ${result?.remaining?.daily}`}
+                  </span>
                 )}
               </div>
               {result.policy && (
