@@ -43,6 +43,23 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
         ),
       },
       {
+        accessorKey: 'apiKeyId',
+        header: 'API Key Id',
+        cell: ({ row }) => (
+          <div className="flex items-center text-gray-500 dark:text-white">
+            <span className="mr-2">{row.original.id}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleCopyToClipboard(row.original.id)}
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+        ),
+      },
+      {
         accessorKey: 'key',
         header: 'API Key',
         cell: ({ row }) => (
