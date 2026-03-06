@@ -163,7 +163,7 @@ export const aiRouter = createTRPCRouter({
 
         // 4. 检查配额（使用 finalUserId + apiKeyId 组合作为标识符，确保不同 API Key 配额分开计算）
         const quotaCheck = await checkQuota(
-          { userId: finalUserId, apiKey: apiKeyId },
+          { userId: finalUserId || '', apiKey: apiKeyId },
           estimatedTokens
         );
         if (!quotaCheck.allowed) {
@@ -194,7 +194,7 @@ export const aiRouter = createTRPCRouter({
             region,
             clientIp,
             estimatedTokens,
-            userId: finalUserId,
+            userId: finalUserId || '',
           });
         }
       } catch (error) {
@@ -255,7 +255,7 @@ export const aiRouter = createTRPCRouter({
         );
 
         const usage = await getDailyUsage({
-          userId: validationResult.generatedUserId,
+          userId: validationResult.generatedUserId || '',
           apiKey: input.apiKeyId,
         });
         // 计算剩余配额

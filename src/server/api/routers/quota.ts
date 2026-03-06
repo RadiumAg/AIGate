@@ -48,7 +48,10 @@ export const quotaRouter = createTRPCRouter({
           userId,
           clientIp
         );
-        const usage = await getUserDailyUsage(validationResult.generatedUserId, input.apiKeyId);
+        const usage = await getUserDailyUsage(
+          validationResult.generatedUserId || '',
+          input.apiKeyId
+        );
         return usage;
       } catch (error) {
         throw new TRPCError({
@@ -71,7 +74,7 @@ export const quotaRouter = createTRPCRouter({
           userId,
           clientIp
         );
-        await resetUserQuota(validationResult.generatedUserId, apiKeyId);
+        await resetUserQuota(validationResult.generatedUserId || '', apiKeyId);
         return { success: true };
       } catch (error) {
         throw new TRPCError({

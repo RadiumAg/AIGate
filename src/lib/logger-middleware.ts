@@ -2,11 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import logger from './logger';
 
 // 记录 HTTP 请求的中间件
-export function logHttpRequest(
-  req: NextRequest,
-  response: NextResponse,
-  startTime: number
-) {
+export function logHttpRequest(req: NextRequest, response: NextResponse, startTime: number) {
   const endTime = Date.now();
   const duration = endTime - startTime;
 
@@ -18,7 +14,7 @@ export function logHttpRequest(
     duration: `${duration}ms`,
     userAgent: req.headers.get('user-agent') || '-',
     referer: req.headers.get('referer') || '-',
-    ip: req.ip || req.headers.get('x-forwarded-for') || '-',
+    ip: req.headers.get('x-forwarded-for') || '-',
     timestamp: new Date().toISOString(),
   };
 

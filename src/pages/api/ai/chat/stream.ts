@@ -75,7 +75,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 3. 估算 Token 消耗
     const estimatedTokens = provider.estimateTokens(request);
 
-    const quotaCheck = await checkQuota({ userId: finalUserId, apiKey: apiKeyId }, estimatedTokens);
+    const quotaCheck = await checkQuota(
+      { userId: finalUserId || '', apiKey: apiKeyId },
+      estimatedTokens
+    );
     if (!quotaCheck.allowed) {
       return res.status(429).json({
         error: quotaCheck.reason || '配额已用完',
@@ -146,7 +149,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         hasRecordedUsage = true;
         const actualUsage: UsageRecord = {
           id: requestId,
-          userId: finalUserId,
+          userId: finalUserId || '',
           requestId,
           model: request.model,
           provider: provider.name,
@@ -159,7 +162,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           clientIp,
         };
 
-        recordUsage(actualUsage, apiKeyId, finalUserId).catch((error) => {
+        recordUsage(actualUsage, apiKeyId, finalUserId || '').catch((error) => {
           console.error('Failed to record usage:', error);
         });
       }

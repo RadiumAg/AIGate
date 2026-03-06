@@ -537,7 +537,7 @@ export const whitelistRuleDb = {
         ruleId: null,
         valid: false,
         reason: '系统错误',
-        generatedUserId,
+        generatedUserId: undefined,
       };
     }
   },
