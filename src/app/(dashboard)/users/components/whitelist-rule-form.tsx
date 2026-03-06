@@ -3,6 +3,15 @@
 import React, { FC } from 'react';
 import { trpc } from '@/components/trpc-provider';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 
 interface WhitelistRule {
   id: string;
@@ -159,13 +168,11 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
     );
   }, [userIdPresetFilter]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
+  const handleChange = (changeValue: Record<string, any>) => {
+    const { name, value } = changeValue;
     setFormData({
       ...formData,
-      [name]: name === 'priority' ? parseInt(value) || 1 : value,
+      [name]: value,
     });
   };
 
@@ -292,49 +299,61 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           策略名称
         </label>
-        <select
+        <Select
           name="policyName"
           value={formData.policyName}
-          onChange={handleChange}
+          onValueChange={(value) =>
+            handleChange({
+              target: { name: 'policyName', value },
+            } as React.ChangeEvent<HTMLSelectElement>)
+          }
           required
-          className={inputClassName}
         >
-          {policies.length > 0 ? (
-            policies.map((policy) => (
-              <option key={policy.id} value={policy.name}>
-                {policy.name}
-              </option>
-            ))
-          ) : (
-            <option value="默认策略">默认策略</option>
-          )}
-        </select>
+          <SelectTrigger className={inputClassName}>
+            <SelectValue placeholder="选择策略" />
+          </SelectTrigger>
+          <SelectContent>
+            {policies.length > 0 ? (
+              policies.map((policy) => (
+                <SelectItem key={policy.id} value={policy.name}>
+                  {policy.name}
+                </SelectItem>
+              ))
+            ) : (
+              <SelectItem value="默认策略">默认策略</SelectItem>
+            )}
+          </SelectContent>
+        </Select>
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           描述
         </label>
-        <textarea
+        <Textarea
           name="description"
           value={formData.description || ''}
-          onChange={handleChange}
           rows={3}
           className={inputClassName}
           placeholder="规则描述..."
+          onChange={(value) => {
+            handleChange({ name: 'description', value });
+          }}
         />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           优先级
         </label>
-        <input
+        <Input
           type="number"
           name="priority"
           value={formData.priority}
-          onChange={handleChange}
           min="1"
           required
           className={inputClassName}
+          onChange={(value) => {
+            handleChange({ name: 'priority', value });
+          }}
         />
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
           数字越大优先级越高，匹配时优先使用高优先级规则
@@ -344,19 +363,25 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           关联 API Key
         </label>
-        <select
+        <Select
           name="apiKeyId"
           value={formData.apiKeyId || ''}
-          onChange={handleChange}
-          className={inputClassName}
+          onValueChange={(value) =>
+            handleChange({ name: 'apiKeyId', value: value === 'none' ? '' : value })
+          }
         >
-          <option value="">不关联 API Key</option>
-          {apiKeys.map((apiKey) => (
-            <option key={apiKey.id} value={apiKey.id}>
-              {apiKey.name} ({apiKey.provider})
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className={inputClassName}>
+            <SelectValue placeholder="不关联 API Key" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">不关联 API Key</SelectItem>
+            {apiKeys.map((apiKey) => (
+              <SelectItem key={apiKey.id} value={apiKey.originId}>
+                {apiKey.name} ({apiKey.provider})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
           选择关联的 API Key，每个 API Key 只能绑定一个白名单规则
         </p>
@@ -371,7 +396,7 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
             UserId 格式生成规则 (userIdPattern)
           </label>
           <div className="relative" ref={userIdPresetDropdownRef}>
-            <input
+            <Input
               ref={userIdPatternInputRef}
               type="text"
               name="userIdPattern"
@@ -456,7 +481,7 @@ const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 校验规则
               </label>
-              <input
+              <Input
                 ref={validationInputRef}
                 type="text"
                 value={formData.validationPattern || ''}
