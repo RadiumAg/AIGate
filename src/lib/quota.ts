@@ -181,20 +181,15 @@ export async function recordUsage(
       await redis.expire(dailyUsageKey, 7 * 24 * 60 * 60);
     } else if (policy.limitType === 'request') {
       const dailyRequestKey = RedisKeys.userDailyRequests(userId, apiKey, today);
-      const newCount = await redis.incr(dailyRequestKey);
+      await redis.incr(dailyRequestKey);
       await redis.expire(dailyRequestKey, 7 * 24 * 60 * 60);
-      console.log('[recordUsage] Request mode - New request count:', newCount, 'for', apiKey);
     }
 
-    // 更新每分钟请求次数（两种模式都要记录）
     const rpmKey = RedisKeys.userRPM(userId, apiKey, currentMinute);
     await redis.incr(rpmKey);
-    // 设置过期时间为 2 分钟
     await redis.expire(rpmKey, 120);
-
-    // 存储详细的请求日志
     const logKey = RedisKeys.requestLog(apiKey, record.id);
-    await redis.setEx(logKey, 24 * 60 * 60, JSON.stringify(record)); // 保存 24 小时
+    await redis.setEx(logKey, 24 * 60 * 60, JSON.stringify(record));
 
     // 写入用量记录到数据库
     await usageRecordDb.create({
