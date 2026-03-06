@@ -9,6 +9,7 @@ import type { AIProvider } from '@/lib/ai-providers';
 import { v4 as uuidv4 } from 'uuid';
 import { getRegionFromRequest, extractClientIp } from '@/lib/ip-region';
 import { apiKeyDb, whitelistRuleDb } from '../../../lib/database';
+import { getTodayString } from '@/lib/date';
 
 // 请求处理参数类型
 interface RequestHandlerParams {
@@ -256,7 +257,7 @@ export const aiRouter = createTRPCRouter({
           userId: validationResult.generatedUserId,
           apiKey: input.apiKeyId,
         });
-        const today = new Date().toISOString().split('T')[0];
+        const today = getTodayString();
         // 计算剩余配额
         let remaining;
         if (policy.limitType === 'token') {

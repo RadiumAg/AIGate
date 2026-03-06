@@ -1,4 +1,6 @@
-import { redis, RedisKeys, getTodayString, getCurrentMinuteString } from './redis';
+import { redis, RedisKeys } from './redis';
+import { getCurrentMinuteString } from './date';
+import { getTodayString } from './date';
 import { QuotaPolicy, QuotaCheckResult, UsageRecord } from './types';
 import { whitelistRuleDb, usageRecordDb } from './database';
 // 默认配额策略
@@ -265,8 +267,8 @@ export async function getDailyUsage(requestInfo: {
       ? `${requestInfo.userId}:${requestInfo.apiKey || 'default'}`
       : requestInfo.ip || requestInfo.apiKey || 'anonymous';
 
-    const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today, requestInfo.apiKey);
-    const dailyRequestKey = RedisKeys.userDailyRequests(identifier, today, requestInfo.apiKey);
+    const dailyUsageKey = RedisKeys.userDailyQuota(identifier, requestInfo.apiKey, today);
+    const dailyRequestKey = RedisKeys.userDailyRequests(identifier, requestInfo.apiKey, today);
 
     const tokensUsed = await redis.get(dailyUsageKey);
     const requestsUsed = await redis.get(dailyRequestKey);

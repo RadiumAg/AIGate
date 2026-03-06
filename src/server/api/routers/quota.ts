@@ -9,11 +9,13 @@ import {
   getQuotaPolicyByApiKey,
 } from '@/lib/quota';
 import { redis, RedisKeys } from '@/lib/redis';
+import { getTodayString } from '@/lib/date';
 import { quotaPolicyDb } from '@/lib/database';
 
 async function clearPolicyCacheKeys(apiKey: string): Promise<void> {
   try {
-    const patterns = [RedisKeys.userDailyRequests('userId:*', apiKey, 'date:*')];
+    const today = getTodayString();
+    const patterns = [RedisKeys.userDailyRequests('userId:*', apiKey, today)];
 
     for (const pattern of patterns) {
       let cursor = 0;
@@ -41,7 +43,7 @@ export const quotaRouter = createTRPCRouter({
           userId: input.userId,
           apiKey: input.apiKeyId,
         });
-        const today = new Date().toISOString().split('T')[0];
+        const today = getTodayString();
 
         // 计算剩余配额
         let remaining;

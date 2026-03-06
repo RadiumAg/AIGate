@@ -40,14 +40,3 @@ export const RedisKeys = {
   // 请求日志: request_log:userId:requestId
   requestLog: (userId: string, requestId: string) => `request_log:${userId}:${requestId}`,
 };
-
-// 获取今日日期字符串
-export const getTodayString = () => {
-  return new Date().toISOString().split('T')[0];
-};
-
-// 获取当前分钟字符串
-export const getCurrentMinuteString = () => {
-  const now = new Date();
-  return `${now.toISOString().split('T')[0]}:${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-};

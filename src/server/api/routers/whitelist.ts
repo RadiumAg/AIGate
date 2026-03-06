@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { whitelistRuleDb } from '@/lib/database';
+import { getTodayString } from '@/lib/date';
 
 // 白名单规则 Schema
 const WhitelistRuleSchema = z.object({
@@ -26,7 +27,7 @@ export const whitelistRouter = createTRPCRouter({
       return rules.map((rule) => ({
         ...rule,
         validationEnabled: Boolean(rule.validationEnabled),
-        createdAt: rule.createdAt.toISOString().split('T')[0],
+        createdAt: getTodayString(rule.createdAt),
       }));
     } catch (error) {
       throw new TRPCError({
@@ -50,7 +51,7 @@ export const whitelistRouter = createTRPCRouter({
 
       return {
         ...rule,
-        createdAt: rule.createdAt.toISOString().split('T')[0],
+        createdAt: getTodayString(rule.createdAt),
       };
     } catch (error) {
       if (error instanceof TRPCError) throw error;
@@ -88,7 +89,7 @@ export const whitelistRouter = createTRPCRouter({
         return {
           ...rule,
           validationEnabled: Boolean(rule.validationEnabled),
-          createdAt: rule.createdAt.toISOString().split('T')[0],
+          createdAt: getTodayString(rule.createdAt),
         };
       } catch (error) {
         if (error instanceof TRPCError) throw error;
@@ -134,7 +135,7 @@ export const whitelistRouter = createTRPCRouter({
         return {
           ...rule,
           validationEnabled: Boolean(rule.validationEnabled),
-          createdAt: rule.createdAt.toISOString().split('T')[0],
+          createdAt: getTodayString(rule.createdAt),
         };
       } catch (error) {
         if (error instanceof TRPCError) throw error;

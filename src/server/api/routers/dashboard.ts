@@ -1,3 +1,4 @@
+import { getTodayString } from '@/lib/date';
 import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { usageRecordDb } from '@/lib/database';
 import { db } from '@/lib/drizzle';
@@ -175,7 +176,7 @@ export const dashboardRouter = createTRPCRouter({
       for (let i = 0; i < 7; i++) {
         const date = new Date();
         date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = getTodayString(date);
         dailyStats.set(dateStr, {
           date: dateStr,
           requests: 0,
@@ -184,7 +185,7 @@ export const dashboardRouter = createTRPCRouter({
       }
 
       records.forEach((record) => {
-        const dateStr = record.timestamp.toISOString().split('T')[0];
+        const dateStr = getTodayString(record.timestamp);
         if (dailyStats.has(dateStr)) {
           const stats = dailyStats.get(dateStr);
           stats.requests += 1;

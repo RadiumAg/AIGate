@@ -4,6 +4,7 @@ import { TRPCError } from '@trpc/server';
 import { ApiKeySchema } from '../../../lib/types';
 import { redis, RedisKeys } from '../../../lib/redis';
 import { apiKeyDb, usageRecordDb } from '../../../lib/database';
+import { getTodayString } from '@/lib/date';
 
 // 辅助函数：隐藏 API Key
 function maskApiKey(key: string): string {
@@ -21,7 +22,7 @@ function maskApiKey(key: string): string {
 // 辅助函数：格式化日期
 function formatDate(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toISOString().split('T')[0];
+  return getTodayString(d);
 }
 
 // 辅助函数：转换提供商名称（前端小写 -> 数据库大写）
