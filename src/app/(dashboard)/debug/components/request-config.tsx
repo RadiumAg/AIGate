@@ -52,15 +52,15 @@ interface RequestConfigProps {
 const RequestConfig: React.FC<RequestConfigProps> = (props) => {
   const {
     form,
-    setForm,
     apiKeys,
     supportedModels,
     estimatedTokens,
     isEstimating,
+    isSubmitting,
     onEstimateTokens,
     onGenerateCode,
     onSubmit,
-    isSubmitting,
+    setForm,
   } = props;
 
   // 消息操作
