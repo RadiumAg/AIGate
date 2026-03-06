@@ -140,7 +140,6 @@ export const dashboardRouter = createTRPCRouter({
         new Date()
       );
 
-      // 转换为活动格式
       const activities = recentRecords.slice(0, 10).map((record) => ({
         id: record.id,
         type: 'api_call',
