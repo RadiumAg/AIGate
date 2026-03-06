@@ -12,10 +12,18 @@ import { redis, RedisKeys } from '@/lib/redis';
 import { getTodayString } from '@/lib/date';
 import { quotaPolicyDb } from '@/lib/database';
 
-async function clearPolicyCacheKeys(apiKey: string): Promise<void> {
+/**
+ *
+ *  更新策略后清空用户今天请求的配额
+ *
+ */
+async function clearTodayPolicy(apiKey: string): Promise<void> {
   try {
     const today = getTodayString();
-    const patterns = [RedisKeys.userDailyRequests('userId:*', apiKey, today)];
+    const patterns = [
+      RedisKeys.userDailyQuota('userId:*', apiKey, today),
+      RedisKeys.userDailyRequests('userId:*', apiKey, today),
+    ];
 
     for (const pattern of patterns) {
       let cursor = 0;
@@ -227,7 +235,7 @@ export const quotaRouter = createTRPCRouter({
           });
         }
 
-        await clearPolicyCacheKeys('*');
+        await clearTodayPolicy('*');
 
         return policy;
       } catch (error) {
@@ -253,7 +261,7 @@ export const quotaRouter = createTRPCRouter({
           });
         }
 
-        await clearPolicyCacheKeys('*');
+        await clearTodayPolicy('*');
 
         return { success: true };
       } catch (error) {
