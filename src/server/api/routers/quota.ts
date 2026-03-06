@@ -10,7 +10,8 @@ import {
 } from '@/lib/quota';
 import { redis, RedisKeys } from '@/lib/redis';
 import { getTodayString } from '@/lib/date';
-import { quotaPolicyDb } from '@/lib/database';
+import { quotaPolicyDb, whitelistRuleDb } from '@/lib/database';
+import { extractClientIp } from '@/lib/ip-region';
 
 /**
  *
@@ -43,17 +44,23 @@ async function clearTodayPolicy(apiKey: string): Promise<void> {
 export const quotaRouter = createTRPCRouter({
   getQuotaInfo: protectedProcedure
     .input(z.object({ userId: z.string(), apiKeyId: z.string() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       try {
+        const today = getTodayString();
+        const { apiKeyId, userId } = input;
         const policy = await getQuotaPolicyByApiKey(input.apiKeyId);
+        const clientIp = ctx.req ? extractClientIp(ctx.req) : undefined;
+        const validationResult = await whitelistRuleDb.validateUserByApiKey(
+          apiKeyId,
+          userId,
+          clientIp
+        );
         // 使用新的 getDailyUsage 函数，支持 apiKey 参数
         const usage = await getDailyUsage({
-          userId: input.userId,
+          userId: validationResult.generatedUserId,
           apiKey: input.apiKeyId,
         });
-        const today = getTodayString();
 
-        // 计算剩余配额
         let remaining;
         if (policy.limitType === 'token') {
           remaining = {
@@ -89,9 +96,16 @@ export const quotaRouter = createTRPCRouter({
   // 获取用户今日使用情况
   getUserUsage: protectedProcedure
     .input(z.object({ userId: z.string(), apiKeyId: z.string() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       try {
-        const usage = await getUserDailyUsage(input.userId, input.apiKeyId);
+        const { apiKeyId, userId } = input;
+        const clientIp = ctx.req ? extractClientIp(ctx.req) : undefined;
+        const validationResult = await whitelistRuleDb.validateUserByApiKey(
+          apiKeyId,
+          userId,
+          clientIp
+        );
+        const usage = await getUserDailyUsage(validationResult.generatedUserId, input.apiKeyId);
         return usage;
       } catch (error) {
         throw new TRPCError({
@@ -102,36 +116,19 @@ export const quotaRouter = createTRPCRouter({
       }
     }),
 
-  // 检查用户配额
-  checkQuota: protectedProcedure
-    .input(
-      z.object({
-        userId: z.string(),
-        apiKeyId: z.string(),
-        estimatedTokens: z.number().optional(),
-      })
-    )
-    .query(async ({ input }) => {
-      try {
-        const { userId, apiKeyId } = input;
-        // 使用新的 checkQuota 函数，支持 apiKey 参数
-        const result = await checkQuota({ userId, apiKey: apiKeyId }, input.estimatedTokens);
-        return result;
-      } catch (error) {
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: '检查用户配额失败',
-          cause: error,
-        });
-      }
-    }),
-
   // 重置用户配额
   resetQuota: protectedProcedure
     .input(z.object({ userId: z.string(), apiKeyId: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const { apiKeyId, userId } = input;
       try {
-        await resetUserQuota(input.userId, input.apiKeyId);
+        const clientIp = ctx.req ? extractClientIp(ctx.req) : undefined;
+        const validationResult = await whitelistRuleDb.validateUserByApiKey(
+          apiKeyId,
+          userId,
+          clientIp
+        );
+        await resetUserQuota(validationResult.generatedUserId, apiKeyId);
         return { success: true };
       } catch (error) {
         throw new TRPCError({

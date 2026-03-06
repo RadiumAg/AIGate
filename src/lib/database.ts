@@ -452,18 +452,7 @@ export const whitelistRuleDb = {
    * 首先根据 apiKeyId 找到对应的白名单规则，然后使用该规则的配置进行校验
    * 返回匹配到的规则信息和校验结果
    */
-  validateUserByApiKey: async (
-    apiKeyId: string,
-    userId: string,
-    clientIp?: string
-  ): Promise<{
-    matched: boolean;
-    policyName: string;
-    ruleId: string | null;
-    valid: boolean;
-    generatedUserId?: string;
-    reason?: string;
-  }> => {
+  validateUserByApiKey: async (apiKeyId: string, userId: string, clientIp?: string) => {
     try {
       // 1. 根据 apiKeyId 找到对应的白名单规则
       const rule = await whitelistRuleDb.getByApiKeyId(apiKeyId);
@@ -517,6 +506,7 @@ export const whitelistRuleDb = {
             // 替换占位符：@ip 替换为客户端 IP，@user_id 替换为传入的 userId
             generatedUserId = rule.userIdPattern
               .replace(/@user_id/g, userId)
+              .replace(/@api_key/g, apiKeyId)
               .replace(/@ip/g, clientIp || 'unknown_ip')
               .replace(/@any/g, userId);
           }
@@ -527,6 +517,7 @@ export const whitelistRuleDb = {
             policyName: rule.policyName,
             ruleId: rule.id,
             valid: false,
+            generatedUserId,
             reason: '生成失败用户Id失败',
           };
         }
@@ -547,6 +538,7 @@ export const whitelistRuleDb = {
         ruleId: null,
         valid: false,
         reason: '系统错误',
+        generatedUserId,
       };
     }
   },

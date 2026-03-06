@@ -84,29 +84,12 @@ export async function checkQuota(
     const currentMinute = getCurrentMinuteString();
     const identifier = requestInfo.userId;
 
-    console.log(
-      '[checkQuota] Policy:',
-      JSON.stringify({
-        limitType: policy.limitType,
-        dailyTokenLimit: policy.dailyTokenLimit,
-        dailyRequestLimit: policy.dailyRequestLimit,
-        rpmLimit: policy.rpmLimit,
-      })
-    );
-
     // 根据 limitType 检查不同的限制
     if (policy.limitType === 'token') {
       // Token 限制模式
       const dailyUsageKey = RedisKeys.userDailyQuota(requestInfo.userId, requestInfo.apiKey, today);
       const dailyUsage = await redis.get(dailyUsageKey);
       const currentDailyTokens = dailyUsage ? parseInt(dailyUsage) : 0;
-
-      console.log(
-        '[checkQuota] Token mode - Daily usage:',
-        currentDailyTokens,
-        '/',
-        policy.dailyTokenLimit
-      );
 
       if (policy.dailyTokenLimit && currentDailyTokens + estimatedTokens > policy.dailyTokenLimit) {
         return {
@@ -121,13 +104,6 @@ export async function checkQuota(
       const dailyRequestKey = RedisKeys.userDailyRequests(identifier, requestInfo.apiKey, today);
       const dailyRequests = await redis.get(dailyRequestKey);
       const currentDailyRequests = dailyRequests ? parseInt(dailyRequests) : 0;
-
-      console.log(
-        '[checkQuota] Request mode - Daily requests:',
-        currentDailyRequests,
-        '/',
-        policy.dailyRequestLimit
-      );
 
       if (policy.dailyRequestLimit && currentDailyRequests >= policy.dailyRequestLimit) {
         return {
@@ -206,7 +182,6 @@ export async function recordUsage(
       await redis.incrBy(dailyUsageKey, Math.round(record.totalTokens));
       // 设置过期时间为 7 天
       await redis.expire(dailyUsageKey, 7 * 24 * 60 * 60);
-      console.log('[recordUsage] Token mode - Recorded', record.totalTokens, 'tokens for', apiKey);
     } else if (policy.limitType === 'request') {
       // 请求次数模式：更新每日请求次数
       const dailyRequestKey = RedisKeys.userDailyRequests(apiKey, apiKey, today);
@@ -250,7 +225,7 @@ export async function recordUsage(
 
 // 获取今日使用情况
 export async function getDailyUsage(requestInfo: {
-  userId?: string;
+  userId: string;
   apiKey: string;
   ip?: string;
   domain?: string;
@@ -259,10 +234,7 @@ export async function getDailyUsage(requestInfo: {
     const policy = await getQuotaPolicyByRequest(requestInfo);
     const today = getTodayString();
     // 使用 userId + apiKey 组合作为标识符，确保不同 API Key 的配额分开计算
-    const identifier = requestInfo.userId
-      ? `${requestInfo.userId}:${requestInfo.apiKey || 'default'}`
-      : requestInfo.ip || requestInfo.apiKey || 'anonymous';
-
+    const identifier = requestInfo.userId;
     const dailyUsageKey = RedisKeys.userDailyQuota(identifier, requestInfo.apiKey, today);
     const dailyRequestKey = RedisKeys.userDailyRequests(identifier, requestInfo.apiKey, today);
 

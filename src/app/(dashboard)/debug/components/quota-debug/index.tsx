@@ -22,7 +22,7 @@ const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
   const [resetQuotaResult, setResetQuotaResult] = React.useState<ResetQuotaResult | null>(null);
   const [activeTab, setActiveTab] = React.useState<TabType>('check');
 
-  const checkQuotaQuery = trpc.quota.checkQuota.useQuery({ userId, apiKeyId }, { enabled: false });
+  const checkQuotaQuery = trpc.ai.getQuotaInfo.useMutation({ onSuccess() {} });
   const getUserUsageQuery = trpc.quota.getUserUsage.useQuery(
     { userId, apiKeyId },
     { enabled: false }
@@ -35,9 +35,9 @@ const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
       return;
     }
     try {
-      const result = await checkQuotaQuery.refetch();
-      if (result.data) {
-        setCheckQuotaResult(result.data as CheckQuotaResult);
+      const result = await checkQuotaQuery.mutateAsync({ userId, apiKeyId });
+      if (result) {
+        setCheckQuotaResult(result as CheckQuotaResult);
       }
     } catch (error: unknown) {
       const err = error as Error;
@@ -142,7 +142,7 @@ const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
             userId={userId}
             apiKeyId={apiKeyId}
             result={checkQuotaResult}
-            isLoading={checkQuotaQuery.isFetching}
+            isLoading={checkQuotaQuery.isPending}
             onCheck={handleCheckQuota}
           />
         )}

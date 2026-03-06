@@ -352,7 +352,6 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
           </Button>
 
           <Button
-            onClick={onSubmit}
             disabled={
               isSubmitting ||
               !form?.apiKeyId ||
@@ -360,6 +359,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
               form?.messages?.some((m) => !m.content.trim())
             }
             className="flex-1"
+            onClick={onSubmit}
           >
             {isSubmitting ? (
               <>

@@ -13,11 +13,11 @@ import { getTodayString } from '@/lib/date';
 
 // 请求处理参数类型
 interface RequestHandlerParams {
-  apiKeyInfo: { key: string; baseUrl?: string };
+  apiKeyInfo: { key: string; id: string; baseUrl?: string };
   request: ChatCompletionRequest;
   provider: AIProvider;
   requestId: string;
-  identifier: string;
+  userId: string;
   startTime: number;
   quotaCheck: {
     allowed: boolean;
@@ -39,7 +39,7 @@ async function handleNonStreamRequest(
     request,
     provider,
     requestId,
-    identifier,
+    userId,
     startTime,
     quotaCheck,
     region,
@@ -53,7 +53,7 @@ async function handleNonStreamRequest(
   // 记录实际使用量
   const actualUsage: UsageRecord = {
     id: requestId,
-    userId: identifier,
+    userId: userId,
     requestId,
     model: request.model,
     provider: provider.name,
@@ -66,7 +66,7 @@ async function handleNonStreamRequest(
     clientIp,
   };
 
-  recordUsage(actualUsage, apiKeyInfo.key, identifier).catch((error) => {
+  recordUsage(actualUsage, apiKeyInfo.id, userId).catch((error) => {
     console.error('Failed to record usage:', error);
   });
 
@@ -129,7 +129,7 @@ export const aiRouter = createTRPCRouter({
         }
 
         // 使用生成的 userId（如果有的话）
-        const finalUserId = validationResult.generatedUserId || userId;
+        const finalUserId = validationResult.generatedUserId;
 
         // 3. 获取 API Key 和 Provider
         const apiKey = await apiKeyDb.getById(apiKeyId);
@@ -153,6 +153,7 @@ export const aiRouter = createTRPCRouter({
 
         const provider = foundProvider;
         const apiKeyInfo = {
+          id: apiKey.id,
           key: apiKey.key,
           baseUrl: apiKey.baseUrl || undefined,
         };
@@ -161,7 +162,6 @@ export const aiRouter = createTRPCRouter({
         const estimatedTokens = provider.estimateTokens(request);
 
         // 4. 检查配额（使用 finalUserId + apiKeyId 组合作为标识符，确保不同 API Key 配额分开计算）
-        const identifier = `${finalUserId}:${apiKeyId}`;
         const quotaCheck = await checkQuota(
           { userId: finalUserId, apiKey: apiKeyId },
           estimatedTokens
@@ -189,12 +189,12 @@ export const aiRouter = createTRPCRouter({
             request,
             provider,
             requestId,
-            identifier,
             startTime,
             quotaCheck,
             region,
             clientIp,
             estimatedTokens,
+            userId: finalUserId,
           });
         }
       } catch (error) {
@@ -243,6 +243,7 @@ export const aiRouter = createTRPCRouter({
     .input(z.object({ userId: z.string(), apiKeyId: z.string() }))
     .mutation(async ({ input, ctx }) => {
       try {
+        const today = getTodayString();
         const { userId, apiKeyId } = input;
         const clientIp = ctx.req ? extractClientIp(ctx.req) : undefined;
         // 优先通过 apiKeyId 获取配额策略
@@ -252,12 +253,11 @@ export const aiRouter = createTRPCRouter({
           userId,
           clientIp
         );
-        // 使用 finalUserId + apiKeyId 组合标识符查询配额使用情况
+
         const usage = await getDailyUsage({
           userId: validationResult.generatedUserId,
           apiKey: input.apiKeyId,
         });
-        const today = getTodayString();
         // 计算剩余配额
         let remaining;
         if (policy.limitType === 'token') {
