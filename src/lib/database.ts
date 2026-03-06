@@ -13,7 +13,7 @@ import type {
   NewUsageRecord,
   NewWhitelistRule,
 } from './schema';
-import { convertProviderToDb } from '@/server/api/routers/apiKey';
+import { convertProviderToDb } from '@/server/api/routers/api-key';
 
 // API Key 数据库操作
 export const apiKeyDb = {

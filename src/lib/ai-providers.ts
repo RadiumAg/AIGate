@@ -1,6 +1,6 @@
 import { getActiveApiKey, apiKeyDb } from './database';
 import { redis, RedisKeys } from './redis';
-import { convertProviderToDb } from '@/server/api/routers/apiKey';
+import { convertProviderToDb } from '@/server/api/routers/api-key';
 import type { ChatCompletionRequest, ChatCompletionResponse } from './types';
 
 // 消息类型定义

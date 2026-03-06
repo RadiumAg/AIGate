@@ -89,15 +89,15 @@ export const apiKeyRouter = createTRPCRouter({
 
       // 转换数据格式以匹配前端期望
       const maskedApiKeys = apiKeys.map((key) => ({
-        id: key.id,
+        originId: key.id,
         originKey: key.key,
         name: key.name,
+        baseUrl: key.baseUrl || undefined,
         provider: convertProviderFromDb(key.provider),
         key: maskApiKey(key.key),
-        baseUrl: key.baseUrl || undefined,
+        id: maskApiKey(key.id),
         status: convertStatusFromDb(key.status),
         createdAt: formatDate(key.createdAt),
-        lastUsed: undefined, // 数据库模式中没有 lastUsed 字段，暂时设为 undefined
       }));
 
       return maskedApiKeys;

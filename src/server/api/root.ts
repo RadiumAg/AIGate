@@ -1,7 +1,7 @@
 import { createTRPCRouter } from './trpc';
 import { aiRouter } from './routers/ai';
 import { quotaRouter } from './routers/quota';
-import { apiKeyRouter } from './routers/apiKey';
+import { apiKeyRouter } from './routers/api-key';
 import { dashboardRouter } from './routers/dashboard';
 import { whitelistRouter } from './routers/whitelist';
 
