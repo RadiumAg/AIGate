@@ -1,4 +1,3 @@
-// 数据库抽象层 - 使用 Drizzle ORM
 import { db } from './drizzle';
 import { apiKeys, quotaPolicies, usageRecords, whitelistRules } from './schema';
 import { eq, and, gte, lte, desc, count, sum, countDistinct } from 'drizzle-orm';
