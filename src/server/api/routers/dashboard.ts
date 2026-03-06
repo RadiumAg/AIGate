@@ -1,8 +1,8 @@
 import { createTRPCRouter, protectedProcedure } from '../trpc';
-import { usageRecordDb } from '../../../lib/database';
+import { usageRecordDb } from '@/lib/database';
+import { db } from '@/lib/drizzle';
+import { usageRecords } from '@/lib/schema';
 import { and, gte, lte, count, sum, sql, isNotNull } from 'drizzle-orm';
-import { db } from '../../../lib/drizzle';
-import { usageRecords } from '../../../lib/schema';
 
 export const dashboardRouter = createTRPCRouter({
   // 获取仪表盘统计数据
