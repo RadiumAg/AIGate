@@ -253,11 +253,10 @@ export const aiRouter = createTRPCRouter({
         );
         // 使用 finalUserId + apiKeyId 组合标识符查询配额使用情况
         const usage = await getDailyUsage({
-          userId: validationResult.generatedUserId || userId,
+          userId: validationResult.generatedUserId,
           apiKey: input.apiKeyId,
         });
         const today = new Date().toISOString().split('T')[0];
-
         // 计算剩余配额
         let remaining;
         if (policy.limitType === 'token') {
