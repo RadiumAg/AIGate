@@ -26,7 +26,8 @@ export const RedisKeys = {
     `user_requests:${userId}:${date}:${apiKey}`,
 
   // 用户每分钟请求次数: user_rpm:userId:YYYY-MM-DD:HH:MM
-  userRPM: (userId: string, dateTime: string) => `user_rpm:${userId}:${dateTime}`,
+  userRPM: (userId: string, apiKey: string, dateTime: string) =>
+    `user_rpm:${userId}:${apiKey}:${dateTime}`,
 
   // 用户配额策略缓存: user_policy:userId
   userPolicy: (userId: string) => `user_policy:${userId}`,

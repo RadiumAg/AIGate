@@ -142,7 +142,7 @@ export async function checkQuota(
     }
 
     // 检查每分钟请求次数限制（两种模式都要检查）
-    const rpmKey = RedisKeys.userRPM(identifier, currentMinute);
+    const rpmKey = RedisKeys.userRPM(identifier, requestInfo.apiKey, currentMinute);
     const currentRPM = await redis.get(rpmKey);
     const currentRequests = currentRPM ? parseInt(currentRPM) : 0;
 
@@ -219,7 +219,7 @@ export async function recordUsage(
     }
 
     // 更新每分钟请求次数（两种模式都要记录）
-    const rpmKey = RedisKeys.userRPM(apiKey, currentMinute);
+    const rpmKey = RedisKeys.userRPM(userId, apiKey, currentMinute);
     await redis.incr(rpmKey);
     // 设置过期时间为 2 分钟
     await redis.expire(rpmKey, 120);
