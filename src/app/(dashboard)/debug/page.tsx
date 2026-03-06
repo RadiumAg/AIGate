@@ -7,6 +7,7 @@ import { trpc } from '@/components/trpc-provider';
 import RequestConfig from './components/request-config';
 import ResponseResult from './components/response-result';
 import CodeModal from './components/code-modal';
+import QuotaDebug from './components/quota-debug';
 import { DebugRequestForm, ResponseData } from './components/types';
 import { Spinner } from '@/components/ui/spinner';
 
@@ -358,6 +359,9 @@ curl -X POST '${baseUrl}/api/ai/chat/completions' \\
         generatedCode={generatedCode}
         onCopyToClipboard={copyToClipboard}
       />
+
+      {/* 配额调试 */}
+      {!isLoading && <QuotaDebug userId={form.userId} apiKeyId={form.apiKeyId} />}
     </div>
   );
 };

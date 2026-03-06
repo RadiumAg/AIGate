@@ -148,8 +148,8 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
                   apiKeys
                     .filter((key) => key.status === 'active')
                     .map((apiKey) => (
-                      <SelectItem key={apiKey.id} value={apiKey.id}>
-                        {apiKey.name} ({apiKey.provider}) - {apiKey.key}
+                      <SelectItem key={apiKey.id} value={apiKey.originKey}>
+                        {apiKey.name} ({apiKey.provider}) - {apiKey.id}
                       </SelectItem>
                     ))
                 ) : (
