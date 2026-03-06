@@ -99,6 +99,8 @@ cmd_config() {
   local current_db_url=$(get_env_value "DATABASE_URL" "postgresql://postgres:12345678@postgres:5432/aigate")
   local current_redis_url=$(get_env_value "REDIS_URL" "redis://redis:6379")
   local current_app_port=$(get_env_value "APP_PORT" "3000")
+  local current_log_dir=$(get_env_value "LOG_DIR" "./logs")
+  local current_log_level=$(get_env_value "LOG_LEVEL" "info")
   
   echo "当前配置："
   echo "  ADMIN_EMAIL: $current_admin_email"
@@ -106,6 +108,8 @@ cmd_config() {
   echo "  DATABASE_URL: $current_db_url"
   echo "  REDIS_URL: $current_redis_url"
   echo "  APP_PORT: $current_app_port"
+  echo "  LOG_DIR: $current_log_dir"
+  echo "  LOG_LEVEL: $current_log_level"
   echo ""
   
   # 管理员邮箱
@@ -133,6 +137,16 @@ cmd_config() {
   read -p "请输入应用端口 [$current_app_port]: " input_app_port
   local app_port=${input_app_port:-$current_app_port}
   
+  # 日志配置
+  echo ""
+  log_info "日志配置（由 Winston 使用，仅生产环境写入文件）："
+  read -p "请输入日志目录 [$current_log_dir]: " input_log_dir
+  local log_dir=${input_log_dir:-$current_log_dir}
+  
+  echo "日志级别选项：error / warn / info / http / debug"
+  read -p "请输入日志级别 [$current_log_level]: " input_log_level
+  local log_level=${input_log_level:-$current_log_level}
+  
   # 确认
   echo ""
   log_info "配置预览："
@@ -143,6 +157,8 @@ cmd_config() {
   echo "  DATABASE_URL: $db_url"
   echo "  REDIS_URL: $redis_url"
   echo "  APP_PORT: $app_port"
+  echo "  LOG_DIR: $log_dir"
+  echo "  LOG_LEVEL: $log_level"
   echo ""
   
   read -p "确认保存？(Y/n) " confirm
@@ -155,6 +171,8 @@ cmd_config() {
     set_env_value "DATABASE_URL" "$db_url"
     set_env_value "REDIS_URL" "$redis_url"
     set_env_value "APP_PORT" "$app_port"
+    set_env_value "LOG_DIR" "$log_dir"
+    set_env_value "LOG_LEVEL" "$log_level"
     
     # 其他必要配置
     if ! grep -q "^NEXTAUTH_SECRET=" "$ENV_FILE" 2>/dev/null; then
