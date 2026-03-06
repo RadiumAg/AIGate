@@ -18,8 +18,8 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
   userId,
   apiKeyId,
   result,
-  onCheck,
   isLoading,
+  onCheck,
 }) => {
   return (
     <div className="space-y-4">

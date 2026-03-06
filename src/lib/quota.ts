@@ -72,21 +72,17 @@ export async function getQuotaPolicyByRequest(requestInfo: {
 export async function checkQuota(
   requestInfo: {
     apiKey: string;
-    userId?: string;
-    ip?: string;
+    userId: string;
     domain?: string;
+    ip?: string;
   },
   estimatedTokens: number = 0
 ): Promise<QuotaCheckResult> {
   try {
-    const policy = await getQuotaPolicyByRequest(requestInfo);
     const today = getTodayString();
+    const policy = await getQuotaPolicyByRequest(requestInfo);
     const currentMinute = getCurrentMinuteString();
-
-    // 使用 userId + apiKey 组合作为标识符，确保不同 API Key 的配额分开计算
-    const identifier = requestInfo.userId
-      ? `${requestInfo.userId}:${requestInfo.apiKey || 'default'}`
-      : requestInfo.ip || requestInfo.apiKey || 'anonymous';
+    const identifier = requestInfo.userId;
 
     console.log(
       '[checkQuota] Policy:',
@@ -101,7 +97,7 @@ export async function checkQuota(
     // 根据 limitType 检查不同的限制
     if (policy.limitType === 'token') {
       // Token 限制模式
-      const dailyUsageKey = RedisKeys.userDailyQuota(identifier, requestInfo.apiKey, today);
+      const dailyUsageKey = RedisKeys.userDailyQuota(requestInfo.userId, requestInfo.apiKey, today);
       const dailyUsage = await redis.get(dailyUsageKey);
       const currentDailyTokens = dailyUsage ? parseInt(dailyUsage) : 0;
 
