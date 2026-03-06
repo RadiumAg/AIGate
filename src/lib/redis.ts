@@ -8,7 +8,6 @@ redis.on('error', (err) => {
   console.error('Redis Client Error', err);
 });
 
-// 连接到 Redis
 if (!redis.isOpen) {
   redis.connect();
 }
