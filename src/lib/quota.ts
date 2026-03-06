@@ -99,7 +99,7 @@ export async function checkQuota(
     // 根据 limitType 检查不同的限制
     if (policy.limitType === 'token') {
       // Token 限制模式
-      const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today, requestInfo.apiKey);
+      const dailyUsageKey = RedisKeys.userDailyQuota(identifier, requestInfo.apiKey, today);
       const dailyUsage = await redis.get(dailyUsageKey);
       const currentDailyTokens = dailyUsage ? parseInt(dailyUsage) : 0;
 
@@ -120,7 +120,7 @@ export async function checkQuota(
       }
     } else if (policy.limitType === 'request') {
       // 请求次数限制模式
-      const dailyRequestKey = RedisKeys.userDailyRequests(identifier, today);
+      const dailyRequestKey = RedisKeys.userDailyRequests(identifier, requestInfo.apiKey, today);
       const dailyRequests = await redis.get(dailyRequestKey);
       const currentDailyRequests = dailyRequests ? parseInt(dailyRequests) : 0;
 
@@ -160,14 +160,14 @@ export async function checkQuota(
     let remainingRequests: number | undefined;
 
     if (policy.limitType === 'token' && policy.dailyTokenLimit) {
-      const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today, requestInfo.apiKey);
+      const dailyUsageKey = RedisKeys.userDailyQuota(identifier, requestInfo.apiKey, today);
       const dailyUsage = await redis.get(dailyUsageKey);
       const currentDailyTokens = dailyUsage ? parseInt(dailyUsage) : 0;
       remainingTokens = policy.dailyTokenLimit - currentDailyTokens;
     }
 
     if (policy.limitType === 'request' && policy.dailyRequestLimit) {
-      const dailyRequestKey = RedisKeys.userDailyRequests(identifier, today);
+      const dailyRequestKey = RedisKeys.userDailyRequests(identifier, requestInfo.apiKey, today);
       const dailyRequests = await redis.get(dailyRequestKey);
       const currentDailyRequests = dailyRequests ? parseInt(dailyRequests) : 0;
       remainingRequests = policy.dailyRequestLimit - currentDailyRequests;
@@ -204,14 +204,14 @@ export async function recordUsage(
     // 根据 limitType 更新不同的计数器
     if (policy.limitType === 'token') {
       // Token 模式：更新每日 Token 使用量
-      const dailyUsageKey = RedisKeys.userDailyQuota(userId, today, apiKey);
+      const dailyUsageKey = RedisKeys.userDailyQuota(userId, apiKey, today);
       await redis.incrBy(dailyUsageKey, Math.round(record.totalTokens));
       // 设置过期时间为 7 天
       await redis.expire(dailyUsageKey, 7 * 24 * 60 * 60);
       console.log('[recordUsage] Token mode - Recorded', record.totalTokens, 'tokens for', apiKey);
     } else if (policy.limitType === 'request') {
       // 请求次数模式：更新每日请求次数
-      const dailyRequestKey = RedisKeys.userDailyRequests(apiKey, today);
+      const dailyRequestKey = RedisKeys.userDailyRequests(apiKey, apiKey, today);
       const newCount = await redis.incr(dailyRequestKey);
       // 设置过期时间为 7 天
       await redis.expire(dailyRequestKey, 7 * 24 * 60 * 60);
@@ -265,7 +265,7 @@ export async function getDailyUsage(requestInfo: {
       : requestInfo.ip || requestInfo.apiKey || 'anonymous';
 
     const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today, requestInfo.apiKey);
-    const dailyRequestKey = RedisKeys.userDailyRequests(identifier, today);
+    const dailyRequestKey = RedisKeys.userDailyRequests(identifier, today, requestInfo.apiKey);
 
     const tokensUsed = await redis.get(dailyUsageKey);
     const requestsUsed = await redis.get(dailyRequestKey);
@@ -289,22 +289,13 @@ export async function getDailyUsage(requestInfo: {
 export async function resetQuota(identifier: string, apiKey: string): Promise<void> {
   try {
     const today = getTodayString();
-    const dailyUsageKey = RedisKeys.userDailyQuota(identifier, today, apiKey);
+    const dailyUsageKey = RedisKeys.userDailyQuota(identifier, apiKey, today);
     await redis.del(dailyUsageKey);
 
     console.log(`Quota reset for identifier ${identifier}`);
   } catch (error) {
     console.error('Error resetting quota:', error);
   }
-}
-
-export async function checkUserQuota(
-  userId: string,
-  apiKeyId: string,
-  estimatedTokens: number = 0
-): Promise<QuotaCheckResult> {
-  console.warn('checkUserQuota is deprecated. Use checkQuota instead.');
-  return await checkQuota({ userId, apiKey: apiKeyId }, estimatedTokens);
 }
 
 export async function getUserDailyUsage(userId: string, apiKeyId: string) {
