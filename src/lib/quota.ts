@@ -230,8 +230,9 @@ export async function recordUsage(
 
     // 写入用量记录到数据库
     await usageRecordDb.create({
+      apiKey,
+      userId,
       id: record.id,
-      userId: apiKey,
       model: record.model,
       provider: record.provider,
       promptTokens: record.promptTokens,

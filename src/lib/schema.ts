@@ -54,6 +54,7 @@ export const apiKeys = pgTable('api_keys', {
 // 用量记录表
 export const usageRecords = pgTable('usage_records', {
   id: text('id').primaryKey(),
+  apiKey: text('api_key').notNull(),
   userId: text('user_id').notNull(),
   model: text('model').notNull(),
   provider: text('provider').notNull(),
