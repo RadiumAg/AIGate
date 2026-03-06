@@ -223,7 +223,6 @@ export async function getDailyUsage(requestInfo: {
   try {
     const policy = await getQuotaPolicyByRequest(requestInfo);
     const today = getTodayString();
-    // 使用 userId + apiKey 组合作为标识符，确保不同 API Key 的配额分开计算
     const identifier = requestInfo.userId;
     const dailyUsageKey = RedisKeys.userDailyQuota(identifier, requestInfo.apiKey, today);
     const dailyRequestKey = RedisKeys.userDailyRequests(identifier, requestInfo.apiKey, today);

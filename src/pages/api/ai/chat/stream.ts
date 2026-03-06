@@ -1,11 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { providers } from '@/lib/ai-providers';
-import { checkQuota, recordUsage } from '@/lib/quota';
 import { v4 as uuidv4 } from 'uuid';
 import { getRegionFromRequest, extractClientIp } from '@/lib/ip-region';
 import type { UsageRecord } from '@/lib/types';
 import { corsMiddleware } from '@/lib/cors';
 import { apiKeyDb } from '@/lib/database';
+import { checkQuota, recordUsage } from '@/lib/quota';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // 处理 CORS
@@ -48,8 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    // 使用生成的 userId（如果有的话）
-    const finalUserId = validationResult.generatedUserId || userId;
+    const finalUserId = validationResult.generatedUserId;
 
     // 3. 获取 API Key 和 Provider
     const apiKey = await apiKeyDb.getById(apiKeyId);
@@ -76,8 +75,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 3. 估算 Token 消耗
     const estimatedTokens = provider.estimateTokens(request);
 
-    // 4. 检查配额（使用 finalUserId + apiKeyId 组合作为标识符，确保不同 API Key 配额分开计算）
-    const identifier = `${finalUserId}:${apiKeyId}`;
     const quotaCheck = await checkQuota({ userId: finalUserId, apiKey: apiKeyId }, estimatedTokens);
     if (!quotaCheck.allowed) {
       return res.status(429).json({
@@ -149,7 +146,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         hasRecordedUsage = true;
         const actualUsage: UsageRecord = {
           id: requestId,
-          userId: identifier,
+          userId: finalUserId,
           requestId,
           model: request.model,
           provider: provider.name,
@@ -162,7 +159,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           clientIp,
         };
 
-        recordUsage(actualUsage, apiKeyId, identifier).catch((error) => {
+        recordUsage(actualUsage, apiKeyId, finalUserId).catch((error) => {
           console.error('Failed to record usage:', error);
         });
       }
