@@ -175,18 +175,13 @@ export async function recordUsage(
     // 获取用户的配额策略
     const policy = await getQuotaPolicyByRequest({ apiKey });
 
-    // 根据 limitType 更新不同的计数器
     if (policy.limitType === 'token') {
-      // Token 模式：更新每日 Token 使用量
       const dailyUsageKey = RedisKeys.userDailyQuota(userId, apiKey, today);
       await redis.incrBy(dailyUsageKey, Math.round(record.totalTokens));
-      // 设置过期时间为 7 天
       await redis.expire(dailyUsageKey, 7 * 24 * 60 * 60);
     } else if (policy.limitType === 'request') {
-      // 请求次数模式：更新每日请求次数
       const dailyRequestKey = RedisKeys.userDailyRequests(userId, apiKey, today);
       const newCount = await redis.incr(dailyRequestKey);
-      // 设置过期时间为 7 天
       await redis.expire(dailyRequestKey, 7 * 24 * 60 * 60);
       console.log('[recordUsage] Request mode - New request count:', newCount, 'for', apiKey);
     }
