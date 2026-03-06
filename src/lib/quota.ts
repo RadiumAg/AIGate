@@ -3,6 +3,7 @@ import { getCurrentMinuteString } from './date';
 import { getTodayString } from './date';
 import { QuotaPolicy, QuotaCheckResult, UsageRecord } from './types';
 import { whitelistRuleDb, usageRecordDb } from './database';
+import { logQuotaOperation, logError, logWarn, logInfo, logAIRequest } from './logger';
 // 默认配额策略
 const DEFAULT_QUOTA_POLICY: QuotaPolicy = {
   id: 'default',
@@ -26,7 +27,10 @@ export async function getQuotaPolicyByApiKey(apiKeyId: string): Promise<QuotaPol
     const result = await whitelistRuleDb.getByApiKeyIdWithPolicy(apiKeyId);
 
     if (!result) {
-      console.warn(`[getQuotaPolicyByApiKey] No whitelist rule found for apiKeyId: ${apiKeyId}`);
+      logWarn(`No whitelist rule found for apiKeyId: ${apiKeyId}`, {
+        operation: 'getQuotaPolicyByApiKey',
+        apiKeyId,
+      });
       return DEFAULT_QUOTA_POLICY;
     }
 
@@ -44,7 +48,10 @@ export async function getQuotaPolicyByApiKey(apiKeyId: string): Promise<QuotaPol
     await redis.setEx(cacheKey, 60 * 60, JSON.stringify(policy));
     return policy;
   } catch (error) {
-    console.error('Error getting quota policy by apiKey:', error);
+    logError('Error getting quota policy by apiKey', {
+      error: error instanceof Error ? error.message : String(error),
+      apiKeyId,
+    });
     return DEFAULT_QUOTA_POLICY;
   }
 }
@@ -92,9 +99,16 @@ export async function checkQuota(
       const currentDailyTokens = dailyUsage ? parseInt(dailyUsage) : 0;
 
       if (policy.dailyTokenLimit && currentDailyTokens + estimatedTokens > policy.dailyTokenLimit) {
+        const reason = `每日 Token 配额已用完。当前使用: ${currentDailyTokens}/${policy.dailyTokenLimit}`;
+        logQuotaOperation('exceeded', requestInfo.userId, requestInfo.apiKey, {
+          limitType: 'token',
+          current: currentDailyTokens,
+          limit: policy.dailyTokenLimit,
+          estimated: estimatedTokens,
+        });
         return {
           allowed: false,
-          reason: `每日 Token 配额已用完。当前使用: ${currentDailyTokens}/${policy.dailyTokenLimit}`,
+          reason,
           remainingTokens: Math.max(0, policy.dailyTokenLimit - currentDailyTokens),
           policy,
         };
@@ -106,9 +120,15 @@ export async function checkQuota(
       const currentDailyRequests = dailyRequests ? parseInt(dailyRequests) : 0;
 
       if (policy.dailyRequestLimit && currentDailyRequests >= policy.dailyRequestLimit) {
+        const reason = `每日请求次数已达上限。当前请求: ${currentDailyRequests}/${policy.dailyRequestLimit}`;
+        logQuotaOperation('exceeded', requestInfo.userId, requestInfo.apiKey, {
+          limitType: 'request',
+          current: currentDailyRequests,
+          limit: policy.dailyRequestLimit,
+        });
         return {
           allowed: false,
-          reason: `每日请求次数已达上限。当前请求: ${currentDailyRequests}/${policy.dailyRequestLimit}`,
+          reason,
           remainingRequests: Math.max(0, policy.dailyRequestLimit - currentDailyRequests),
           policy,
         };
@@ -121,9 +141,15 @@ export async function checkQuota(
     const currentRequests = currentRPM ? parseInt(currentRPM) : 0;
 
     if (currentRequests >= policy.rpmLimit) {
+      const reason = `每分钟请求次数已达上限。当前请求: ${currentRequests}/${policy.rpmLimit}`;
+      logQuotaOperation('exceeded', requestInfo.userId, requestInfo.apiKey, {
+        limitType: 'rpm',
+        current: currentRequests,
+        limit: policy.rpmLimit,
+      });
       return {
         allowed: false,
-        reason: `每分钟请求次数已达上限。当前请求: ${currentRequests}/${policy.rpmLimit}`,
+        reason,
         remainingRequests: Math.max(0, policy.rpmLimit - currentRequests),
         policy,
       };
@@ -147,6 +173,13 @@ export async function checkQuota(
       remainingRequests = policy.dailyRequestLimit - currentDailyRequests;
     }
 
+    logQuotaOperation('check', requestInfo.userId, requestInfo.apiKey, {
+      allowed: true,
+      remainingTokens,
+      remainingRequests: remainingRequests || Math.max(0, policy.rpmLimit - currentRequests),
+      policyName: policy.name,
+    });
+
     return {
       allowed: true,
       remainingTokens,
@@ -154,7 +187,11 @@ export async function checkQuota(
       policy,
     };
   } catch (error) {
-    console.error('Error checking quota:', error);
+    logError('Error checking quota', {
+      error: error instanceof Error ? error.message : String(error),
+      userId: requestInfo.userId,
+      apiKey: requestInfo.apiKey,
+    });
     return {
       allowed: false,
       reason: '配额检查失败',
@@ -207,9 +244,18 @@ export async function recordUsage(
       timestamp: new Date(record.timestamp),
     });
 
-    console.log(`Usage recorded for identifier ${apiKey}: ${record.totalTokens} tokens`);
+    logAIRequest(userId, record.model, record.provider, {
+      prompt: record.promptTokens,
+      completion: record.completionTokens,
+      total: record.totalTokens,
+    });
   } catch (error) {
-    console.error('Error recording usage:', error);
+    logError('Error recording usage', {
+      error: error instanceof Error ? error.message : String(error),
+      userId,
+      apiKey,
+      recordId: record.id,
+    });
   }
 }
 
@@ -236,7 +282,11 @@ export async function getDailyUsage(requestInfo: {
       policy,
     };
   } catch (error) {
-    console.error('Error getting daily usage:', error);
+    logError('Error getting daily usage', {
+      error: error instanceof Error ? error.message : String(error),
+      userId: requestInfo.userId,
+      apiKey: requestInfo.apiKey,
+    });
     return {
       tokensUsed: 0,
       requestsToday: 0,
@@ -252,14 +302,21 @@ export async function resetQuota(identifier: string, apiKey: string): Promise<vo
     const dailyUsageKey = RedisKeys.userDailyQuota(identifier, apiKey, today);
     await redis.del(dailyUsageKey);
 
-    console.log(`Quota reset for identifier ${identifier}`);
+    logQuotaOperation('reset', identifier, apiKey, { date: today });
   } catch (error) {
-    console.error('Error resetting quota:', error);
+    logError('Error resetting quota', {
+      error: error instanceof Error ? error.message : String(error),
+      identifier,
+      apiKey,
+    });
   }
 }
 
 export async function getUserDailyUsage(userId: string, apiKeyId: string) {
-  console.warn('getUserDailyUsage is deprecated. Use getDailyUsage instead.');
+  logWarn('getUserDailyUsage is deprecated. Use getDailyUsage instead.', {
+    userId,
+    apiKeyId,
+  });
   return await getDailyUsage({ userId, apiKey: apiKeyId });
 }
 

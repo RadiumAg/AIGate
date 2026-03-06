@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getRegionFromRequest, extractClientIp } from '@/lib/ip-region';
 import { apiKeyDb, whitelistRuleDb } from '../../../lib/database';
 import { getTodayString } from '@/lib/date';
+import { logError } from '@/lib/logger';
 
 // 请求处理参数类型
 interface RequestHandlerParams {
@@ -284,6 +285,11 @@ export const aiRouter = createTRPCRouter({
           remaining,
         };
       } catch (error) {
+        logError('Failed to get quota info', {
+          error: error instanceof Error ? error.message : String(error),
+          userId: input.userId,
+          apiKeyId: input.apiKeyId,
+        });
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: '获取配额信息失败',

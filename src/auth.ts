@@ -1,5 +1,6 @@
 import NextAuth, { getServerSession as nextAuthGetServerSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { logError, logInfo } from './lib/logger';
 
 export const authOptions = {
   providers: [
@@ -14,7 +15,7 @@ export const authOptions = {
         const adminEmail = process.env.ADMIN_EMAIL || 'admin@aigate.com';
         const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
 
-        console.log('认证尝试:', {
+        logInfo('认证尝试:', {
           inputEmail: credentials?.email,
           inputPassword: credentials?.password ? '***' : 'empty',
           expectedEmail: adminEmail,
@@ -25,7 +26,13 @@ export const authOptions = {
 
         // 验证凭证
         if (credentials?.email === adminEmail && credentials?.password === adminPassword) {
-          console.log('认证成功 - 管理员用户');
+          logInfo('认证成功 - 管理员用户', {
+            id: '1',
+            email: adminEmail,
+            name: process.env.ADMIN_NAME || '系统管理员',
+            role: 'ADMIN',
+            status: 'ACTIVE',
+          });
           return {
             id: '1',
             email: adminEmail,
@@ -37,7 +44,13 @@ export const authOptions = {
 
         // 保留原来的测试用户作为备选
         if (credentials?.email === 'test@example.com' && credentials?.password === 'password') {
-          console.log('认证成功 - 测试用户');
+          logInfo('认证成功 - 测试用户', {
+            id: '2',
+            email: 'test@example.com',
+            name: 'Test User',
+            role: 'USER',
+            status: 'ACTIVE',
+          });
           return {
             id: '2',
             email: 'test@example.com',
@@ -47,7 +60,7 @@ export const authOptions = {
           };
         }
 
-        console.log('认证失败 - 凭证不匹配');
+        logError('认证失败 - 凭证不匹配');
         return null;
       },
     }),
