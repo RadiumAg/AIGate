@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Script from "next/script";
+import Script from 'next/script';
 import { TRPCProvider } from '../components/trpc-provider';
 import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
@@ -24,24 +24,21 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <head>
-        {process.env.NODE_ENV === "development" && (
+        {process.env.NODE_ENV === 'development' && (
           <Script
             src="//unpkg.com/react-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
         )}
-        {process.env.NODE_ENV === "development" && (
-          <Script
-            src="//unpkg.com/@react-grab/mcp/dist/client.global.js"
-            strategy="lazyOnload"
-          />
+        {process.env.NODE_ENV === 'development' && (
+          <Script src="//unpkg.com/@react-grab/mcp/dist/client.global.js" strategy="lazyOnload" />
         )}
       </head>
       <body>
-        {process.env.NODE_ENV === "development" && (
+        {/* {process.env.NODE_ENV === 'development' && (
           <script src="https://unpkg.com/react-scan/dist/auto.global.js" crossOrigin="anonymous" />
-        )}
+        )} */}
         <Toaster />
         <TRPCProvider>{children}</TRPCProvider>
       </body>

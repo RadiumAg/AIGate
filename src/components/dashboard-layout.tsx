@@ -15,7 +15,8 @@ import {
   LogOut,
   User,
 } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -136,33 +137,48 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
                 {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </button>
 
-              <Select
-                onValueChange={(value) => {
-                  if (value === 'logout') {
-                    signOut({ callbackUrl: '/login' });
-                  }
-                }}
-              >
-                <SelectTrigger className="w-auto border-0 bg-transparent p-0 h-auto focus:ring-0 focus:ring-offset-0">
-                  <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary to-violet-500 flex items-center justify-center text-white shadow-lg cursor-pointer">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-8 h-8 rounded-full bg-linear-to-br from-primary to-violet-500 flex items-center justify-center text-white shadow-lg p-0 hover:bg-primary/90"
+                  >
                     A
-                  </div>
-                </SelectTrigger>
-                <SelectContent align="end" className="w-40">
-                  <SelectItem value="profile" disabled>
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-40 p-2">
+                  <div className="space-y-1">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start px-2 py-1.5 h-8 text-sm"
+                      disabled
+                    >
+                      <User className="h-4 w-4 mr-2" />
                       <span>个人资料</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="logout">
-                    <div className="flex items-center gap-2">
-                      <LogOut className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start px-2 py-1.5 h-8 text-sm"
+                      onClick={() => {
+                        window.location.href = '/settings';
+                      }}
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      <span>邮箱密码</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start px-2 py-1.5 h-8 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      onClick={() => {
+                        signOut({ callbackUrl: '/login' });
+                      }}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
                       <span>退出登录</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         </header>

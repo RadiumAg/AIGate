@@ -4,6 +4,7 @@ import { quotaRouter } from './routers/quota';
 import { apiKeyRouter } from './routers/api-key';
 import { dashboardRouter } from './routers/dashboard';
 import { whitelistRouter } from './routers/whitelist';
+import { settingsRouter } from './routers/settings';
 
 /**
  * This is the primary router for your server.
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   apiKey: apiKeyRouter,
   dashboard: dashboardRouter,
   whitelist: whitelistRouter,
+  settings: settingsRouter,
 });
 
 // export type definition of API
