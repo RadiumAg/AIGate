@@ -150,7 +150,7 @@ const RecentIpRequests: FC<RecentIpRequestsProps> = (props) => {
                   <span className="text-gray-700 dark:text-gray-300">{record.region}</span>
                 </td>
                 <td className="py-3 pr-4">
-                  <span className="text-gray-600 dark:text-gray-400 truncate max-w-30 inline-block">
+                  <span className="text-gray-600 dark:text-gray-400 break-all">
                     {record.userId}
                   </span>
                 </td>

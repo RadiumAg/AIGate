@@ -2,7 +2,20 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Settings, Gauge, Key, Users, ShieldCheck, Sun, Moon } from 'lucide-react';
+import { signOut } from 'next-auth/react';
+import {
+  Home,
+  Settings,
+  Gauge,
+  Key,
+  Users,
+  ShieldCheck,
+  Sun,
+  Moon,
+  LogOut,
+  User,
+} from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -123,13 +136,33 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
                 {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </button>
 
-              <div className="relative">
-                <button className="flex items-center text-sm focus:outline-none">
-                  <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary to-violet-500 flex items-center justify-center text-white shadow-lg">
+              <Select
+                onValueChange={(value) => {
+                  if (value === 'logout') {
+                    signOut({ callbackUrl: '/login' });
+                  }
+                }}
+              >
+                <SelectTrigger className="w-auto border-0 bg-transparent p-0 h-auto focus:ring-0 focus:ring-offset-0">
+                  <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary to-violet-500 flex items-center justify-center text-white shadow-lg cursor-pointer">
                     A
                   </div>
-                </button>
-              </div>
+                </SelectTrigger>
+                <SelectContent align="end" className="w-40">
+                  <SelectItem value="profile" disabled>
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      <span>个人资料</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="logout">
+                    <div className="flex items-center gap-2">
+                      <LogOut className="h-4 w-4" />
+                      <span>退出登录</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </header>

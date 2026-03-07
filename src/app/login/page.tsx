@@ -40,16 +40,8 @@ export default function LoginPage() {
     }
   };
 
-  // 从环境变量获取默认用户信息
+  // 组件加载完成
   useEffect(() => {
-    // 在客户端使用NEXT_PUBLIC_前缀的环境变量
-    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@aigate.com';
-    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123';
-
-    // 自动填充默认用户信息
-    setEmail(adminEmail);
-    setPassword(adminPassword);
-
     setIsLoading(false);
   }, []);
 
