@@ -15,12 +15,12 @@ export const settingsRouter = createTRPCRouter({
   updateAdminAccount: protectedProcedure.input(updateEnvSchema).mutation(async ({ input }) => {
     try {
       // 检查是否在开发环境（生产环境可能没有文件写入权限）
-      if (process.env.NODE_ENV === 'production') {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: '生产环境下不允许直接修改环境变量文件',
-        });
-      }
+      // if (process.env.NODE_ENV === 'production') {
+      //   throw new TRPCError({
+      //     code: 'FORBIDDEN',
+      //     message: '生产环境下不允许直接修改环境变量文件',
+      //   });
+      // }
 
       // 获取 .env 文件路径
       const envPath = path.resolve(process.cwd(), '.env');
