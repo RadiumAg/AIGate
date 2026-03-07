@@ -16,6 +16,7 @@ async function clearTodayPolicy(apiKey: string): Promise<void> {
   try {
     const today = getTodayString();
     const patterns = [
+      RedisKeys.quotaPolicyByApiKey(apiKey),
       RedisKeys.userDailyQuota('*', apiKey, today),
       RedisKeys.userDailyRequests('*', apiKey, today),
     ];
