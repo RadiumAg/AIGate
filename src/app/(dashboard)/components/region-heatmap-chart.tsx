@@ -4,7 +4,7 @@ import React from 'react';
 import * as echarts from 'echarts';
 import { Spinner } from '@/components/ui/spinner';
 
-const CHINA_MAP_GEOJSON_URL = 'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json';
+const CHINA_MAP_GEOJSON_URL = '/100000_full.json';
 
 interface RegionDistributionItem {
   name: string;
