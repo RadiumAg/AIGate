@@ -66,8 +66,8 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-md mx-auto">
         <div className="rounded-2xl p-6 backdrop-blur-md bg-card border border-(--card-border) shadow-(--card-shadow)">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-foreground mb-2">管理员账户设置</h1>
