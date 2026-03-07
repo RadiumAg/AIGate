@@ -81,13 +81,14 @@ export default function SettingsPage() {
                   邮箱地址
                 </Label>
                 <Input
+                  required
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  defaultValue={accountInfo?.email}
                   placeholder="admin@example.com"
-                  required
                   className="bg-background border-input"
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 

@@ -2,7 +2,13 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import { TRPCProvider } from '../components/trpc-provider';
 import { Toaster } from '@/components/ui/sonner';
+import { syncAdminUserOnStartup } from '@/lib/init-admin';
 import './globals.css';
+
+// 在服务器启动时同步管理员用户
+if (typeof window === 'undefined') {
+  syncAdminUserOnStartup().catch(console.error);
+}
 
 export const metadata: Metadata = {
   title: 'AIGate - AI 网关管理后台',

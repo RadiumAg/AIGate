@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
-import fs from 'fs';
-import path from 'path';
+import { userDb } from '@/lib/database';
+import { nanoid } from 'nanoid';
 
 // 环境变量更新输入验证
 const updateEnvSchema = z.object({
@@ -11,88 +11,33 @@ const updateEnvSchema = z.object({
 });
 
 export const settingsRouter = createTRPCRouter({
-  // 更新管理员账户设置
+  // 更新管理员账户设置 - 直接删除所有用户并重建
   updateAdminAccount: protectedProcedure.input(updateEnvSchema).mutation(async ({ input }) => {
     try {
-      // 检查是否在开发环境（生产环境可能没有文件写入权限）
-      // if (process.env.NODE_ENV === 'production') {
-      //   throw new TRPCError({
-      //     code: 'FORBIDDEN',
-      //     message: '生产环境下不允许直接修改环境变量文件',
-      //   });
-      // }
+      // 1. 删除所有现有用户
+      console.log('🗑️ 删除所有现有用户...');
+      const deleteResult = await userDb.deleteAll();
+      console.log(`✅ 删除了 ${deleteResult.deletedCount} 个用户`);
 
-      // 获取 .env 文件路径
-      const envPath = path.resolve(process.cwd(), '.env');
+      // 2. 创建新的管理员用户
+      console.log('🆕 创建新的管理员用户...');
+      const newAdmin = {
+        id: nanoid(),
+        name: '系统管理员',
+        email: input.email,
+        password: input.password,
+        role: 'ADMIN' as const,
+        status: 'ACTIVE' as const,
+        quotaPolicyId: 'default',
+      };
 
-      // 读取现有环境变量
-      let envContent: string;
-      try {
-        envContent = fs.readFileSync(envPath, 'utf8');
-      } catch (error) {
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: '无法读取环境变量文件',
-        });
-      }
+      const createdUser = await userDb.create(newAdmin);
 
-      // 更新 ADMIN_EMAIL 和 ADMIN_PASSWORD
-      const emailRegex = /^ADMIN_EMAIL=.*$/m;
-      const passwordRegex = /^ADMIN_PASSWORD=.*$/m;
-
-      // 替换或添加环境变量
-      let newEnvContent = envContent;
-
-      if (emailRegex.test(newEnvContent)) {
-        newEnvContent = newEnvContent.replace(emailRegex, `ADMIN_EMAIL="${input.email}"`);
-      } else {
-        // 如果不存在，则添加到文件末尾
-        newEnvContent += `\nADMIN_EMAIL="${input.email}"`;
-      }
-
-      if (passwordRegex.test(newEnvContent)) {
-        newEnvContent = newEnvContent.replace(passwordRegex, `ADMIN_PASSWORD="${input.password}"`);
-      } else {
-        newEnvContent += `\nADMIN_PASSWORD="${input.password}"`;
-      }
-
-      // 同步更新 NEXT_PUBLIC_ 前缀的变量（如果存在）
-      const publicEmailRegex = /^NEXT_PUBLIC_ADMIN_EMAIL=.*$/m;
-      const publicPasswordRegex = /^NEXT_PUBLIC_ADMIN_PASSWORD=.*$/m;
-
-      if (publicEmailRegex.test(newEnvContent)) {
-        newEnvContent = newEnvContent.replace(
-          publicEmailRegex,
-          `NEXT_PUBLIC_ADMIN_EMAIL="${input.email}"`
-        );
-      } else {
-        newEnvContent += `\nNEXT_PUBLIC_ADMIN_EMAIL="${input.email}"`;
-      }
-
-      if (publicPasswordRegex.test(newEnvContent)) {
-        newEnvContent = newEnvContent.replace(
-          publicPasswordRegex,
-          `NEXT_PUBLIC_ADMIN_PASSWORD="${input.password}"`
-        );
-      } else {
-        newEnvContent += `\nNEXT_PUBLIC_ADMIN_PASSWORD="${input.password}"`;
-      }
-
-      // 写入文件
-      try {
-        fs.writeFileSync(envPath, newEnvContent, 'utf8');
-      } catch (error) {
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: '无法写入环境变量文件，请检查文件权限',
-        });
-      }
-
-      // 同时更新内存中的环境变量（仅在开发环境有效）
-      process.env.ADMIN_EMAIL = input.email;
-      process.env.ADMIN_PASSWORD = input.password;
-      process.env.NEXT_PUBLIC_ADMIN_EMAIL = input.email;
-      process.env.NEXT_PUBLIC_ADMIN_PASSWORD = input.password;
+      console.log(`✅ 管理员用户创建成功:`);
+      console.log(`   ID: ${createdUser.id}`);
+      console.log(`   邮箱: ${createdUser.email}`);
+      console.log(`   姓名: ${createdUser.name}`);
+      console.log(`   角色: ${createdUser.role}`);
 
       return {
         success: true,
@@ -111,10 +56,32 @@ export const settingsRouter = createTRPCRouter({
     }
   }),
 
-  // 获取当前管理员账户信息（不返回密码）
-  getAdminAccount: protectedProcedure.query(() => {
-    return {
-      email: process.env.ADMIN_EMAIL || process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@aigate.com',
-    };
+  // 获取管理员账户信息 - 直接返回第一个用户
+  getAdminAccount: protectedProcedure.query(async () => {
+    try {
+      // 获取所有用户，返回第一个
+      const users = await userDb.getAll();
+      const firstUser = users[0];
+
+      if (!firstUser) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: '未找到任何用户',
+        });
+      }
+
+      return {
+        email: firstUser.email,
+        name: firstUser.name,
+      };
+    } catch (error) {
+      if (error instanceof TRPCError) {
+        throw error;
+      }
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: '获取账户信息失败',
+      });
+    }
   }),
 });

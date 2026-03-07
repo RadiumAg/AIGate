@@ -5,6 +5,7 @@ import { ApiKeySchema } from '../../../lib/types';
 import { redis, RedisKeys } from '../../../lib/redis';
 import { apiKeyDb, usageRecordDb } from '../../../lib/database';
 import { getTodayString } from '@/lib/date';
+import { convertProviderFromDb } from '@/lib/provider-utils';
 
 // 辅助函数：隐藏 API Key
 function maskApiKey(key: string): string {
@@ -41,24 +42,6 @@ export function convertProviderToDb(
     spark: 'SPARK',
   };
   return mapping[provider.toLowerCase()] || 'OPENAI';
-}
-
-// 辅助函数：转换提供商名称（数据库大写 -> 前端小写）
-export function convertProviderFromDb(
-  provider: string
-): 'openai' | 'anthropic' | 'google' | 'deepseek' | 'moonshot' | 'spark' {
-  const mapping: Record<
-    string,
-    'openai' | 'anthropic' | 'google' | 'deepseek' | 'moonshot' | 'spark'
-  > = {
-    OPENAI: 'openai',
-    ANTHROPIC: 'anthropic',
-    GOOGLE: 'google',
-    DEEPSEEK: 'deepseek',
-    MOONSHOT: 'moonshot',
-    SPARK: 'spark',
-  };
-  return mapping[provider.toUpperCase()] || 'openai';
 }
 
 // 辅助函数：转换状态（前端 -> 数据库）

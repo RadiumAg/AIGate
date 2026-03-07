@@ -1,6 +1,7 @@
 import NextAuth, { getServerSession as nextAuthGetServerSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { logError, logInfo } from './lib/logger';
+import { userDb } from './lib/database';
 
 export const authOptions = {
   providers: [
@@ -11,57 +12,72 @@ export const authOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        // 从环境变量读取管理员用户信息
-        const adminEmail = process.env.ADMIN_EMAIL || 'admin@aigate.com';
-        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-
-        logInfo('认证尝试:', {
-          inputEmail: credentials?.email,
-          inputPassword: credentials?.password ? '***' : 'empty',
-          expectedEmail: adminEmail,
-          expectedPassword: '***',
-          emailMatch: credentials?.email === adminEmail,
-          passwordMatch: credentials?.password === adminPassword,
-        });
-
-        // 验证凭证
-        if (credentials?.email === adminEmail && credentials?.password === adminPassword) {
-          logInfo('认证成功 - 管理员用户', {
-            id: '1',
-            email: adminEmail,
-            name: process.env.ADMIN_NAME || '系统管理员',
-            role: 'ADMIN',
-            status: 'ACTIVE',
-          });
-          return {
-            id: '1',
-            email: adminEmail,
-            name: process.env.ADMIN_NAME || '系统管理员',
-            role: 'ADMIN',
-            status: 'ACTIVE',
-          };
+        if (!credentials?.email || !credentials?.password) {
+          logError('认证失败 - 缺少凭证');
+          return null;
         }
 
-        // 保留原来的测试用户作为备选
-        if (credentials?.email === 'test@example.com' && credentials?.password === 'password') {
-          logInfo('认证成功 - 测试用户', {
-            id: '2',
-            email: 'test@example.com',
-            name: 'Test User',
-            role: 'USER',
-            status: 'ACTIVE',
-          });
-          return {
-            id: '2',
-            email: 'test@example.com',
-            name: 'Test User',
-            role: 'USER',
-            status: 'ACTIVE',
-          };
-        }
+        try {
+          // 从数据库查找用户
+          const user = await userDb.getByEmail(credentials.email);
 
-        logError('认证失败 - 凭证不匹配');
-        return null;
+          logInfo('认证尝试:', {
+            inputEmail: credentials.email,
+            inputPassword: credentials.password ? '***' : 'empty',
+            userFound: !!user,
+            userRole: user?.role,
+            userStatus: user?.status,
+          });
+
+          // 验证用户存在、密码匹配、状态正常且是管理员
+          if (
+            user &&
+            user.password === credentials.password &&
+            user.status === 'ACTIVE' &&
+            user.role === 'ADMIN'
+          ) {
+            logInfo('认证成功 - 数据库用户', {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+              status: user.status,
+            });
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+              status: user.status,
+            };
+          }
+
+          // 保留原来的测试用户作为备选（开发用途）
+          if (credentials.email === 'test@example.com' && credentials.password === 'password') {
+            logInfo('认证成功 - 测试用户', {
+              id: '2',
+              email: 'test@example.com',
+              name: 'Test User',
+              role: 'USER',
+              status: 'ACTIVE',
+            });
+            return {
+              id: '2',
+              email: 'test@example.com',
+              name: 'Test User',
+              role: 'USER',
+              status: 'ACTIVE',
+            };
+          }
+
+          logError('认证失败 - 凭证不匹配或用户状态异常');
+          return null;
+        } catch (error) {
+          logError('认证过程出错:', {
+            error: error instanceof Error ? error.message : String(error),
+          });
+          return null;
+        }
       },
     }),
   ],

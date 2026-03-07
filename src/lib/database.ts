@@ -1,5 +1,5 @@
 import { db } from './drizzle';
-import { apiKeys, quotaPolicies, usageRecords, whitelistRules } from './schema';
+import { apiKeys, quotaPolicies, usageRecords, whitelistRules, users } from './schema';
 import { eq, and, gte, lte, desc, count, sum, countDistinct } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import type {
@@ -7,12 +7,14 @@ import type {
   QuotaPolicy,
   UsageRecord,
   WhitelistRule,
+  User,
   NewApiKey,
   NewQuotaPolicy,
   NewUsageRecord,
   NewWhitelistRule,
+  NewUser,
 } from './schema';
-import { convertProviderToDb } from '@/server/api/routers/api-key';
+import { convertProviderToDb } from './provider-utils';
 
 // API Key 数据库操作
 export const apiKeyDb = {
@@ -572,6 +574,118 @@ export const whitelistRuleDb = {
         inactiveRules: 0,
         highPriorityRules: 0,
       };
+    }
+  },
+};
+
+// 用户数据库操作
+export const userDb = {
+  // 根据邮箱查找用户
+  getByEmail: async (email: string): Promise<User | null> => {
+    try {
+      const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+      return result[0] || null;
+    } catch (error) {
+      console.error('Database error:', error);
+      return null;
+    }
+  },
+
+  // 根据ID查找用户
+  getById: async (id: string): Promise<User | null> => {
+    try {
+      const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+      return result[0] || null;
+    } catch (error) {
+      console.error('Database error:', error);
+      return null;
+    }
+  },
+
+  // 获取所有管理员用户
+  getAdmins: async (): Promise<User[]> => {
+    try {
+      return await db
+        .select()
+        .from(users)
+        .where(eq(users.role, 'ADMIN'))
+        .orderBy(desc(users.createdAt));
+    } catch (error) {
+      console.error('Database error:', error);
+      return [];
+    }
+  },
+
+  // 获取所有用户
+  getAll: async (): Promise<User[]> => {
+    try {
+      return await db.select().from(users).orderBy(desc(users.createdAt));
+    } catch (error) {
+      console.error('Database error:', error);
+      return [];
+    }
+  },
+
+  // 创建用户
+  create: async (userData: NewUser): Promise<User> => {
+    try {
+      const [user] = await db.insert(users).values(userData).returning();
+      return user;
+    } catch (error) {
+      console.error('Database error:', error);
+      throw error;
+    }
+  },
+
+  // 更新用户
+  update: async (id: string, userData: Partial<NewUser>): Promise<User | null> => {
+    try {
+      const [user] = await db
+        .update(users)
+        .set({ ...userData, updatedAt: new Date() })
+        .where(eq(users.id, id))
+        .returning();
+      return user || null;
+    } catch (error) {
+      console.error('Database error:', error);
+      return null;
+    }
+  },
+
+  // 更新用户密码
+  updatePassword: async (id: string, password: string): Promise<boolean> => {
+    try {
+      const [result] = await db
+        .update(users)
+        .set({ password, updatedAt: new Date() })
+        .where(eq(users.id, id))
+        .returning();
+      return !!result;
+    } catch (error) {
+      console.error('Database error:', error);
+      return false;
+    }
+  },
+
+  // 删除用户
+  delete: async (id: string): Promise<boolean> => {
+    try {
+      const [result] = await db.delete(users).where(eq(users.id, id)).returning();
+      return !!result;
+    } catch (error) {
+      console.error('Database error:', error);
+      return false;
+    }
+  },
+
+  // 删除所有用户
+  deleteAll: async (): Promise<{ deletedCount: number }> => {
+    try {
+      const result = await db.delete(users).returning();
+      return { deletedCount: result.length };
+    } catch (error) {
+      console.error('Database error:', error);
+      return { deletedCount: 0 };
     }
   },
 };
