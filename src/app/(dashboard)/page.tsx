@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { trpc } from '@/components/trpc-provider';
 import UsageTrendChart from '@/app/(dashboard)/components/usage-trend-chart';
 import ModelDistributionChart from '@/app/(dashboard)/components/model-distribution-chart';
@@ -8,26 +8,90 @@ import RegionHeatmapChart from '@/app/(dashboard)/components/region-heatmap-char
 import RecentIpRequests from '@/app/(dashboard)/components/recent-ip-requests';
 import StatCard from './components/stat-card';
 import RecentActivity from './components/recent-activity';
+import DateRangePicker from '@/components/date-range-picker';
+import CustomDateRangePicker from '@/components/custom-date-range-picker';
 import { Users, BarChart3, Coins, UserCheck } from 'lucide-react';
 
 const HomePage: React.FC = () => {
+  // 日期范围状态
+  const [dateRange, setDateRange] = useState<'today' | 'yesterday' | '7days' | '30days' | 'custom'>(
+    'today'
+  );
+  const [customStartDate, setCustomStartDate] = useState<Date>(new Date());
+  const [customEndDate, setCustomEndDate] = useState<Date>(new Date());
+
+  // 计算日期范围
+  const getDateRange = () => {
+    const now = new Date();
+    let start = new Date(now);
+    let end = new Date(now);
+
+    switch (dateRange) {
+      case 'today':
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'yesterday':
+        start.setDate(start.getDate() - 1);
+        start.setHours(0, 0, 0, 0);
+        end.setDate(end.getDate() - 1);
+        end.setHours(23, 59, 59, 999);
+        break;
+      case '7days':
+        start.setDate(start.getDate() - 6);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        break;
+      case '30days':
+        start.setDate(start.getDate() - 29);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'custom':
+        start = new Date(customStartDate);
+        start.setHours(0, 0, 0, 0);
+        end = new Date(customEndDate);
+        end.setHours(23, 59, 59, 999);
+        break;
+    }
+
+    return { start, end };
+  };
+
+  const { start: queryStart, end: queryEnd } = getDateRange();
+
   // 获取仪表盘统计数据
-  const { data: stats, isLoading: statsLoading } = trpc.dashboard.getStats.useQuery();
+  const { data: stats, isLoading: statsLoading } = trpc.dashboard.getStats.useQuery({
+    startDate: queryStart,
+    endDate: queryEnd,
+  });
 
   // 获取最近活动
   const { data: activities, isLoading: activitiesLoading } =
-    trpc.dashboard.getRecentActivity.useQuery();
-
+    trpc.dashboard.getRecentActivity.useQuery({
+      startDate: queryStart,
+      endDate: queryEnd
+    });
+    
   // 获取使用趋势
-  const { data: usageTrend, isLoading: trendLoading } = trpc.dashboard.getUsageTrend.useQuery();
-
+  const { data: usageTrend, isLoading: trendLoading } = trpc.dashboard.getUsageTrend.useQuery({
+    startDate: queryStart,
+    endDate: queryEnd
+  });
+    
   // 获取模型分布
   const { data: modelDistribution, isLoading: distributionLoading } =
-    trpc.dashboard.getModelDistribution.useQuery();
-
+    trpc.dashboard.getModelDistribution.useQuery({
+      startDate: queryStart,
+      endDate: queryEnd
+    });
+    
   // 获取地区分布
   const { data: regionDistribution, isLoading: regionLoading } =
-    trpc.dashboard.getRegionDistribution.useQuery();
+    trpc.dashboard.getRegionDistribution.useQuery({
+      startDate: queryStart,
+      endDate: queryEnd
+    });
 
   // 获取最近 IP 请求记录
   const { data: recentIpRequests, isLoading: ipRequestsLoading } =
@@ -38,6 +102,26 @@ const HomePage: React.FC = () => {
       <div>
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">仪表板</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">欢迎来到 AIGate 管理后台</p>
+      </div>
+
+      {/* 日期筛选器 */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <DateRangePicker dateRange={dateRange} setDateRange={setDateRange} />
+          {dateRange === 'custom' && (
+            <CustomDateRangePicker
+              startDate={customStartDate}
+              endDate={customEndDate}
+              onDateRangeChange={(start, end) => {
+                setCustomStartDate(start);
+                setCustomEndDate(end);
+              }}
+            />
+          )}
+        </div>
+        <div className="text-sm text-muted-foreground">
+          数据更新时间: {new Date().toLocaleString('zh-CN')}
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -57,13 +141,13 @@ const HomePage: React.FC = () => {
           icon={<Users className="h-6 w-6" />}
         />
         <StatCard
-          title="今日请求"
-          value={stats?.todayRequests.value || 0}
-          change={stats?.todayRequests.change || 0}
+          title="请求数"
+          value={stats?.requests.value || 0}
+          change={stats?.requests.change || 0}
           changeType={
-            stats?.todayRequests.trend === 'up'
+            stats?.requests.trend === 'up'
               ? 'positive'
-              : stats?.todayRequests.trend === 'down'
+              : stats?.requests.trend === 'down'
                 ? 'negative'
                 : 'neutral'
           }
@@ -72,12 +156,12 @@ const HomePage: React.FC = () => {
         />
         <StatCard
           title="Token 消耗"
-          value={stats?.todayTokens.value || 0}
-          change={stats?.todayTokens.change || 0}
+          value={stats?.tokens.value || 0}
+          change={stats?.tokens.change || 0}
           changeType={
-            stats?.todayTokens.trend === 'up'
+            stats?.tokens.trend === 'up'
               ? 'positive'
-              : stats?.todayTokens.trend === 'down'
+              : stats?.tokens.trend === 'down'
                 ? 'negative'
                 : 'neutral'
           }

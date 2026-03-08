@@ -4,235 +4,362 @@ import { usageRecordDb } from '@/lib/database';
 import { db } from '@/lib/drizzle';
 import { usageRecords } from '@/lib/schema';
 import { and, gte, lte, count, sum, sql, isNotNull } from 'drizzle-orm';
+import { z } from 'zod';
 
 export const dashboardRouter = createTRPCRouter({
   // 获取仪表盘统计数据
-  getStats: protectedProcedure.query(async () => {
-    try {
-      const stats = await usageRecordDb.getStats();
+  getStats: protectedProcedure
+    .input(
+      z.object({
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      try {
+        const { startDate, endDate } = input;
 
-      // 计算增长率（与昨日数据对比）
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+        // 如果没有提供日期范围，默认使用今天
+        const now = new Date();
+        const queryStartDate = startDate || new Date(now.setHours(0, 0, 0, 0));
+        const queryEndDate = endDate || new Date(now.setHours(23, 59, 59, 999));
 
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
+        // 计算对比时间段（前一天）
+        const comparisonStart = new Date(queryStartDate);
+        const comparisonEnd = new Date(queryEndDate);
+        const diffDays = Math.ceil(
+          (queryEndDate.getTime() - queryStartDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
 
-      const twoDaysAgo = new Date(yesterday);
-      twoDaysAgo.setDate(twoDaysAgo.getDate() - 1);
+        comparisonStart.setDate(comparisonStart.getDate() - diffDays);
+        comparisonEnd.setDate(comparisonEnd.getDate() - diffDays);
 
-      // 获取今日和昨日的统计数据
-      const [
-        todayNewUsersResult,
-        yesterdayNewUsersResult,
-        todayRequestsResult,
-        yesterdayRequestsResult,
-        todayTokensResult,
-        yesterdayTokensResult,
-        todayActiveUsersResult,
-        yesterdayActiveUsersResult,
-      ] = await Promise.all([
-        // 今日新增用户数（今日出现的用户中，昨日未出现过的）
-        db
-          .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
-          .from(usageRecords)
-          .where(gte(usageRecords.timestamp, today)),
+        // 获取当前时间段和对比时间段的数据
+        const [
+          currentPeriodUsersResult,
+          comparisonPeriodUsersResult,
+          currentPeriodRequestsResult,
+          comparisonPeriodRequestsResult,
+          currentPeriodTokensResult,
+          comparisonPeriodTokensResult,
+          currentPeriodActiveUsersResult,
+          comparisonPeriodActiveUsersResult,
+        ] = await Promise.all([
+          // 当前时间段唯一用户数
+          db
+            .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
+            .from(usageRecords)
+            .where(
+              and(
+                gte(usageRecords.timestamp, queryStartDate),
+                lte(usageRecords.timestamp, queryEndDate)
+              )
+            ),
 
-        // 昨日新增用户数
-        db
-          .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
-          .from(usageRecords)
-          .where(and(gte(usageRecords.timestamp, yesterday), lte(usageRecords.timestamp, today))),
+          // 对比时间段唯一用户数
+          db
+            .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
+            .from(usageRecords)
+            .where(
+              and(
+                gte(usageRecords.timestamp, comparisonStart),
+                lte(usageRecords.timestamp, comparisonEnd)
+              )
+            ),
 
-        // 今日请求数
-        db.select({ count: count() }).from(usageRecords).where(gte(usageRecords.timestamp, today)),
+          // 当前时间段请求数
+          db
+            .select({ count: count() })
+            .from(usageRecords)
+            .where(
+              and(
+                gte(usageRecords.timestamp, queryStartDate),
+                lte(usageRecords.timestamp, queryEndDate)
+              )
+            ),
 
-        // 昨日请求数
-        db
-          .select({ count: count() })
-          .from(usageRecords)
-          .where(and(gte(usageRecords.timestamp, yesterday), lte(usageRecords.timestamp, today))),
+          // 对比时间段请求数
+          db
+            .select({ count: count() })
+            .from(usageRecords)
+            .where(
+              and(
+                gte(usageRecords.timestamp, comparisonStart),
+                lte(usageRecords.timestamp, comparisonEnd)
+              )
+            ),
 
-        // 今日 Token 消耗
-        db
-          .select({ sum: sum(usageRecords.totalTokens) })
-          .from(usageRecords)
-          .where(gte(usageRecords.timestamp, today)),
+          // 当前时间段 Token 消耗
+          db
+            .select({ sum: sum(usageRecords.totalTokens) })
+            .from(usageRecords)
+            .where(
+              and(
+                gte(usageRecords.timestamp, queryStartDate),
+                lte(usageRecords.timestamp, queryEndDate)
+              )
+            ),
 
-        // 昨日 Token 消耗
-        db
-          .select({ sum: sum(usageRecords.totalTokens) })
-          .from(usageRecords)
-          .where(and(gte(usageRecords.timestamp, yesterday), lte(usageRecords.timestamp, today))),
+          // 对比时间段 Token 消耗
+          db
+            .select({ sum: sum(usageRecords.totalTokens) })
+            .from(usageRecords)
+            .where(
+              and(
+                gte(usageRecords.timestamp, comparisonStart),
+                lte(usageRecords.timestamp, comparisonEnd)
+              )
+            ),
 
-        // 今日活跃用户数
-        db
-          .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
-          .from(usageRecords)
-          .where(gte(usageRecords.timestamp, today)),
+          // 当前时间段活跃用户数
+          db
+            .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
+            .from(usageRecords)
+            .where(
+              and(
+                gte(usageRecords.timestamp, queryStartDate),
+                lte(usageRecords.timestamp, queryEndDate)
+              )
+            ),
 
-        // 昨日活跃用户数
-        db
-          .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
-          .from(usageRecords)
-          .where(and(gte(usageRecords.timestamp, yesterday), lte(usageRecords.timestamp, today))),
-      ]);
+          // 对比时间段活跃用户数
+          db
+            .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
+            .from(usageRecords)
+            .where(
+              and(
+                gte(usageRecords.timestamp, comparisonStart),
+                lte(usageRecords.timestamp, comparisonEnd)
+              )
+            ),
+        ]);
 
-      const todayNewUsers = Number(todayNewUsersResult[0]?.count || 0);
-      const yesterdayNewUsers = Number(yesterdayNewUsersResult[0]?.count || 0);
-      const todayRequests = Number(todayRequestsResult[0]?.count || 0);
-      const yesterdayRequests = Number(yesterdayRequestsResult[0]?.count || 0);
-      const todayTokens = Number(todayTokensResult[0]?.sum || 0);
-      const yesterdayTokens = Number(yesterdayTokensResult[0]?.sum || 0);
-      const todayActiveUsers = Number(todayActiveUsersResult[0]?.count || 0);
-      const yesterdayActiveUsers = Number(yesterdayActiveUsersResult[0]?.count || 0);
+        const currentUsers = Number(currentPeriodUsersResult[0]?.count || 0);
+        const comparisonUsers = Number(comparisonPeriodUsersResult[0]?.count || 0);
+        const currentRequests = Number(currentPeriodRequestsResult[0]?.count || 0);
+        const comparisonRequests = Number(comparisonPeriodRequestsResult[0]?.count || 0);
+        const currentTokens = Number(currentPeriodTokensResult[0]?.sum || 0);
+        const comparisonTokens = Number(comparisonPeriodTokensResult[0]?.sum || 0);
+        const currentActiveUsers = Number(currentPeriodActiveUsersResult[0]?.count || 0);
+        const comparisonActiveUsers = Number(comparisonPeriodActiveUsersResult[0]?.count || 0);
 
-      // 计算增长率（今日 vs 昨日）
-      const userGrowthRate =
-        yesterdayNewUsers > 0
-          ? Math.round(((todayNewUsers - yesterdayNewUsers) / yesterdayNewUsers) * 100)
-          : 0;
-      const requestGrowthRate =
-        yesterdayRequests > 0
-          ? Math.round(((todayRequests - yesterdayRequests) / yesterdayRequests) * 100)
-          : 0;
-      const tokenGrowthRate =
-        yesterdayTokens > 0
-          ? Math.round(((todayTokens - yesterdayTokens) / yesterdayTokens) * 100)
-          : 0;
-      const activeUserGrowthRate =
-        yesterdayActiveUsers > 0
-          ? Math.round(((todayActiveUsers - yesterdayActiveUsers) / yesterdayActiveUsers) * 100)
-          : 0;
+        // 计算增长率
+        const userGrowthRate =
+          comparisonUsers > 0
+            ? Math.round(((currentUsers - comparisonUsers) / comparisonUsers) * 100)
+            : 0;
+        const requestGrowthRate =
+          comparisonRequests > 0
+            ? Math.round(((currentRequests - comparisonRequests) / comparisonRequests) * 100)
+            : 0;
+        const tokenGrowthRate =
+          comparisonTokens > 0
+            ? Math.round(((currentTokens - comparisonTokens) / comparisonTokens) * 100)
+            : 0;
+        const activeUserGrowthRate =
+          comparisonActiveUsers > 0
+            ? Math.round(
+                ((currentActiveUsers - comparisonActiveUsers) / comparisonActiveUsers) * 100
+              )
+            : 0;
 
-      return {
-        totalUsers: {
-          value: stats.totalUsers,
-          change: userGrowthRate,
-          trend: userGrowthRate >= 0 ? 'up' : 'down',
-        },
-        todayRequests: {
-          value: todayRequests,
-          change: requestGrowthRate,
-          trend: requestGrowthRate >= 0 ? 'up' : 'down',
-        },
-        todayTokens: {
-          value: todayTokens,
-          change: tokenGrowthRate,
-          trend: tokenGrowthRate >= 0 ? 'up' : 'down',
-        },
-        activeUsers: {
-          value: todayActiveUsers,
-          change: activeUserGrowthRate,
-          trend: activeUserGrowthRate >= 0 ? 'up' : 'down',
-        },
-      };
-    } catch (error) {
-      console.error('获取仪表盘统计数据失败:', error);
-      throw new Error('获取统计数据失败');
-    }
-  }),
+        return {
+          totalUsers: {
+            value: currentUsers,
+            change: userGrowthRate,
+            trend: userGrowthRate >= 0 ? 'up' : 'down',
+          },
+          requests: {
+            value: currentRequests,
+            change: requestGrowthRate,
+            trend: requestGrowthRate >= 0 ? 'up' : 'down',
+          },
+          tokens: {
+            value: currentTokens,
+            change: tokenGrowthRate,
+            trend: tokenGrowthRate >= 0 ? 'up' : 'down',
+          },
+          activeUsers: {
+            value: currentActiveUsers,
+            change: activeUserGrowthRate,
+            trend: activeUserGrowthRate >= 0 ? 'up' : 'down',
+          },
+          dateRange: {
+            start: queryStartDate,
+            end: queryEndDate,
+          },
+        };
+      } catch (error) {
+        console.error('获取仪表盘统计数据失败:', error);
+        throw new Error('获取统计数据失败');
+      }
+    }),
 
   // 获取最近活动
-  getRecentActivity: protectedProcedure.query(async () => {
-    try {
-      const recentRecords = await usageRecordDb.getByDateRange(
-        new Date(Date.now() - 24 * 60 * 60 * 1000), // 最近24小时
-        new Date()
-      );
+  getRecentActivity: protectedProcedure
+    .input(
+      z.object({
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+        hours: z.number().optional().default(24),
+      })
+    )
+    .query(async ({ input }) => {
+      try {
+        const { startDate, endDate, hours } = input;
 
-      const activities = recentRecords.slice(0, 10).map((record) => ({
-        id: record.id,
-        type: 'api_call',
-        description: `${record.user.id || '未知用户'} 调用了 ${record.model} API`,
-        time: record.timestamp.toISOString(),
-        details: {
-          model: record.model,
-          provider: record.provider,
-          tokens: record.totalTokens,
-          cost: record.cost,
-        },
-      }));
+        // 如果提供了具体日期范围，使用该范围
+        let queryStartDate: Date;
+        let queryEndDate: Date;
 
-      return activities;
-    } catch (error) {
-      console.error('获取最近活动失败:', error);
-      throw new Error('获取最近活动失败');
-    }
-  }),
-
-  // 获取使用趋势数据（最近7天）
-  getUsageTrend: protectedProcedure.query(async () => {
-    try {
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 7);
-
-      const records = await usageRecordDb.getByDateRange(startDate, endDate);
-
-      // 按日期分组统计
-      const dailyStats = new Map();
-
-      for (let i = 0; i < 7; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const dateStr = getTodayString(date);
-        dailyStats.set(dateStr, {
-          date: dateStr,
-          requests: 0,
-          tokens: 0,
-        });
-      }
-
-      records.forEach((record) => {
-        const dateStr = getTodayString(record.timestamp);
-        if (dailyStats.has(dateStr)) {
-          const stats = dailyStats.get(dateStr);
-          stats.requests += 1;
-          stats.tokens += record.totalTokens;
+        if (startDate && endDate) {
+          queryStartDate = startDate;
+          queryEndDate = endDate;
+        } else {
+          // 否则使用最近N小时
+          queryEndDate = new Date();
+          queryStartDate = new Date(Date.now() - hours * 60 * 60 * 1000);
         }
-      });
 
-      return Array.from(dailyStats.values()).reverse();
-    } catch (error) {
-      console.error('获取使用趋势失败:', error);
-      throw new Error('获取使用趋势失败');
-    }
-  }),
+        const recentRecords = await usageRecordDb.getByDateRange(queryStartDate, queryEndDate);
+
+        const activities = recentRecords.slice(0, 10).map((record) => ({
+          id: record.id,
+          type: 'api_call',
+          description: `${record.user.id || '未知用户'} 调用了 ${record.model} API`,
+          time: record.timestamp.toISOString(),
+          details: {
+            model: record.model,
+            provider: record.provider,
+            tokens: record.totalTokens,
+            cost: record.cost,
+          },
+        }));
+
+        return activities;
+      } catch (error) {
+        console.error('获取最近活动失败:', error);
+        throw new Error('获取最近活动失败');
+      }
+    }),
+
+  // 获取使用趋势数据
+  getUsageTrend: protectedProcedure
+    .input(
+      z.object({
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+        days: z.number().optional().default(7),
+      })
+    )
+    .query(async ({ input }) => {
+      try {
+        const { startDate, endDate, days } = input;
+
+        // 如果提供了具体日期范围，使用该范围
+        let queryStartDate: Date;
+        let queryEndDate: Date;
+
+        if (startDate && endDate) {
+          queryStartDate = startDate;
+          queryEndDate = endDate;
+        } else {
+          // 否则使用最近N天
+          queryEndDate = new Date();
+          queryStartDate = new Date();
+          queryStartDate.setDate(queryStartDate.getDate() - (days - 1));
+          queryStartDate.setHours(0, 0, 0, 0);
+          queryEndDate.setHours(23, 59, 59, 999);
+        }
+
+        const records = await usageRecordDb.getByDateRange(queryStartDate, queryEndDate);
+
+        // 按日期分组统计
+        const dailyStats = new Map();
+
+        // 初始化日期范围内的所有日期
+        const currentDate = new Date(queryStartDate);
+        while (currentDate <= queryEndDate) {
+          const dateStr = getTodayString(currentDate);
+          dailyStats.set(dateStr, {
+            date: dateStr,
+            requests: 0,
+            tokens: 0,
+          });
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        records.forEach((record) => {
+          const dateStr = getTodayString(record.timestamp);
+          if (dailyStats.has(dateStr)) {
+            const stats = dailyStats.get(dateStr);
+            stats.requests += 1;
+            stats.tokens += record.totalTokens;
+          }
+        });
+
+        return Array.from(dailyStats.values());
+      } catch (error) {
+        console.error('获取使用趋势失败:', error);
+        throw new Error('获取使用趋势失败');
+      }
+    }),
 
   // 获取请求地区分布
-  getRegionDistribution: protectedProcedure.query(async () => {
-    try {
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 30);
+  getRegionDistribution: protectedProcedure
+    .input(
+      z.object({
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+        days: z.number().optional().default(30),
+      })
+    )
+    .query(async ({ input }) => {
+      try {
+        const { startDate, endDate, days } = input;
 
-      const results = await db
-        .select({
-          region: usageRecords.region,
-          requestCount: count(),
-          tokenCount: sum(usageRecords.totalTokens),
-        })
-        .from(usageRecords)
-        .where(
-          and(
-            gte(usageRecords.timestamp, startDate),
-            lte(usageRecords.timestamp, endDate),
-            isNotNull(usageRecords.region)
+        // 如果提供了具体日期范围，使用该范围
+        let queryStartDate: Date;
+        let queryEndDate: Date;
+
+        if (startDate && endDate) {
+          queryStartDate = startDate;
+          queryEndDate = endDate;
+        } else {
+          // 否则使用最近N天
+          queryEndDate = new Date();
+          queryStartDate = new Date();
+          queryStartDate.setDate(queryStartDate.getDate() - (days - 1));
+          queryStartDate.setHours(0, 0, 0, 0);
+          queryEndDate.setHours(23, 59, 59, 999);
+        }
+
+        const results = await db
+          .select({
+            region: usageRecords.region,
+            requestCount: count(),
+            tokenCount: sum(usageRecords.totalTokens),
+          })
+          .from(usageRecords)
+          .where(
+            and(
+              gte(usageRecords.timestamp, queryStartDate),
+              lte(usageRecords.timestamp, queryEndDate),
+              isNotNull(usageRecords.region)
+            )
           )
-        )
-        .groupBy(usageRecords.region);
+          .groupBy(usageRecords.region);
 
-      return results.map((item) => ({
-        name: item.region || '未知',
-        value: Number(item.requestCount),
-        tokens: Number(item.tokenCount || 0),
-      }));
-    } catch (error) {
-      console.error('获取地区分布失败:', error);
-      throw new Error('获取地区分布失败');
-    }
-  }),
+        return results.map((item) => ({
+          name: item.region || '未知',
+          value: Number(item.requestCount),
+          tokens: Number(item.tokenCount || 0),
+        }));
+      } catch (error) {
+        console.error('获取地区分布失败:', error);
+        throw new Error('获取地区分布失败');
+      }
+    }),
 
   // 获取最近 IP 请求记录
   getRecentIpRequests: protectedProcedure.query(async () => {
@@ -270,35 +397,57 @@ export const dashboardRouter = createTRPCRouter({
   }),
 
   // 获取模型使用分布
-  getModelDistribution: protectedProcedure.query(async () => {
-    try {
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 30); // 最近30天
+  getModelDistribution: protectedProcedure
+    .input(
+      z.object({
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+        days: z.number().optional().default(30),
+      })
+    )
+    .query(async ({ input }) => {
+      try {
+        const { startDate, endDate, days } = input;
 
-      const records = await usageRecordDb.getByDateRange(startDate, endDate);
+        // 如果提供了具体日期范围，使用该范围
+        let queryStartDate: Date;
+        let queryEndDate: Date;
 
-      // 按模型统计
-      const modelStats = new Map();
-
-      records.forEach((record) => {
-        const model = record.model;
-        if (!modelStats.has(model)) {
-          modelStats.set(model, {
-            name: model,
-            value: 0,
-            requests: 0,
-          });
+        if (startDate && endDate) {
+          queryStartDate = startDate;
+          queryEndDate = endDate;
+        } else {
+          // 否则使用最近N天
+          queryEndDate = new Date();
+          queryStartDate = new Date();
+          queryStartDate.setDate(queryStartDate.getDate() - (days - 1));
+          queryStartDate.setHours(0, 0, 0, 0);
+          queryEndDate.setHours(23, 59, 59, 999);
         }
-        const stats = modelStats.get(model);
-        stats.value += record.totalTokens;
-        stats.requests += 1;
-      });
 
-      return Array.from(modelStats.values()).sort((a, b) => b.value - a.value);
-    } catch (error) {
-      console.error('获取模型分布失败:', error);
-      throw new Error('获取模型分布失败');
-    }
-  }),
+        const records = await usageRecordDb.getByDateRange(queryStartDate, queryEndDate);
+
+        // 按模型统计
+        const modelStats = new Map();
+
+        records.forEach((record) => {
+          const model = record.model;
+          if (!modelStats.has(model)) {
+            modelStats.set(model, {
+              name: model,
+              value: 0,
+              requests: 0,
+            });
+          }
+          const stats = modelStats.get(model);
+          stats.value += record.totalTokens;
+          stats.requests += 1;
+        });
+
+        return Array.from(modelStats.values()).sort((a, b) => b.value - a.value);
+      } catch (error) {
+        console.error('获取模型分布失败:', error);
+        throw new Error('获取模型分布失败');
+      }
+    }),
 });
