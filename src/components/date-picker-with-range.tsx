@@ -9,11 +9,7 @@ import { DateRange } from 'react-day-picker';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface DatePickerWithRangeProps {
   startDate?: Date;
@@ -48,7 +44,7 @@ export function DatePickerWithRange({
             id="date"
             variant={'outline'}
             className={cn(
-              'w-[300px] justify-start text-left font-normal',
+              'w-75 justify-start text-left font-normal',
               !date && 'text-muted-foreground'
             )}
           >
@@ -56,7 +52,7 @@ export function DatePickerWithRange({
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, 'yyyy-MM-dd', { locale: zhCN })} -{' '}
+                  {format(date.from, 'yyyy-MM-dd', { locale: zhCN })} 至
                   {format(date.to, 'yyyy-MM-dd', { locale: zhCN })}
                 </>
               ) : (
@@ -75,6 +71,9 @@ export function DatePickerWithRange({
             selected={date}
             onSelect={handleSelect}
             numberOfMonths={2}
+            locale={zhCN}
+            showOutsideDays={false}
+            className="rounded-md border"
           />
         </PopoverContent>
       </Popover>
