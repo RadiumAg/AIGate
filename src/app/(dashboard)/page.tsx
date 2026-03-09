@@ -14,9 +14,9 @@ import { Users, BarChart3, Coins, UserCheck } from 'lucide-react';
 
 const HomePage: React.FC = () => {
   // 日期范围状态
-  const [dateRange, setDateRange] = React.useState<'today' | 'yesterday' | '7days' | '30days' | 'custom'>(
-    'today'
-  );
+  const [dateRange, setDateRange] = React.useState<
+    'today' | 'yesterday' | '7days' | '30days' | 'custom'
+  >('today');
   const [customStartDate, setCustomStartDate] = React.useState<Date>(new Date());
   const [customEndDate, setCustomEndDate] = React.useState<Date>(new Date());
 
@@ -70,27 +70,27 @@ const HomePage: React.FC = () => {
   const { data: activities, isLoading: activitiesLoading } =
     trpc.dashboard.getRecentActivity.useQuery({
       startDate: queryStart,
-      endDate: queryEnd
+      endDate: queryEnd,
     });
-    
+
   // 获取使用趋势
   const { data: usageTrend, isLoading: trendLoading } = trpc.dashboard.getUsageTrend.useQuery({
     startDate: queryStart,
-    endDate: queryEnd
+    endDate: queryEnd,
   });
-    
+
   // 获取模型分布
   const { data: modelDistribution, isLoading: distributionLoading } =
     trpc.dashboard.getModelDistribution.useQuery({
       startDate: queryStart,
-      endDate: queryEnd
+      endDate: queryEnd,
     });
-    
+
   // 获取地区分布
   const { data: regionDistribution, isLoading: regionLoading } =
     trpc.dashboard.getRegionDistribution.useQuery({
       startDate: queryStart,
-      endDate: queryEnd
+      endDate: queryEnd,
     });
 
   // 获取最近 IP 请求记录
