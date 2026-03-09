@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { trpc } from '@/components/trpc-provider';
 import UsageTrendChart from '@/app/(dashboard)/components/usage-trend-chart';
 import ModelDistributionChart from '@/app/(dashboard)/components/model-distribution-chart';
@@ -14,11 +14,11 @@ import { Users, BarChart3, Coins, UserCheck } from 'lucide-react';
 
 const HomePage: React.FC = () => {
   // 日期范围状态
-  const [dateRange, setDateRange] = useState<'today' | 'yesterday' | '7days' | '30days' | 'custom'>(
+  const [dateRange, setDateRange] = React.useState<'today' | 'yesterday' | '7days' | '30days' | 'custom'>(
     'today'
   );
-  const [customStartDate, setCustomStartDate] = useState<Date>(new Date());
-  const [customEndDate, setCustomEndDate] = useState<Date>(new Date());
+  const [customStartDate, setCustomStartDate] = React.useState<Date>(new Date());
+  const [customEndDate, setCustomEndDate] = React.useState<Date>(new Date());
 
   // 计算日期范围
   const getDateRange = () => {

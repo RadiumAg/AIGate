@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FC } from 'react';
+import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { FileText } from 'lucide-react';
 import { DataTable } from '@/components/ui/data-table';
@@ -25,7 +25,7 @@ interface WhitelistRuleTableProps {
   isLoading?: boolean;
 }
 
-const WhitelistRuleTable: FC<WhitelistRuleTableProps> = (props) => {
+const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
   const { rules, onEdit, onDelete, onToggleStatus, isLoading = false } = props;
 
   const sortedRules = React.useMemo(

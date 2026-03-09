@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarIcon } from 'lucide-react';
@@ -19,9 +19,9 @@ const CustomDateRangePicker: React.FC<CustomDateRangePickerProps> = ({
   onDateRangeChange,
   className,
 }) => {
-  const [open, setOpen] = useState(false);
-  const [tempStartDate, setTempStartDate] = useState<Date>(startDate || new Date());
-  const [tempEndDate, setTempEndDate] = useState<Date>(endDate || new Date());
+  const [open, setOpen] = React.useState(false);
+  const [tempStartDate, setTempStartDate] = React.useState<Date>(startDate || new Date());
+  const [tempEndDate, setTempEndDate] = React.useState<Date>(endDate || new Date());
 
   const formatDate = (date: Date) => {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;

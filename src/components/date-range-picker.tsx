@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
@@ -17,7 +17,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
   setDateRange,
   className,
 }) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = React.useState(false);
 
   const presets = [
     { label: '今日', value: 'today' },

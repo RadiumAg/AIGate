@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FC } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -32,7 +32,7 @@ interface PolicyFormProps {
 const inputClassName =
   'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white';
 
-const PolicyForm: FC<PolicyFormProps> = (props) => {
+const PolicyForm: React.FC<PolicyFormProps> = (props) => {
   const { policy, onSave, onCancel } = props;
   const [formData, setFormData] = React.useState<
     Omit<QuotaPolicy, 'id' | 'createdAt' | 'updatedAt'>

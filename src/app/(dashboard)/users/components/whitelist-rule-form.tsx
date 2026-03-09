@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FC } from 'react';
+import React from 'react';
 import { trpc } from '@/components/trpc-provider';
 import { Button } from '@/components/ui/button';
 import {
@@ -120,7 +120,7 @@ const USERID_PRESENTS = [
 const inputClassName =
   'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white';
 
-const WhitelistRuleForm: FC<WhitelistRuleFormProps> = (props) => {
+const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
   const { ruleData, onSave, onCancel } = props;
 
   const { data: policies = [] } = trpc.quota.getAllPolicies.useQuery();
