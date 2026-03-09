@@ -164,12 +164,12 @@ const PolicyForm: React.FC<PolicyFormProps> = (props) => {
             <Field>
               <FieldLabel>每日请求次数上限</FieldLabel>
               <Input
+                required
                 type="number"
                 name="dailyRequestLimit"
                 value={formData.dailyRequestLimit || ''}
-                onChange={handleChange}
-                required
                 placeholder="例如: 1000"
+                onChange={handleChange}
               />
             </Field>
           )}
@@ -180,8 +180,8 @@ const PolicyForm: React.FC<PolicyFormProps> = (props) => {
               type="number"
               name="rpmLimit"
               value={formData.rpmLimit}
-              onChange={handleChange}
               required
+              onChange={handleChange}
             />
           </Field>
         </FieldGroup>
