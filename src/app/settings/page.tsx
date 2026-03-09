@@ -4,6 +4,7 @@ import React from 'react';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 import { trpc } from '@/components/trpc-provider';
 import { Button } from '@/components/ui/button';
@@ -29,13 +30,9 @@ const SettingsPage: React.FC = () => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const router = useRouter();
-
-  // 获取当前账户信息
   const { data: accountInfo, isLoading: infoLoading } = trpc.settings.getAdminAccount.useQuery();
-
-  // 使用 React Hook Form 配合 Zod
   const form = useForm<SettingsFormData>({
-    resolver: settingsFormSchema,
+    resolver: zodResolver(settingsFormSchema),
     defaultValues: {
       email: '',
       password: '',
