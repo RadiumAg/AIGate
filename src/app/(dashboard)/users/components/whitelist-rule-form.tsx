@@ -12,6 +12,14 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+  FieldLegend,
+} from '@/components/ui/field';
 
 interface WhitelistRule {
   id: string;
@@ -117,9 +125,6 @@ const USERID_PRESENTS = [
   },
 ];
 
-const inputClassName =
-  'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white';
-
 const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
   const { ruleData, onSave, onCancel } = props;
 
@@ -168,11 +173,10 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
     );
   }, [userIdPresetFilter]);
 
-  const handleChange = (changeValue: Record<string, any>) => {
-    const { name, value } = changeValue;
+  const handleChange = (fieldName: string, fieldValue: string | number | boolean | null) => {
     setFormData({
       ...formData,
-      [name]: value,
+      [fieldName]: fieldValue,
     });
   };
 
@@ -294,107 +298,86 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
   }, []);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          策略名称
-        </label>
-        <Select
-          name="policyName"
-          value={formData.policyName}
-          onValueChange={(value) =>
-            handleChange({
-              target: { name: 'policyName', value },
-            } as React.ChangeEvent<HTMLSelectElement>)
-          }
-          required
-        >
-          <SelectTrigger className={inputClassName}>
-            <SelectValue placeholder="选择策略" />
-          </SelectTrigger>
-          <SelectContent>
-            {policies.length > 0 ? (
-              policies.map((policy) => (
-                <SelectItem key={policy.id} value={policy.name}>
-                  {policy.name}
-                </SelectItem>
-              ))
-            ) : (
-              <SelectItem value="默认策略">默认策略</SelectItem>
-            )}
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          描述
-        </label>
-        <Textarea
-          name="description"
-          value={formData.description || ''}
-          rows={3}
-          className={inputClassName}
-          placeholder="规则描述..."
-          onChange={(value) => {
-            handleChange({ name: 'description', value });
-          }}
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          优先级
-        </label>
-        <Input
-          type="number"
-          name="priority"
-          value={formData.priority}
-          min="1"
-          required
-          className={inputClassName}
-          onChange={(value) => {
-            handleChange({ name: 'priority', value });
-          }}
-        />
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          数字越大优先级越高，匹配时优先使用高优先级规则
-        </p>
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          关联 API Key
-        </label>
-        <Select
-          name="apiKeyId"
-          value={formData.apiKeyId || ''}
-          onValueChange={(value) =>
-            handleChange({ name: 'apiKeyId', value: value === 'none' ? '' : value })
-          }
-        >
-          <SelectTrigger className={inputClassName}>
-            <SelectValue placeholder="不关联 API Key" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">不关联 API Key</SelectItem>
-            {apiKeys.map((apiKey) => (
-              <SelectItem key={apiKey.id} value={apiKey.originId}>
-                {apiKey.name} ({apiKey.provider})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          选择关联的 API Key，每个 API Key 只能绑定一个白名单规则
-        </p>
-      </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <FieldGroup>
+        <Field>
+          <FieldLabel>策略名称</FieldLabel>
+          <Select
+            name="policyName"
+            value={formData.policyName}
+            onValueChange={(value) => handleChange('policyName', value)}
+            required
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="选择策略" />
+            </SelectTrigger>
+            <SelectContent>
+              {policies.length > 0 ? (
+                policies.map((policy) => (
+                  <SelectItem key={policy.id} value={policy.name}>
+                    {policy.name}
+                  </SelectItem>
+                ))
+              ) : (
+                <SelectItem value="默认策略">默认策略</SelectItem>
+              )}
+            </SelectContent>
+          </Select>
+        </Field>
 
-      <div className="border-t border-gray-200 dark:border-gray-600 pt-4">
-        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-          UserId 格式生成规则
-        </h3>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            UserId 格式生成规则 (userIdPattern)
-          </label>
+        <Field>
+          <FieldLabel>描述</FieldLabel>
+          <Textarea
+            name="description"
+            value={formData.description || ''}
+            rows={3}
+            placeholder="规则描述..."
+            onChange={(e) => handleChange('description', e.target.value)}
+          />
+        </Field>
+
+        <Field>
+          <FieldLabel>优先级</FieldLabel>
+          <Input
+            type="number"
+            name="priority"
+            value={formData.priority}
+            min="1"
+            required
+            onChange={(e) => handleChange('priority', Number(e.target.value))}
+          />
+          <FieldDescription>数字越大优先级越高，匹配时优先使用高优先级规则</FieldDescription>
+        </Field>
+
+        <Field>
+          <FieldLabel>关联 API Key</FieldLabel>
+          <Select
+            name="apiKeyId"
+            value={formData.apiKeyId || ''}
+            onValueChange={(value) => handleChange('apiKeyId', value === 'none' ? '' : value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="不关联 API Key" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">不关联 API Key</SelectItem>
+              {apiKeys.map((apiKey) => (
+                <SelectItem key={apiKey.id} value={apiKey.originId}>
+                  {apiKey.name} ({apiKey.provider})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FieldDescription>
+            选择关联的 API Key，每个 API Key 只能绑定一个白名单规则
+          </FieldDescription>
+        </Field>
+      </FieldGroup>
+
+      <FieldSet className="border-t border-gray-200 dark:border-gray-600 pt-4">
+        <FieldLegend variant="label">UserId 格式生成规则</FieldLegend>
+        <Field>
+          <FieldLabel>UserId 格式生成规则 (userIdPattern)</FieldLabel>
           <div className="relative" ref={userIdPresetDropdownRef}>
             <Input
               ref={userIdPatternInputRef}
@@ -411,9 +394,7 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
                 }
               }}
               placeholder="输入 @ 可快速选择预设模板（如 @ip 、 @user_id 、 @any）"
-              className={inputClassName}
             />
-
             {showUserIdPresets && filteredUserIdPresets.length > 0 && (
               <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto">
                 {filteredUserIdPresets.map((preset, index) => (
@@ -441,25 +422,19 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
               </div>
             )}
           </div>
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            用于校验传入的 userId 格式，不符合此模式的请求将被拒绝。 留空表示不进行格式校验。
-          </p>
-        </div>
-      </div>
+          <FieldDescription>
+            用于校验传入的 userId 格式，不符合此模式的请求将被拒绝。留空表示不进行格式校验。
+          </FieldDescription>
+        </Field>
+      </FieldSet>
 
-      <div className="border-t border-gray-200 dark:border-gray-600 pt-4">
-        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-          用户UserId校验规则
-        </h3>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                启用校验规则
-              </label>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                开启后，传入的 userId 必须匹配校验规则才允许请求
-              </p>
+      <FieldSet className="border-t border-gray-200 dark:border-gray-600 pt-4">
+        <FieldLegend variant="label">用户UserId校验规则</FieldLegend>
+        <FieldGroup>
+          <Field orientation="horizontal">
+            <div className="flex-1">
+              <FieldLabel>启用校验规则</FieldLabel>
+              <FieldDescription>开启后，传入的 userId 必须匹配校验规则才允许请求</FieldDescription>
             </div>
             <button
               type="button"
@@ -474,58 +449,55 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
                 }`}
               />
             </button>
-          </div>
+          </Field>
 
           {formData.validationEnabled && (
-            <div className="relative" ref={presetDropdownRef}>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                校验规则
-              </label>
-              <Input
-                ref={validationInputRef}
-                type="text"
-                value={formData.validationPattern || ''}
-                onChange={handleValidationPatternChange}
-                onKeyDown={handleValidationKeyDown}
-                onFocus={() => {
-                  const value = formData.validationPattern || '';
-                  if (value.includes('@')) {
-                    setPresetFilter(value.substring(value.lastIndexOf('@')));
-                    setShowPresets(true);
-                  }
-                }}
-                placeholder="输入正则表达式，或输入 @ 选择预设模板"
-                className={inputClassName}
-              />
-
-              {showPresets && filteredPresets.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto">
-                  {filteredPresets.map((preset, index) => (
-                    <button
-                      key={preset.trigger}
-                      type="button"
-                      onClick={() => handleSelectPreset(preset)}
-                      className={`w-full text-left px-3 py-2 flex items-start gap-3 transition-colors bg-transparent border-0 ${
-                        index === selectedPresetIndex ? 'bg-accent' : 'hover:bg-muted'
-                      }`}
-                    >
-                      <code className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 whitespace-nowrap mt-0.5">
-                        {preset.label}
-                      </code>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm text-gray-800 dark:text-gray-200">
-                          {preset.description}
-                        </p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">
-                          {preset.pattern}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <Field>
+              <FieldLabel>校验规则</FieldLabel>
+              <div className="relative" ref={presetDropdownRef}>
+                <Input
+                  ref={validationInputRef}
+                  type="text"
+                  value={formData.validationPattern || ''}
+                  onChange={handleValidationPatternChange}
+                  onKeyDown={handleValidationKeyDown}
+                  onFocus={() => {
+                    const value = formData.validationPattern || '';
+                    if (value.includes('@')) {
+                      setPresetFilter(value.substring(value.lastIndexOf('@')));
+                      setShowPresets(true);
+                    }
+                  }}
+                  placeholder="输入正则表达式，或输入 @ 选择预设模板"
+                />
+                {showPresets && filteredPresets.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                    {filteredPresets.map((preset, index) => (
+                      <button
+                        key={preset.trigger}
+                        type="button"
+                        onClick={() => handleSelectPreset(preset)}
+                        className={`w-full text-left px-3 py-2 flex items-start gap-3 transition-colors bg-transparent border-0 ${
+                          index === selectedPresetIndex ? 'bg-accent' : 'hover:bg-muted'
+                        }`}
+                      >
+                        <code className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 whitespace-nowrap mt-0.5">
+                          {preset.label}
+                        </code>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm text-gray-800 dark:text-gray-200">
+                            {preset.description}
+                          </p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">
+                            {preset.pattern}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <FieldDescription>
                 {'输入 '}
                 <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">@</code>
                 {' 可快速选择预设模板（如 '}
@@ -535,11 +507,11 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
                 {'、'}
                 <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">@origin</code>
                 {'），也可直接输入正则表达式'}
-              </p>
-            </div>
+              </FieldDescription>
+            </Field>
           )}
-        </div>
-      </div>
+        </FieldGroup>
+      </FieldSet>
 
       <div className="flex space-x-3 pt-4">
         <Button type="submit">保存</Button>
