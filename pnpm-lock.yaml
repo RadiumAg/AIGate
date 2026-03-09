@@ -116,6 +116,9 @@ importers:
       react-dom:
         specifier: 19.2.3
         version: 19.2.3(react@19.2.3)
+      react-hook-form:
+        specifier: ^7.71.2
+        version: 7.71.2(react@19.2.3)
       redis:
         specifier: ^4.6.10
         version: 4.7.1
@@ -3681,6 +3684,12 @@ packages:
     peerDependenciesMeta:
       react:
         optional: true
+
+  react-hook-form@7.71.2:
+    resolution: {integrity: sha512-1CHvcDYzuRUNOflt4MOq3ZM46AronNJtQ1S7tnX6YN4y72qhgiUItpacZUAQ0TyWYci3yz1X+rXaSxiuEm86PA==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18 || ^19
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -7574,6 +7583,10 @@ snapshots:
       react: 19.2.3
     transitivePeerDependencies:
       - '@types/react'
+
+  react-hook-form@7.71.2(react@19.2.3):
+    dependencies:
+      react: 19.2.3
 
   react-is@16.13.1: {}
 

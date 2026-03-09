@@ -118,8 +118,10 @@ const PolicyForm: React.FC<PolicyFormProps> = (props) => {
                 limitType: value,
                 // 切换类型时清空另一种类型的值
                 dailyTokenLimit: value === 'token' ? formData.dailyTokenLimit || 5000 : undefined,
-                monthlyTokenLimit: value === 'token' ? formData.monthlyTokenLimit || 50000 : undefined,
-                dailyRequestLimit: value === 'request' ? formData.dailyRequestLimit || 1000 : undefined,
+                monthlyTokenLimit:
+                  value === 'token' ? formData.monthlyTokenLimit || 50000 : undefined,
+                dailyRequestLimit:
+                  value === 'request' ? formData.dailyRequestLimit || 1000 : undefined,
               });
             }}
           >
