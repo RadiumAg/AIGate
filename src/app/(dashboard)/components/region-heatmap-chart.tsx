@@ -61,6 +61,12 @@ const RegionHeatmapChart: React.FC<RegionHeatmapChartProps> = (props) => {
   React.useEffect(() => {
     if (!chartRef.current || loading || !mapReady) return;
 
+    // 先 dispose 已有实例，避免 SVG removeChild 冲突
+    const existingInstance = echarts.getInstanceByDom(chartRef.current);
+    if (existingInstance) {
+      existingInstance.dispose();
+    }
+
     const chart = echarts.init(chartRef.current);
 
     const maxValue = Math.max(...data.map((item) => item.value), 1);
@@ -143,31 +149,26 @@ const RegionHeatmapChart: React.FC<RegionHeatmapChartProps> = (props) => {
     };
   }, [data, loading, mapReady]);
 
-  if (loading || (!mapReady && !mapError)) {
-    return (
-      <div className="w-full h-80 flex items-center justify-center">
-        <Spinner className="h-8 w-8 text-indigo-600" />
-      </div>
-    );
-  }
-
-  if (mapError) {
-    return (
-      <div className="w-full h-80 flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
-        <p className="text-gray-500 dark:text-gray-400">地图数据加载失败</p>
-      </div>
-    );
-  }
-
-  if (!data || data.length === 0) {
-    return (
-      <div className="w-full h-80 flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
-        <p className="text-gray-500 dark:text-gray-400">暂无地区分布数据</p>
-      </div>
-    );
-  }
-
-  return <div ref={chartRef} className="w-full h-80"></div>;
+  return (
+    <div className="relative">
+      {(loading || (!mapReady && !mapError)) && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80">
+          <Spinner className="h-8 w-8 text-indigo-600" />
+        </div>
+      )}
+      {mapError && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <p className="text-gray-500 dark:text-gray-400">地图数据加载失败</p>
+        </div>
+      )}
+      {!loading && !mapError && mapReady && (!data || data.length === 0) && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <p className="text-gray-500 dark:text-gray-400">暂无地区分布数据</p>
+        </div>
+      )}
+      <div ref={chartRef} className="w-full h-80"></div>
+    </div>
+  );
 };
 
 export default RegionHeatmapChart;

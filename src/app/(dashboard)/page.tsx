@@ -19,6 +19,11 @@ const HomePage: React.FC = () => {
   >('today');
   const [customStartDate, setCustomStartDate] = React.useState<Date>(new Date());
   const [customEndDate, setCustomEndDate] = React.useState<Date>(new Date());
+  const [currentTime, setCurrentTime] = React.useState<string>('');
+
+  React.useEffect(() => {
+    setCurrentTime(new Date().toLocaleString('zh-CN'));
+  }, []);
 
   // 计算日期范围
   const getDateRange = () => {
@@ -119,8 +124,8 @@ const HomePage: React.FC = () => {
             />
           )}
         </div>
-        <div className="text-sm text-muted-foreground">
-          数据更新时间: {new Date().toLocaleString('zh-CN')}
+        <div className="text-sm text-muted-foreground" suppressHydrationWarning>
+          数据更新时间: {currentTime}
         </div>
       </div>
 

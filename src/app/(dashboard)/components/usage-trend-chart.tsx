@@ -33,6 +33,12 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
   React.useEffect(() => {
     if (!chartRef.current || loading || !data || data.length === 0) return;
 
+    // 先 dispose 已有实例，避免 SVG removeChild 冲突
+    const existingInstance = echarts.getInstanceByDom(chartRef.current);
+    if (existingInstance) {
+      existingInstance.dispose();
+    }
+
     const chart = echarts.init(chartRef.current);
 
     // 根据主题设置颜色配置
@@ -258,40 +264,29 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
 
     chart.setOption(option);
 
-    // 监听主题变化
-    const handleThemeChange = (e: MediaQueryListEvent) => {
-      setIsDarkMode(e.matches);
-      chart.setOption(option);
-    };
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    mediaQuery.addEventListener('change', handleThemeChange);
-
     const handleResize = () => chart.resize();
     window.addEventListener('resize', handleResize);
 
     return () => {
-      mediaQuery.removeEventListener('change', handleThemeChange);
       window.removeEventListener('resize', handleResize);
       chart.dispose();
     };
   }, [data, loading, isDarkMode]);
 
-  if (loading) {
-    return (
-      <div className="w-full h-64 flex items-center justify-center">
-        <Spinner className="h-8 w-8 text-indigo-600" />
-      </div>
-    );
-  }
-
   return (
-    <div>
+    <div className="relative">
+      {loading && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80">
+          <Spinner className="h-8 w-8 text-indigo-600" />
+        </div>
+      )}
       <div ref={chartRef} className="w-full h-72"></div>
-      <div className={`mt-3 text-center text-xs`}>
-        数据周期：{data.length > 0 && new Date(data[0].date).toLocaleDateString('zh-CN')} -{' '}
-        {data.length > 0 && new Date(data[data.length - 1].date).toLocaleDateString('zh-CN')}
-      </div>
+      {!loading && data.length > 0 && (
+        <div className="mt-3 text-center text-xs">
+          数据周期：{new Date(data[0].date).toLocaleDateString('zh-CN')} -{' '}
+          {new Date(data[data.length - 1].date).toLocaleDateString('zh-CN')}
+        </div>
+      )}
     </div>
   );
 };
