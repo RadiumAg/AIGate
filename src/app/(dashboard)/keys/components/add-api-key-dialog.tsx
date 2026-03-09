@@ -151,7 +151,6 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-106.25">
-        {' '}
         <DialogHeader>
           <DialogTitle>{keyData ? '编辑 API 密钥' : '添加 API 密钥'}</DialogTitle>
           <DialogDescription>
