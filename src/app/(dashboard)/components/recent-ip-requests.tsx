@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, type FC } from 'react';
+import React from 'react';
 import { Globe } from 'lucide-react';
 import {
   Pagination,
@@ -28,9 +28,9 @@ interface RecentIpRequestsProps {
   loading?: boolean;
 }
 
-const RecentIpRequests: FC<RecentIpRequestsProps> = (props) => {
+const RecentIpRequests: React.FC<RecentIpRequestsProps> = (props) => {
   const { data, loading = false } = props;
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = React.useState(1);
   const itemsPerPage = 10;
 
   // 计算分页
