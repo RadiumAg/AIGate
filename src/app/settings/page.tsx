@@ -1,14 +1,15 @@
 'use client';
 
 import React from 'react';
+import { z } from 'zod';
+import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { Controller, useForm } from 'react-hook-form';
 import { trpc } from '@/components/trpc-provider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Eye, EyeOff } from 'lucide-react';
-import { z } from 'zod';
 
 // 定义表单验证 schema
 const settingsFormSchema = z
@@ -25,16 +26,33 @@ const settingsFormSchema = z
 type SettingsFormData = z.infer<typeof settingsFormSchema>;
 
 const SettingsPage: React.FC = () => {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [confirmPassword, setConfirmPassword] = React.useState('');
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
-  const [errors, setErrors] = React.useState<Partial<Record<keyof SettingsFormData, string>>>({});
   const router = useRouter();
 
   // 获取当前账户信息
   const { data: accountInfo, isLoading: infoLoading } = trpc.settings.getAdminAccount.useQuery();
+
+  // 使用 React Hook Form 配合 Zod
+  const form = useForm<SettingsFormData>({
+    resolver: settingsFormSchema,
+    defaultValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+  });
+
+  // 当账户信息加载完成后，更新表单默认值
+  React.useEffect(() => {
+    if (accountInfo?.email) {
+      form.reset({
+        email: accountInfo.email,
+        password: '',
+        confirmPassword: '',
+      });
+    }
+  }, [accountInfo, form]);
 
   const updateMutation = trpc.settings.updateAdminAccount.useMutation({
     onSuccess: (data) => {
@@ -46,41 +64,12 @@ const SettingsPage: React.FC = () => {
     },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
-
-    // 使用 Zod 验证表单数据
-    const result = settingsFormSchema.safeParse({
-      email,
-      password,
-      confirmPassword,
-    });
-
-    if (!result.success) {
-      // 将 Zod 错误转换为表单错误
-      const formErrors: Partial<Record<keyof SettingsFormData, string>> = {};
-      result.error.errors.forEach((error) => {
-        const field = error.path[0] as keyof SettingsFormData;
-        formErrors[field] = error.message;
-      });
-      setErrors(formErrors);
-      return;
-    }
-
-    // 验证通过，提交表单
+  const onSubmit = async (data: SettingsFormData) => {
     updateMutation.mutate({
-      email: result.data.email,
-      password: result.data.password,
+      email: data.email,
+      password: data.password,
     });
   };
-
-  // 当账户信息加载完成后，更新 email
-  React.useEffect(() => {
-    if (accountInfo?.email) {
-      setEmail(accountInfo.email);
-    }
-  }, [accountInfo]);
 
   if (infoLoading) {
     return (
@@ -101,89 +90,110 @@ const SettingsPage: React.FC = () => {
             <p className="text-muted-foreground">修改管理员登录邮箱和密码</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground">
-                  邮箱地址
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@example.com"
-                  className="bg-background border-input"
-                />
-                {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground">
-                  新密码
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="请输入新密码"
-                    className="bg-background border-input pr-10"
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-                {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-foreground">
-                  确认密码
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="请再次输入新密码"
-                    className="bg-background border-input pr-10"
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-                {errors.confirmPassword && (
-                  <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FieldGroup>
+              <Controller
+                name="email"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="settings-email">邮箱地址</FieldLabel>
+                    <Input
+                      {...field}
+                      id="settings-email"
+                      type="email"
+                      placeholder="admin@example.com"
+                      className="bg-background border-input"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    <FieldDescription>修改管理员登录邮箱</FieldDescription>
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
                 )}
-              </div>
-            </div>
+              />
+
+              <Controller
+                name="password"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="settings-password">新密码</FieldLabel>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        id="settings-password"
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="请输入新密码"
+                        className="bg-background border-input pr-10"
+                        aria-invalid={fieldState.invalid}
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                    <FieldDescription>密码长度至少6位</FieldDescription>
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="confirmPassword"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="settings-confirm-password">确认密码</FieldLabel>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        id="settings-confirm-password"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        placeholder="请再次输入新密码"
+                        className="bg-background border-input pr-10"
+                        aria-invalid={fieldState.invalid}
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                    <FieldDescription>请再次输入密码以确认</FieldDescription>
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
 
             <div className="flex flex-col gap-3 pt-4">
-              <Button type="submit" className="w-full" disabled={updateMutation.isPending}>
-                {updateMutation.isPending ? '保存中...' : '保存更改'}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={form.formState.isSubmitting || updateMutation.isPending}
+              >
+                {form.formState.isSubmitting || updateMutation.isPending ? '保存中...' : '保存更改'}
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 className="w-full"
-                onClick={() => router.back()}
+                onClick={() => form.reset()}
               >
-                返回
+                重置
               </Button>
             </div>
           </form>
