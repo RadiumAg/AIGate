@@ -136,7 +136,6 @@ const SettingsPage: React.FC = () => {
                         )}
                       </button>
                     </div>
-                    <FieldDescription>密码长度至少6位</FieldDescription>
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
@@ -169,7 +168,6 @@ const SettingsPage: React.FC = () => {
                         )}
                       </button>
                     </div>
-                    <FieldDescription>请再次输入密码以确认</FieldDescription>
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
