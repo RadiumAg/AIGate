@@ -21,7 +21,7 @@ export default function SettingsPage() {
   const { data: accountInfo, isLoading: infoLoading } = trpc.settings.getAdminAccount.useQuery();
 
   // 使用 accountInfo.email 作为 email 的初始值
-  const [email, setEmail] = useState(accountInfo?.email || '');
+  const [email, setEmail] = React.useState(accountInfo?.email || '');
 
   const updateMutation = trpc.settings.updateAdminAccount.useMutation({
     onSuccess: (data) => {

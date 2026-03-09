@@ -21,7 +21,7 @@ interface QuotaPolicy {
   updatedAt?: Date;
 }
 
-const QuotasPage: FC = () => {
+const QuotasPage: React.FC = () => {
   const {
     data: policies = [],
     refetch: refetchPolicies,

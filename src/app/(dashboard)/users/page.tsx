@@ -19,7 +19,7 @@ interface WhitelistRule {
   description?: string | null;
 }
 
-const UsersPage: FC = () => {
+const UsersPage: React.FC = () => {
   // 获取白名单规则数据
   const {
     data: whitelistRules = [],
