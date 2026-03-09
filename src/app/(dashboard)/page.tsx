@@ -9,7 +9,7 @@ import RecentIpRequests from '@/app/(dashboard)/components/recent-ip-requests';
 import StatCard from './components/stat-card';
 import RecentActivity from './components/recent-activity';
 import DateRangePicker from '@/components/date-range-picker';
-import CustomDateRangePicker from '@/components/custom-date-range-picker';
+import { DatePickerWithRange } from '@/components/date-picker-with-range';
 import { Users, BarChart3, Coins, UserCheck } from 'lucide-react';
 
 const HomePage: React.FC = () => {
@@ -114,10 +114,10 @@ const HomePage: React.FC = () => {
         <div className="flex items-center gap-4">
           <DateRangePicker dateRange={dateRange} setDateRange={setDateRange} />
           {dateRange === 'custom' && (
-            <CustomDateRangePicker
+            <DatePickerWithRange
               startDate={customStartDate}
               endDate={customEndDate}
-              onDateRangeChange={(start, end) => {
+              onDateRangeChange={(start: Date, end: Date) => {
                 setCustomStartDate(start);
                 setCustomEndDate(end);
               }}
