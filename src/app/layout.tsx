@@ -40,11 +40,15 @@ export default function RootLayout({
         {process.env.NODE_ENV === 'development' && (
           <Script src="//unpkg.com/@react-grab/mcp/dist/client.global.js" strategy="lazyOnload" />
         )}
+        {process.env.NODE_ENV === 'development' && (
+          <Script
+            src="https://unpkg.com/react-scan/dist/auto.global.js"
+            crossOrigin="anonymous"
+            strategy="beforeInteractive"
+          />
+        )}
       </head>
       <body>
-        {/* {process.env.NODE_ENV === 'development' && (
-          <script src="https://unpkg.com/react-scan/dist/auto.global.js" crossOrigin="anonymous" />
-        )} */}
         <Toaster />
         <TRPCProvider>{children}</TRPCProvider>
       </body>
