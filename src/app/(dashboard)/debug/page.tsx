@@ -316,16 +316,17 @@ curl -X POST '${baseUrl}/api/ai/chat/completions' \\
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">接口调试</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">测试和调试 AI 接口功能</p>
+      {/* Header with Liquid Glass */}
+      <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/60 dark:bg-black/30 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)]">
+        <h1 className="text-2xl font-bold text-foreground">接口调试</h1>
+        <p className="text-muted-foreground mt-2">测试和调试 AI 接口功能</p>
       </div>
 
       {isLoading ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+        <div className="rounded-2xl p-8 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]">
           <div className="flex items-center justify-center">
-            <Spinner className="h-8 w-8 text-indigo-600" />
-            <span className="ml-2 text-gray-600 dark:text-gray-400">加载中...</span>
+            <Spinner className="h-8 w-8 text-primary" />
+            <span className="ml-2 text-muted-foreground">加载中...</span>
           </div>
         </div>
       ) : (

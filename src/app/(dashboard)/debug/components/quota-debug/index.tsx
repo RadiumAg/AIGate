@@ -82,28 +82,30 @@ const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md">
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center">
-          <CheckCircle className="w-5 h-5 mr-2 text-indigo-500" />
+    <div className="rounded-2xl backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] overflow-hidden">
+      <div className="p-6 border-b border-white/20 dark:border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-sm">
+        <h2 className="text-lg font-semibold text-foreground flex items-center">
+          <div className="p-1.5 rounded-lg bg-primary/20 backdrop-blur-sm mr-2">
+            <CheckCircle className="w-4 h-4 text-primary" />
+          </div>
           配额调试
         </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-sm text-muted-foreground mt-1">
           调试配额相关 API：checkQuota、getUserUsage、resetQuota
         </p>
       </div>
 
       <div className="p-6 space-y-4">
         {/* Tab 切换 */}
-        <div className="flex space-x-2 border-b border-gray-200 dark:border-gray-700 pb-4">
+        <div className="flex space-x-2 border-b border-white/20 dark:border-white/10 pb-4">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
+              className={`flex items-center px-4 py-2 rounded-xl transition-all duration-200 ${
                 activeTab === tab.id
-                  ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-100'
-                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
+                  ? 'bg-primary/20 text-primary backdrop-blur-sm shadow-[0_2px_8px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)]'
+                  : 'text-muted-foreground hover:bg-white/40 dark:hover:bg-white/10 hover:backdrop-blur-sm'
               }`}
             >
               <tab.icon className="w-4 h-4 mr-2" />
@@ -113,17 +115,17 @@ const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
         </div>
 
         {/* 参数显示 */}
-        <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-md">
+        <div className="p-3 rounded-xl backdrop-blur-lg bg-white/40 dark:bg-black/20 border border-white/30 dark:border-white/10">
           <div className="text-sm space-y-1">
             <div>
-              <span className="text-gray-500 dark:text-gray-400">User ID:</span>
-              <span className="ml-2 font-mono text-gray-800 dark:text-white">
+              <span className="text-muted-foreground">User ID:</span>
+              <span className="ml-2 font-mono text-foreground">
                 {userId || '未设置'}
               </span>
             </div>
             <div>
-              <span className="text-gray-500 dark:text-gray-400">API Key ID:</span>
-              <span className="ml-2 font-mono text-gray-800 dark:text-white">
+              <span className="text-muted-foreground">API Key ID:</span>
+              <span className="ml-2 font-mono text-foreground">
                 {apiKeyId || '未选择'}
               </span>
             </div>

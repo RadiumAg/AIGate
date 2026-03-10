@@ -24,10 +24,10 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-gray-800 dark:text-white">
+          <h3 className="text-sm font-medium text-foreground">
             检查配额 (checkQuota)
           </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-muted-foreground">
             检查用户是否有足够的配额进行请求
           </p>
         </div>
@@ -45,25 +45,25 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
 
       {result && (
         <div
-          className={`p-4 rounded-md ${
+          className={`p-4 rounded-xl backdrop-blur-lg ${
             result.error
-              ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
+              ? 'bg-red-500/10 dark:bg-red-500/10 border border-red-500/30'
               : result.allowed
-                ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
-                : 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800'
+                ? 'bg-green-500/10 dark:bg-green-500/10 border border-green-500/30'
+                : 'bg-yellow-500/10 dark:bg-yellow-500/10 border border-yellow-500/30'
           }`}
         >
           {result.error ? (
             <div className="flex items-center">
               <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
-              <span className="text-sm text-red-800 dark:text-red-200">{result.error}</span>
+              <span className="text-sm text-red-700 dark:text-red-300">{result.error}</span>
             </div>
           ) : (
             <div className="space-y-2">
               <div className="flex items-center">
                 <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
                 {result.remaining && (
-                  <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                  <span className="text-sm font-medium text-green-700 dark:text-green-300">
                     {result?.remaining?.type === 'token'
                       ? `剩余token ${result?.remaining?.daily}`
                       : `剩余请求次数 ${result?.remaining?.daily}`}
@@ -71,30 +71,30 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
                 )}
               </div>
               {result.policy && (
-                <div className="mt-3 p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
-                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                <div className="mt-3 p-3 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10">
+                  <p className="text-xs font-medium text-foreground/70 mb-2">
                     配额策略
                   </p>
                   <div className="text-xs space-y-1">
                     <div>
-                      <span className="text-gray-500">策略名称:</span>
-                      <span className="ml-2">{result.policy.name}</span>
+                      <span className="text-muted-foreground">策略名称:</span>
+                      <span className="ml-2 text-foreground">{result.policy.name}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">限制类型:</span>
-                      <span className="ml-2">{result.policy.limitType}</span>
+                      <span className="text-muted-foreground">限制类型:</span>
+                      <span className="ml-2 text-foreground">{result.policy.limitType}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">每日限制:</span>
-                      <span className="ml-2">
+                      <span className="text-muted-foreground">每日限制:</span>
+                      <span className="ml-2 text-foreground">
                         {result.policy.limitType === 'token'
                           ? result.policy.dailyTokenLimit
                           : result.policy.dailyRequestLimit}
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-500">RPM 限制:</span>
-                      <span className="ml-2">{result.policy.rpmLimit}</span>
+                      <span className="text-muted-foreground">RPM 限制:</span>
+                      <span className="ml-2 text-foreground">{result.policy.rpmLimit}</span>
                     </div>
                   </div>
                 </div>
@@ -103,23 +103,23 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
                 <div className="mt-2 text-xs">
                   {result.remainingTokens !== undefined && (
                     <div>
-                      <span className="text-gray-500">剩余 Tokens:</span>
-                      <span className="ml-2 font-mono">{result.remainingTokens}</span>
+                      <span className="text-muted-foreground">剩余 Tokens:</span>
+                      <span className="ml-2 font-mono text-foreground">{result.remainingTokens}</span>
                     </div>
                   )}
                   {result.remainingRequests !== undefined && (
                     <div>
-                      <span className="text-gray-500">剩余请求次数:</span>
-                      <span className="ml-2 font-mono">{result.remainingRequests}</span>
+                      <span className="text-muted-foreground">剩余请求次数:</span>
+                      <span className="ml-2 font-mono text-foreground">{result.remainingRequests}</span>
                     </div>
                   )}
                 </div>
               )}
               <details className="mt-2">
-                <summary className="cursor-pointer text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors">
                   查看完整响应
                 </summary>
-                <pre className="mt-2 p-2 bg-gray-100 dark:bg-gray-900 rounded text-xs overflow-x-auto">
+                <pre className="mt-2 p-2 rounded-lg backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 text-xs overflow-x-auto">
                   {JSON.stringify(result, null, 2)}
                 </pre>
               </details>

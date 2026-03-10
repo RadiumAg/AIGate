@@ -44,20 +44,22 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
   const { response, error, isLoading, streamContent, isStreaming } = props;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md">
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center">
-          <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
+    <div className="rounded-2xl backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] overflow-hidden">
+      <div className="p-6 border-b border-white/20 dark:border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-sm">
+        <h2 className="text-lg font-semibold text-foreground flex items-center">
+          <div className="p-1.5 rounded-lg bg-green-500/20 backdrop-blur-sm mr-2">
+            <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+          </div>
           响应结果
         </h2>
       </div>
 
       <div className="p-6">
         {error && (
-          <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md mb-4">
+          <div className="p-4 rounded-xl backdrop-blur-lg bg-red-500/10 dark:bg-red-500/10 border border-red-500/30 mb-4">
             <div className="flex items-center">
               <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
-              <span className="text-sm text-red-800 dark:text-red-200">{error}</span>
+              <span className="text-sm text-red-700 dark:text-red-300">{error}</span>
             </div>
           </div>
         )}
@@ -66,11 +68,11 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
           <div className="space-y-4">
             {/* AI 回复 */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-foreground/80 mb-2">
                 AI 回复
               </label>
-              <div className="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md">
-                <p className="text-gray-800 dark:text-white whitespace-pre-wrap font-mono text-sm">
+              <div className="p-4 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
+                <p className="text-foreground whitespace-pre-wrap font-mono text-sm">
                   {response.choices?.[0]?.message?.content || '无回复内容'}
                 </p>
               </div>
@@ -83,19 +85,19 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
                   Token 使用统计
                 </label>
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md text-center">
+                  <div className="p-3 rounded-xl backdrop-blur-lg bg-blue-500/10 dark:bg-blue-500/10 border border-blue-500/30 text-center">
                     <p className="text-xs text-blue-600 dark:text-blue-400">Prompt</p>
                     <p className="text-lg font-semibold text-blue-800 dark:text-blue-200">
                       {response.usage.prompt_tokens}
                     </p>
                   </div>
-                  <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md text-center">
+                  <div className="p-3 rounded-xl backdrop-blur-lg bg-green-500/10 dark:bg-green-500/10 border border-green-500/30 text-center">
                     <p className="text-xs text-green-600 dark:text-green-400">Completion</p>
                     <p className="text-lg font-semibold text-green-800 dark:text-green-200">
                       {response.usage.completion_tokens}
                     </p>
                   </div>
-                  <div className="p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-md text-center">
+                  <div className="p-3 rounded-xl backdrop-blur-lg bg-purple-500/10 dark:bg-purple-500/10 border border-purple-500/30 text-center">
                     <p className="text-xs text-purple-600 dark:text-purple-400">Total</p>
                     <p className="text-lg font-semibold text-purple-800 dark:text-purple-200">
                       {response.usage.total_tokens}
@@ -108,32 +110,32 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
             {/* 元数据 */}
             {response.aigate_metadata && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-foreground/80 mb-2">
                   AIGate 元数据
                 </label>
-                <div className="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md">
+                <div className="p-4 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">请求 ID:</span>
-                      <span className="ml-2 font-mono text-gray-800 dark:text-white">
+                      <span className="text-muted-foreground">请求 ID:</span>
+                      <span className="ml-2 font-mono text-foreground">
                         {response.aigate_metadata.requestId}
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">提供商:</span>
-                      <span className="ml-2 font-semibold text-gray-800 dark:text-white">
+                      <span className="text-muted-foreground">提供商:</span>
+                      <span className="ml-2 font-semibold text-foreground">
                         {response.aigate_metadata.provider}
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">处理时间:</span>
-                      <span className="ml-2 text-gray-800 dark:text-white">
+                      <span className="text-muted-foreground">处理时间:</span>
+                      <span className="ml-2 text-foreground">
                         {response.aigate_metadata.processingTime}ms
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">剩余配额:</span>
-                      <span className="ml-2 text-gray-800 dark:text-white">
+                      <span className="text-muted-foreground">剩余配额:</span>
+                      <span className="ml-2 text-foreground">
                         {response.aigate_metadata.quotaRemaining.tokens} tokens
                       </span>
                     </div>
@@ -144,11 +146,11 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
 
             {/* 原始响应 */}
             <details className="group">
-              <summary className="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+              <summary className="cursor-pointer text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
                 查看原始响应 JSON
               </summary>
-              <div className="mt-2 p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md">
-                <pre className="text-xs text-gray-600 dark:text-gray-400 overflow-x-auto">
+              <div className="mt-2 p-4 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
+                <pre className="text-xs text-muted-foreground overflow-x-auto">
                   {JSON.stringify(response, null, 2)}
                 </pre>
               </div>
@@ -160,15 +162,15 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
         {isStreaming && streamContent && (
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+              <label className="text-sm font-medium text-foreground/80 mb-2 flex items-center">
                 <span className="relative flex h-2 w-2 mr-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
                 实时响应 (Stream)
               </label>
-              <div className="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md">
-                <p className="text-gray-800 dark:text-white whitespace-pre-wrap font-mono text-sm">
+              <div className="p-4 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
+                <p className="text-foreground whitespace-pre-wrap font-mono text-sm">
                   {streamContent}
                 </p>
               </div>
@@ -180,17 +182,17 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
         {!isStreaming && streamContent && !response && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-foreground/80 mb-2">
                 AI 回复 (Stream)
               </label>
-              <div className="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md">
-                <p className="text-gray-800 dark:text-white whitespace-pre-wrap font-mono text-sm">
+              <div className="p-4 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
+                <p className="text-foreground whitespace-pre-wrap font-mono text-sm">
                   {streamContent}
                 </p>
               </div>
             </div>
-            <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-              <p className="text-sm text-green-800 dark:text-green-200 flex items-center">
+            <div className="p-3 rounded-xl backdrop-blur-lg bg-green-500/10 dark:bg-green-500/10 border border-green-500/30">
+              <p className="text-sm text-green-700 dark:text-green-300 flex items-center">
                 <Check className="w-4 h-4 mr-2" />
                 Stream 响应已完成
               </p>
@@ -200,8 +202,10 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
 
         {!response && !error && !isLoading && !streamContent && (
           <div className="text-center py-12">
-            <MessageSquare className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" />
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="mx-auto w-16 h-16 rounded-2xl backdrop-blur-lg bg-white/40 dark:bg-white/5 border border-white/30 dark:border-white/10 flex items-center justify-center mb-4">
+              <MessageSquare className="h-8 w-8 text-muted-foreground/60" />
+            </div>
+            <p className="text-sm text-muted-foreground">
               配置请求参数后点击发送请求查看响应结果
             </p>
           </div>

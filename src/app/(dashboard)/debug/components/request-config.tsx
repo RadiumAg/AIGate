@@ -118,10 +118,12 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md">
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center">
-          <Settings className="w-5 h-5 mr-2 text-indigo-500" />
+    <div className="rounded-2xl backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] overflow-hidden">
+      <div className="p-6 border-b border-white/20 dark:border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-sm">
+        <h2 className="text-lg font-semibold text-foreground flex items-center">
+          <div className="p-1.5 rounded-lg bg-primary/20 backdrop-blur-sm mr-2">
+            <Settings className="w-4 h-4 text-primary" />
+          </div>
           请求配置
         </h2>
       </div>
@@ -130,9 +132,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
         {/* 基础配置 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              API Key
-            </label>
+            <label className="block text-sm font-medium text-foreground/80 mb-2">API Key</label>
             <Select
               value={form?.apiKeyId || ''}
               onValueChange={(originId: string) => {
@@ -162,9 +162,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              模型
-            </label>
+            <label className="block text-sm font-medium text-foreground/80 mb-2">模型</label>
             <input
               type="text"
               value={form?.model || ''}
@@ -178,7 +176,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
                   : '请先选择 API Key'
               }
               disabled={!form?.apiKeyId}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 rounded-xl bg-white/40 dark:bg-black/20 backdrop-blur-lg border border-white/30 dark:border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.3)] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-white/50 dark:focus:bg-black/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             {form?.apiKeyId &&
               supportedModels &&
@@ -227,9 +225,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
         {/* 用户 ID 和高级参数 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              用户 ID
-            </label>
+            <label className="block text-sm font-medium text-foreground/80 mb-2">用户 ID</label>
             <input
               type="text"
               value={form?.userId || ''}
@@ -237,14 +233,12 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
                 if (!form) return;
                 setForm({ ...form, userId: e.target.value });
               }}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-3 py-2 rounded-xl bg-white/40 dark:bg-black/20 backdrop-blur-lg border border-white/30 dark:border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.3)] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-white/50 dark:focus:bg-black/30 transition-all duration-200"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Max Tokens
-            </label>
+            <label className="block text-sm font-medium text-foreground/80 mb-2">Max Tokens</label>
             <input
               type="number"
               min="1"
@@ -254,14 +248,14 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
                 if (!form) return;
                 setForm({ ...form, max_tokens: parseInt(e.target.value) || 1000 });
               }}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-3 py-2 rounded-xl bg-white/40 dark:bg-black/20 backdrop-blur-lg border border-white/30 dark:border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.3)] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-white/50 dark:focus:bg-black/30 transition-all duration-200"
             />
           </div>
         </div>
 
         {/* Temperature 参数 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-foreground/80 mb-2">
             Temperature: {form?.temperature || 0.7}
           </label>
           <Slider
@@ -273,7 +267,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
               if (!form) return;
               setForm({ ...form, temperature: value[0] });
             }}
-            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+            className="w-full h-2 bg-white/40 dark:bg-black/20 rounded-lg appearance-none cursor-pointer slider"
           />
         </div>
 
@@ -289,16 +283,16 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
           />
           <Label
             htmlFor="stream-mode"
-            className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer"
+            className="text-sm font-medium text-foreground/80 cursor-pointer"
           >
             启用 Stream 模式
           </Label>
-          <span className="text-xs text-gray-500 dark:text-gray-400">（实时返回响应内容）</span>
+          <span className="text-xs text-muted-foreground">（实时返回响应内容）</span>
         </div>
 
         {/* 预设示例 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-foreground/80 mb-2">
             快速示例
           </label>
           <div className="flex flex-wrap gap-2">
@@ -317,7 +311,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
         {/* 消息列表 */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium text-foreground/80">
               消息 ({form?.messages?.length || 0})
             </label>
             <Button variant="secondary" size="sm" onClick={handleAddMessage}>
@@ -411,8 +405,8 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
 
         {/* Token 估算结果 */}
         {estimatedTokens && (
-          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
-            <p className="text-sm text-blue-800 dark:text-blue-200">
+          <div className="p-3 rounded-xl backdrop-blur-lg bg-blue-500/10 dark:bg-blue-500/10 border border-blue-500/30">
+            <p className="text-sm text-blue-700 dark:text-blue-300">
               预估 Token 消耗: <span className="font-mono font-semibold">{estimatedTokens}</span>
             </p>
           </div>

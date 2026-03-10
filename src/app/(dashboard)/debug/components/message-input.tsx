@@ -22,7 +22,7 @@ const MessageInput: React.FC<MessageInputProps> = (props) => {
   const { message, index, canRemove, onChange, onRemove } = props;
 
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3 bg-gray-50 dark:bg-gray-900">
+    <div className="rounded-xl p-3 backdrop-blur-lg bg-white/40 dark:bg-black/20 border border-white/30 dark:border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.3)]">
       <div className="flex items-center justify-between mb-2">
         <Select
           value={message.role}
@@ -42,7 +42,7 @@ const MessageInput: React.FC<MessageInputProps> = (props) => {
             variant="ghost"
             size="sm"
             onClick={() => onRemove(index)}
-            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+            className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
           >
             删除
           </Button>
@@ -53,7 +53,7 @@ const MessageInput: React.FC<MessageInputProps> = (props) => {
         onChange={(e) => onChange(index, 'content', e.target.value)}
         placeholder="输入消息内容..."
         rows={3}
-        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+        className="w-full px-3 py-2 rounded-xl bg-white/60 dark:bg-black/30 backdrop-blur-lg border border-white/30 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-white/70 dark:focus:bg-black/40 transition-all duration-200 resize-none"
       />
     </div>
   );
