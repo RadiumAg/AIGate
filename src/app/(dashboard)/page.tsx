@@ -9,7 +9,7 @@ import RecentIpRequests from '@/app/(dashboard)/components/recent-ip-requests';
 import StatCard from './components/stat-card';
 import RecentActivity from './components/recent-activity';
 import DateRangePicker from '@/components/date-range-picker';
-import { DatePickerWithRange } from '@/components/date-picker-with-range';
+import DatePickerWithRange from '@/components/date-picker-with-range';
 import { Users, BarChart3, Coins, UserCheck } from 'lucide-react';
 
 const HomePage: React.FC = () => {
