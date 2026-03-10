@@ -18,12 +18,12 @@ interface DatePickerWithRangeProps {
   className?: string;
 }
 
-export function DatePickerWithRange({
+const DatePickerWithRange: React.FC<DatePickerWithRangeProps> = ({
   startDate,
   endDate,
-  onDateRangeChange,
   className,
-}: DatePickerWithRangeProps) {
+  onDateRangeChange,
+}) => {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: startDate,
     to: endDate,
@@ -87,4 +87,6 @@ export function DatePickerWithRange({
       </Popover>
     </div>
   );
-}
+};
+
+export default DatePickerWithRange;
