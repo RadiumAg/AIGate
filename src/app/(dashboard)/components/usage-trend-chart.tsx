@@ -50,6 +50,20 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
           gridColor: '#374151',
           tooltipBg: 'rgba(30, 30, 36, 0.95)',
           borderColor: '#4b5563',
+          // 系列颜色
+          requestsColor: '#60a5fa',
+          requestsYAxisColor: '#60a5fa',
+          tokensColor: '#34d399',
+          tokensYAxisColor: '#34d399',
+          // 数据点边框
+          itemBorderColor: '#1e1e24',
+          // 阴影和渐变
+          requestsShadow: 'rgba(96, 165, 250, 0.4)',
+          requestsGradientStart: 'rgba(96, 165, 250, 0.3)',
+          requestsGradientEnd: 'rgba(96, 165, 250, 0.05)',
+          tokensShadow: 'rgba(52, 211, 153, 0.4)',
+          tokensGradientStart: 'rgba(52, 211, 153, 0.3)',
+          tokensGradientEnd: 'rgba(52, 211, 153, 0.05)',
         }
       : {
           backgroundColor: 'transparent',
@@ -58,6 +72,20 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
           gridColor: '#f3f4f6',
           tooltipBg: 'rgba(255, 255, 255, 0.95)',
           borderColor: '#e5e7eb',
+          // 系列颜色
+          requestsColor: '#3b82f6',
+          requestsYAxisColor: '#1890ff',
+          tokensColor: '#10b981',
+          tokensYAxisColor: '#52c41a',
+          // 数据点边框
+          itemBorderColor: '#ffffff',
+          // 阴影和渐变
+          requestsShadow: 'rgba(59, 130, 246, 0.3)',
+          requestsGradientStart: 'rgba(59, 130, 246, 0.2)',
+          requestsGradientEnd: 'rgba(59, 130, 246, 0.02)',
+          tokensShadow: 'rgba(16, 185, 129, 0.3)',
+          tokensGradientStart: 'rgba(16, 185, 129, 0.2)',
+          tokensGradientEnd: 'rgba(16, 185, 129, 0.02)',
         };
 
     const option = {
@@ -131,7 +159,7 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
           name: '请求数（次）',
           position: 'left',
           nameTextStyle: {
-            color: isDarkMode ? '#60a5fa' : '#1890ff',
+            color: themeConfig.requestsYAxisColor,
             fontSize: 12,
             fontWeight: '500',
           },
@@ -163,7 +191,7 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
           name: 'Token（个）',
           position: 'right',
           nameTextStyle: {
-            color: isDarkMode ? '#34d399' : '#52c41a',
+            color: themeConfig.tokensYAxisColor,
             fontSize: 12,
             fontWeight: '500',
           },
@@ -201,25 +229,25 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
           symbolSize: 6,
           showSymbol: true,
           lineStyle: {
-            color: isDarkMode ? '#60a5fa' : '#3b82f6',
+            color: themeConfig.requestsColor,
             width: 3,
           },
           itemStyle: {
-            color: isDarkMode ? '#60a5fa' : '#3b82f6',
-            borderColor: isDarkMode ? '#1e1e24' : '#ffffff',
+            color: themeConfig.requestsColor,
+            borderColor: themeConfig.itemBorderColor,
             borderWidth: 2,
-            shadowColor: isDarkMode ? 'rgba(96, 165, 250, 0.4)' : 'rgba(59, 130, 246, 0.3)',
+            shadowColor: themeConfig.requestsShadow,
             shadowBlur: 6,
           },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               {
                 offset: 0,
-                color: isDarkMode ? 'rgba(96, 165, 250, 0.3)' : 'rgba(59, 130, 246, 0.2)',
+                color: themeConfig.requestsGradientStart,
               },
               {
                 offset: 1,
-                color: isDarkMode ? 'rgba(96, 165, 250, 0.05)' : 'rgba(59, 130, 246, 0.02)',
+                color: themeConfig.requestsGradientEnd,
               },
             ]),
           },
@@ -234,25 +262,25 @@ const UsageTrendChart: React.FC<UsageTrendChartProps> = (props) => {
           symbolSize: 6,
           showSymbol: true,
           lineStyle: {
-            color: isDarkMode ? '#34d399' : '#10b981',
+            color: themeConfig.tokensColor,
             width: 3,
           },
           itemStyle: {
-            color: isDarkMode ? '#34d399' : '#10b981',
-            borderColor: isDarkMode ? '#1e1e24' : '#ffffff',
+            color: themeConfig.tokensColor,
+            borderColor: themeConfig.itemBorderColor,
             borderWidth: 2,
-            shadowColor: isDarkMode ? 'rgba(52, 211, 153, 0.4)' : 'rgba(16, 185, 129, 0.3)',
+            shadowColor: themeConfig.tokensShadow,
             shadowBlur: 6,
           },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               {
                 offset: 0,
-                color: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : 'rgba(16, 185, 129, 0.2)',
+                color: themeConfig.tokensGradientStart,
               },
               {
                 offset: 1,
-                color: isDarkMode ? 'rgba(52, 211, 153, 0.05)' : 'rgba(16, 185, 129, 0.02)',
+                color: themeConfig.tokensGradientEnd,
               },
             ]),
           },
