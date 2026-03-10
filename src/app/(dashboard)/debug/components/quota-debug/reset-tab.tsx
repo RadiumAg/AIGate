@@ -19,12 +19,8 @@ const ResetTab: React.FC<ResetTabProps> = ({ userId, apiKeyId, result, onReset, 
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-foreground">
-            重置配额 (resetQuota)
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            重置用户今日的配额计数（谨慎操作）
-          </p>
+          <h3 className="text-sm font-medium text-foreground">重置配额 (resetQuota)</h3>
+          <p className="text-xs text-muted-foreground">重置用户今日的配额计数（谨慎操作）</p>
         </div>
         <Button
           onClick={onReset}

@@ -100,7 +100,7 @@ const PolicyForm: React.FC<PolicyFormProps> = (props) => {
         </Field>
       </FieldGroup>
 
-      <FieldSet className="border-t border-gray-200 dark:border-gray-600 pt-4">
+      <FieldSet className="border-t border-white/20 dark:border-white/10 pt-4">
         <FieldLegend variant="label">配额限制</FieldLegend>
         <FieldGroup>
           <Field>

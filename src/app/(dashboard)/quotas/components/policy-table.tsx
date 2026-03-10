@@ -34,15 +34,13 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
       {
         accessorKey: 'name',
         header: '策略名称',
-        cell: ({ row }) => (
-          <span className="font-medium text-gray-900 dark:text-white">{row.original.name}</span>
-        ),
+        cell: ({ row }) => <span className="font-medium text-foreground">{row.original.name}</span>,
       },
       {
         accessorKey: 'description',
         header: '描述',
         cell: ({ row }) => (
-          <span className="text-gray-500 dark:text-gray-300 max-w-xs truncate block">
+          <span className="text-muted-foreground max-w-xs truncate block">
             {row.original.description || '-'}
           </span>
         ),
@@ -54,10 +52,10 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
           const policy = row.original;
           return (
             <span
-              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+              className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium backdrop-blur-sm ${
                 policy.limitType === 'token'
-                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                  : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                  ? 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/30'
+                  : 'bg-green-500/15 text-green-700 dark:text-green-300 border border-green-500/30'
               }`}
             >
               {policy.limitType === 'token' ? 'Token 限制' : '请求次数'}
@@ -72,13 +70,13 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
           const policy = row.original;
           if (policy.limitType === 'token') {
             return (
-              <span className="text-gray-900 dark:text-white">
+              <span className="text-foreground">
                 {policy.dailyTokenLimit?.toLocaleString() || '-'} Tokens
               </span>
             );
           } else {
             return (
-              <span className="text-gray-900 dark:text-white">
+              <span className="text-foreground">
                 {policy.dailyRequestLimit?.toLocaleString() || '-'} 次
               </span>
             );
@@ -92,20 +90,18 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
           const policy = row.original;
           if (policy.limitType === 'token' && policy.monthlyTokenLimit) {
             return (
-              <span className="text-gray-900 dark:text-white">
+              <span className="text-foreground">
                 {policy.monthlyTokenLimit.toLocaleString()} Tokens
               </span>
             );
           }
-          return <span className="text-gray-400 dark:text-gray-500">-</span>;
+          return <span className="text-muted-foreground/60">-</span>;
         },
       },
       {
         accessorKey: 'rpmLimit',
         header: 'RPM 限制',
-        cell: ({ row }) => (
-          <span className="text-gray-900 dark:text-white">{row.original.rpmLimit}</span>
-        ),
+        cell: ({ row }) => <span className="text-foreground">{row.original.rpmLimit}</span>,
       },
       {
         accessorKey: 'createdAt',
@@ -129,7 +125,7 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
                 size="sm"
                 onClick={() => onEdit(policy)}
                 disabled={isLoading}
-                className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:text-indigo-300 dark:hover:bg-indigo-900/20"
+                className="text-primary hover:text-primary/80 hover:bg-primary/10"
               >
                 编辑
               </Button>
@@ -138,7 +134,7 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
                 size="sm"
                 onClick={() => onDelete(policy.id)}
                 disabled={isLoading}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+                className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
               >
                 删除
               </Button>
@@ -150,7 +146,11 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
     [onEdit, onDelete, isLoading]
   );
 
-  const emptyIcon = <FileText className="h-12 w-12 text-gray-400" />;
+  const emptyIcon = (
+    <div className="w-16 h-16 rounded-2xl backdrop-blur-lg bg-white/40 dark:bg-white/5 border border-white/30 dark:border-white/10 flex items-center justify-center">
+      <FileText className="h-8 w-8 text-muted-foreground/60" />
+    </div>
+  );
 
   return (
     <DataTable

@@ -18,9 +18,7 @@ const UsageTab: React.FC<UsageTabProps> = ({ userId, apiKeyId, result, onGetUsag
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-foreground">
-            获取使用情况 (getUserUsage)
-          </h3>
+          <h3 className="text-sm font-medium text-foreground">获取使用情况 (getUserUsage)</h3>
           <p className="text-xs text-muted-foreground">获取用户今日的使用统计</p>
         </div>
         <Button onClick={onGetUsage} disabled={isLoading || !userId || !apiKeyId} size="sm">
@@ -42,15 +40,11 @@ const UsageTab: React.FC<UsageTabProps> = ({ userId, apiKeyId, result, onGetUsag
             <div className="grid grid-cols-2 gap-4">
               <div className="p-3 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 text-center">
                 <p className="text-xs text-muted-foreground">已用 Tokens</p>
-                <p className="text-xl font-semibold text-foreground">
-                  {result.tokensUsed || 0}
-                </p>
+                <p className="text-xl font-semibold text-foreground">{result.tokensUsed || 0}</p>
               </div>
               <div className="p-3 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 text-center">
                 <p className="text-xs text-muted-foreground">今日请求数</p>
-                <p className="text-xl font-semibold text-foreground">
-                  {result.requestsToday || 0}
-                </p>
+                <p className="text-xl font-semibold text-foreground">{result.requestsToday || 0}</p>
               </div>
             </div>
             {result.policy && (

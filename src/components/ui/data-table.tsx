@@ -91,13 +91,13 @@ const DataTable = <TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="bg-white dark:bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-md dark:shadow-lg overflow-hidden border border-gray-200 dark:border-slate-700">
+      <div className="rounded-2xl backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] overflow-hidden">
         <Table>
-          <TableHeader className="bg-gray-50 dark:bg-slate-800/50">
+          <TableHeader className="bg-white/30 dark:bg-white/5 backdrop-blur-lg">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent dark:hover:bg-transparent">
+              <TableRow key={headerGroup.id} className="hover:bg-transparent dark:hover:bg-transparent border-b border-white/20 dark:border-white/10">
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                  <TableHead key={header.id} className="text-xs font-semibold uppercase tracking-wider text-foreground/70">
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -109,13 +109,13 @@ const DataTable = <TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow 
-                  key={row.id} 
+                <TableRow
+                  key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className="dark:bg-slate-900/30 dark:hover:bg-slate-800/50"
+                  className="border-b border-white/10 dark:border-white/5 hover:bg-white/30 dark:hover:bg-white/10 transition-all duration-200"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="dark:text-gray-200">
+                    <TableCell key={cell.id} className="text-foreground/90">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -125,11 +125,11 @@ const DataTable = <TData, TValue>({
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
                   <div className="flex flex-col items-center justify-center py-8">
-                    {emptyIcon && <div className="mb-2">{emptyIcon}</div>}
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {emptyIcon && <div className="mb-4">{emptyIcon}</div>}
+                    <h3 className="text-sm font-medium text-foreground">
                       {emptyMessage}
                     </h3>
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    <p className="mt-1 text-sm text-muted-foreground">
                       {emptyDescription}
                     </p>
                   </div>

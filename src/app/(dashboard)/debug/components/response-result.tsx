@@ -68,9 +68,7 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
           <div className="space-y-4">
             {/* AI 回复 */}
             <div>
-              <label className="block text-sm font-medium text-foreground/80 mb-2">
-                AI 回复
-              </label>
+              <label className="block text-sm font-medium text-foreground/80 mb-2">AI 回复</label>
               <div className="p-4 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
                 <p className="text-foreground whitespace-pre-wrap font-mono text-sm">
                   {response.choices?.[0]?.message?.content || '无回复内容'}
@@ -205,9 +203,7 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
             <div className="mx-auto w-16 h-16 rounded-2xl backdrop-blur-lg bg-white/40 dark:bg-white/5 border border-white/30 dark:border-white/10 flex items-center justify-center mb-4">
               <MessageSquare className="h-8 w-8 text-muted-foreground/60" />
             </div>
-            <p className="text-sm text-muted-foreground">
-              配置请求参数后点击发送请求查看响应结果
-            </p>
+            <p className="text-sm text-muted-foreground">配置请求参数后点击发送请求查看响应结果</p>
           </div>
         )}
       </div>

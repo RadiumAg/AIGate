@@ -35,7 +35,9 @@ const CodeModal: React.FC<CodeModalProps> = (props) => {
           <div className="mt-4 p-3 rounded-xl backdrop-blur-lg bg-blue-500/10 dark:bg-blue-500/10 border border-blue-500/30">
             <p className="text-sm text-blue-700 dark:text-blue-300">
               <strong>说明：</strong> 此代码使用 AIGate 系统中已配置的 API Key，通过
-              <code className="bg-blue-200/50 dark:bg-blue-500/30 px-1 rounded">X-API-Key-ID</code>{' '}
+              <code className="bg-blue-200/50 dark:bg-blue-500/30 px-1 rounded">
+                X-API-Key-ID
+              </code>{' '}
               头部字段指定要使用的 API Key。
             </p>
           </div>

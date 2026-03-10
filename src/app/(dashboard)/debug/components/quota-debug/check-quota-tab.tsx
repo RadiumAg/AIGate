@@ -24,12 +24,8 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-foreground">
-            检查配额 (checkQuota)
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            检查用户是否有足够的配额进行请求
-          </p>
+          <h3 className="text-sm font-medium text-foreground">检查配额 (checkQuota)</h3>
+          <p className="text-xs text-muted-foreground">检查用户是否有足够的配额进行请求</p>
         </div>
         <Button onClick={onCheck} disabled={isLoading || !userId || !apiKeyId} size="sm">
           {isLoading ? (
@@ -72,9 +68,7 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
               </div>
               {result.policy && (
                 <div className="mt-3 p-3 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10">
-                  <p className="text-xs font-medium text-foreground/70 mb-2">
-                    配额策略
-                  </p>
+                  <p className="text-xs font-medium text-foreground/70 mb-2">配额策略</p>
                   <div className="text-xs space-y-1">
                     <div>
                       <span className="text-muted-foreground">策略名称:</span>
@@ -104,13 +98,17 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
                   {result.remainingTokens !== undefined && (
                     <div>
                       <span className="text-muted-foreground">剩余 Tokens:</span>
-                      <span className="ml-2 font-mono text-foreground">{result.remainingTokens}</span>
+                      <span className="ml-2 font-mono text-foreground">
+                        {result.remainingTokens}
+                      </span>
                     </div>
                   )}
                   {result.remainingRequests !== undefined && (
                     <div>
                       <span className="text-muted-foreground">剩余请求次数:</span>
-                      <span className="ml-2 font-mono text-foreground">{result.remainingRequests}</span>
+                      <span className="ml-2 font-mono text-foreground">
+                        {result.remainingRequests}
+                      </span>
                     </div>
                   )}
                 </div>

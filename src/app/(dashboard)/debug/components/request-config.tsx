@@ -292,9 +292,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
 
         {/* 预设示例 */}
         <div>
-          <label className="block text-sm font-medium text-foreground/80 mb-2">
-            快速示例
-          </label>
+          <label className="block text-sm font-medium text-foreground/80 mb-2">快速示例</label>
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" size="sm" onClick={() => loadExample('simple')}>
               简单对话

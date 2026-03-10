@@ -119,15 +119,11 @@ const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
           <div className="text-sm space-y-1">
             <div>
               <span className="text-muted-foreground">User ID:</span>
-              <span className="ml-2 font-mono text-foreground">
-                {userId || '未设置'}
-              </span>
+              <span className="ml-2 font-mono text-foreground">{userId || '未设置'}</span>
             </div>
             <div>
               <span className="text-muted-foreground">API Key ID:</span>
-              <span className="ml-2 font-mono text-foreground">
-                {apiKeyId || '未选择'}
-              </span>
+              <span className="ml-2 font-mono text-foreground">{apiKeyId || '未选择'}</span>
             </div>
           </div>
         </div>
