@@ -190,23 +190,25 @@ const HomePage: React.FC = () => {
         />
       </div>
 
-      {/* Charts - Enhanced Liquid Glass */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts - Side by Side Layout */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* 近期请求趋势 */}
         <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
           <h2 className="text-lg font-semibold text-foreground mb-4">近期请求趋势</h2>
           <UsageTrendChart data={usageTrend || []} loading={trendLoading} />
         </div>
 
+        {/* 模型使用分布 */}
         <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
           <h2 className="text-lg font-semibold text-foreground mb-4">模型使用分布</h2>
           <ModelDistributionChart data={modelDistribution || []} loading={distributionLoading} />
         </div>
-      </div>
 
-      {/* Region Heatmap - Enhanced Liquid Glass */}
-      <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
-        <h2 className="text-lg font-semibold text-foreground mb-4">请求地区分布</h2>
-        <RegionHeatmapChart data={regionDistribution || []} loading={regionLoading} />
+        {/* 请求地区分布 */}
+        <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
+          <h2 className="text-lg font-semibold text-foreground mb-4">请求地区分布</h2>
+          <RegionHeatmapChart data={regionDistribution || []} loading={regionLoading} />
+        </div>
       </div>
 
       {/* Recent IP Requests - Enhanced Liquid Glass */}
