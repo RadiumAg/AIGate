@@ -31,22 +31,18 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
       {
         accessorKey: 'name',
         header: '名称',
-        cell: ({ row }) => (
-          <span className="font-medium text-gray-900 dark:text-white">{row.original.name}</span>
-        ),
+        cell: ({ row }) => <span className="font-medium text-foreground">{row.original.name}</span>,
       },
       {
         accessorKey: 'provider',
         header: '服务商',
-        cell: ({ row }) => (
-          <span className="text-gray-500 dark:text-white">{row.original.provider}</span>
-        ),
+        cell: ({ row }) => <span className="text-muted-foreground">{row.original.provider}</span>,
       },
       {
         accessorKey: 'apiKeyId',
         header: 'API Key Id',
         cell: ({ row }) => (
-          <div className="flex items-center text-gray-500 dark:text-white">
+          <div className="flex items-center text-muted-foreground">
             <span className="mr-2">{row.original.id}</span>
             <Button
               variant="ghost"
@@ -80,13 +76,13 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
         accessorKey: 'baseUrl',
         header: 'Base URL',
         cell: ({ row }) => (
-          <div className="text-gray-500 dark:text-white max-w-xs">
+          <div className="text-muted-foreground max-w-xs">
             {row.original.baseUrl ? (
               <span className="truncate block" title={row.original.baseUrl}>
                 {row.original.baseUrl}
               </span>
             ) : (
-              <span className="text-gray-400 italic">默认</span>
+              <span className="text-muted-foreground/60 italic">默认</span>
             )}
           </div>
         ),
@@ -94,15 +90,13 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
       {
         accessorKey: 'createdAt',
         header: '创建时间',
-        cell: ({ row }) => (
-          <span className="text-gray-500 dark:text-white">{row.original.createdAt}</span>
-        ),
+        cell: ({ row }) => <span className="text-muted-foreground">{row.original.createdAt}</span>,
       },
       {
         accessorKey: 'lastUsed',
         header: '最后使用',
         cell: ({ row }) => (
-          <span className="text-gray-500 dark:text-gray-400">{row.original.lastUsed || '-'}</span>
+          <span className="text-muted-foreground/80">{row.original.lastUsed || '-'}</span>
         ),
       },
       {
@@ -110,10 +104,10 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
         header: '状态',
         cell: ({ row }) => (
           <span
-            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+            className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-lg backdrop-blur-sm ${
               row.original.status === 'active'
-                ? 'bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-100'
-                : 'bg-danger-100 text-danger-800 dark:bg-danger-900 dark:text-danger-100'
+                ? 'bg-green-500/15 text-green-700 dark:text-green-300 border border-green-500/30'
+                : 'bg-red-500/15 text-red-700 dark:text-red-300 border border-red-500/30'
             }`}
           >
             {row.original.status === 'active' ? '活跃' : '禁用'}
@@ -135,7 +129,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                   size="sm"
                   onClick={() => onTest(key)}
                   disabled={isTesting}
-                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  className="text-blue-500 hover:text-blue-600 hover:bg-blue-500/10"
                 >
                   {isTesting ? (
                     <>
@@ -151,7 +145,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                 variant="ghost"
                 size="sm"
                 onClick={() => onToggleStatus(key.id)}
-                className="text-primary hover:text-(--primary)/80 dark:text-blue-400 dark:hover:text-blue-300"
+                className="text-primary hover:text-primary/80 hover:bg-primary/10"
               >
                 {key.status === 'active' ? '禁用' : '启用'}
               </Button>
@@ -159,7 +153,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                 variant="ghost"
                 size="sm"
                 onClick={() => onEdit(key)}
-                className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:text-indigo-300 dark:hover:bg-indigo-900/20"
+                className="text-indigo-500 hover:text-indigo-600 hover:bg-indigo-500/10"
               >
                 编辑
               </Button>
@@ -167,7 +161,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                 variant="ghost"
                 size="sm"
                 onClick={() => onDelete(key.id)}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+                className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
               >
                 删除
               </Button>
@@ -179,7 +173,11 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
     [onEdit, onDelete, onToggleStatus, onTest, isTestingId]
   );
 
-  const emptyIcon = <KeyRound className="h-12 w-12 text-gray-400" />;
+  const emptyIcon = (
+    <div className="w-16 h-16 rounded-2xl backdrop-blur-lg bg-white/40 dark:bg-white/5 border border-white/30 dark:border-white/10 flex items-center justify-center">
+      <KeyRound className="h-8 w-8 text-muted-foreground/60" />
+    </div>
+  );
 
   return (
     <DataTable

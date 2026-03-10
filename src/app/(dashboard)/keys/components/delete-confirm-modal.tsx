@@ -19,13 +19,15 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = (props) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="rounded-2xl p-6 max-w-md w-full mx-4 backdrop-blur-2xl bg-white/80 dark:bg-black/60 border border-white/30 dark:border-white/10 shadow-[0_24px_48px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.4)]">
         <div className="flex items-center mb-4">
-          <AlertTriangle className="w-6 h-6 text-red-500 mr-3" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">确认删除</h3>
+          <div className="p-2 rounded-xl bg-red-500/20 backdrop-blur-sm mr-3">
+            <AlertTriangle className="w-6 h-6 text-red-500" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground">确认删除</h3>
         </div>
-        <p className="text-gray-600 dark:text-gray-300 mb-6">
+        <p className="text-muted-foreground mb-6">
           确定要删除 API Key &quot;{keyName}&quot; 吗？此操作不可撤销。
         </p>
         <div className="flex justify-end space-x-3">

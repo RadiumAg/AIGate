@@ -374,7 +374,7 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
         </Field>
       </FieldGroup>
 
-      <FieldSet className="border-t border-gray-200 dark:border-gray-600 pt-4">
+      <FieldSet className="border-t border-white/20 dark:border-white/10 pt-4">
         <FieldLegend variant="label">UserId 格式生成规则</FieldLegend>
         <Field>
           <FieldLabel>UserId 格式生成规则 (userIdPattern)</FieldLabel>
@@ -396,7 +396,7 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
               placeholder="输入 @ 可快速选择预设模板（如 @ip 、 @user_id 、 @any）"
             />
             {showUserIdPresets && filteredUserIdPresets.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+              <div className="absolute z-10 w-full mt-1 rounded-xl backdrop-blur-xl bg-white/90 dark:bg-black/70 border border-white/30 dark:border-white/10 shadow-[0_16px_48px_rgba(0,0,0,0.15)] max-h-64 overflow-y-auto">
                 {filteredUserIdPresets.map((preset, index) => (
                   <button
                     key={preset.trigger}
@@ -406,14 +406,12 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
                       index === selectedUserIdPresetIndex ? 'bg-accent' : 'hover:bg-muted'
                     }`}
                   >
-                    <code className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 whitespace-nowrap mt-0.5">
+                    <code className="text-xs font-semibold text-indigo-500 dark:text-indigo-400 whitespace-nowrap mt-0.5">
                       {preset.label}
                     </code>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm text-gray-800 dark:text-gray-200">
-                        {preset.description}
-                      </p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">
+                      <p className="text-sm text-foreground">{preset.description}</p>
+                      <p className="text-xs text-muted-foreground truncate mt-0.5">
                         {preset.pattern}
                       </p>
                     </div>
@@ -428,7 +426,7 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
         </Field>
       </FieldSet>
 
-      <FieldSet className="border-t border-gray-200 dark:border-gray-600 pt-4">
+      <FieldSet className="border-t border-white/20 dark:border-white/10 pt-4">
         <FieldLegend variant="label">用户UserId校验规则</FieldLegend>
         <FieldGroup>
           <Field orientation="horizontal">
@@ -471,7 +469,7 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
                   placeholder="输入正则表达式，或输入 @ 选择预设模板"
                 />
                 {showPresets && filteredPresets.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                  <div className="absolute z-10 w-full mt-1 rounded-xl backdrop-blur-xl bg-white/90 dark:bg-black/70 border border-white/30 dark:border-white/10 shadow-[0_16px_48px_rgba(0,0,0,0.15)] max-h-64 overflow-y-auto">
                     {filteredPresets.map((preset, index) => (
                       <button
                         key={preset.trigger}
@@ -481,14 +479,12 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
                           index === selectedPresetIndex ? 'bg-accent' : 'hover:bg-muted'
                         }`}
                       >
-                        <code className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 whitespace-nowrap mt-0.5">
+                        <code className="text-xs font-semibold text-indigo-500 dark:text-indigo-400 whitespace-nowrap mt-0.5">
                           {preset.label}
                         </code>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm text-gray-800 dark:text-gray-200">
-                            {preset.description}
-                          </p>
-                          <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">
+                          <p className="text-sm text-foreground">{preset.description}</p>
+                          <p className="text-xs text-muted-foreground truncate mt-0.5">
                             {preset.pattern}
                           </p>
                         </div>
@@ -499,13 +495,21 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
               </div>
               <FieldDescription>
                 {'输入 '}
-                <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">@</code>
+                <code className="bg-white/60 dark:bg-black/40 px-1 rounded-lg border border-white/30 dark:border-white/10">
+                  @
+                </code>
                 {' 可快速选择预设模板（如 '}
-                <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">@ip</code>
+                <code className="bg-white/60 dark:bg-black/40 px-1 rounded-lg border border-white/30 dark:border-white/10">
+                  @ip
+                </code>
                 {'、'}
-                <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">@email</code>
+                <code className="bg-white/60 dark:bg-black/40 px-1 rounded-lg border border-white/30 dark:border-white/10">
+                  @email
+                </code>
                 {'、'}
-                <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">@origin</code>
+                <code className="bg-white/60 dark:bg-black/40 px-1 rounded-lg border border-white/30 dark:border-white/10">
+                  @origin
+                </code>
                 {'），也可直接输入正则表达式'}
               </FieldDescription>
             </Field>
