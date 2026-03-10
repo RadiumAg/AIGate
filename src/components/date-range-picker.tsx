@@ -56,7 +56,12 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
           <Button
             variant="outline"
             className={cn(
-              'w-45 justify-start text-left font-normal',
+              'w-45 justify-start text-left font-normal rounded-xl',
+              'bg-white/40 dark:bg-white/5 backdrop-blur-lg backdrop-saturate-[1.5]',
+              'border border-white/25 dark:border-white/10',
+              'shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.3)]',
+              'hover:bg-white/50 dark:hover:bg-white/10 hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)]',
+              'transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
               !getDateRangeLabel() && 'text-muted-foreground'
             )}
           >
@@ -65,13 +70,19 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
             <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-45 p-2" align="start">
+        <PopoverContent 
+          className="w-45 p-2 rounded-2xl backdrop-blur-2xl bg-white/80 dark:bg-black/40 border border-white/30 dark:border-white/15 shadow-[0_16px_48px_rgba(0,0,0,0.15),inset_1px_1px_0_rgba(255,255,255,0.5)]" 
+          align="start"
+        >
           <div className="space-y-1">
             {presets.map((preset) => (
               <Button
                 key={preset.value}
-                variant={dateRange === preset.value ? 'default' : 'ghost'}
-                className="w-full justify-start"
+                variant={dateRange === preset.value ? 'glass' : 'ghost'}
+                className={cn(
+                  "w-full justify-start rounded-xl transition-all duration-200",
+                  dateRange !== preset.value && "hover:bg-white/30 dark:hover:bg-white/10 hover:backdrop-blur-sm"
+                )}
                 onClick={() => handlePresetSelect(preset.value)}
               >
                 {preset.label}

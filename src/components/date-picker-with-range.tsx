@@ -44,7 +44,12 @@ export function DatePickerWithRange({
             id="date"
             variant={'outline'}
             className={cn(
-              'w-75 justify-start text-left font-normal',
+              'w-75 justify-start text-left font-normal rounded-xl',
+              'bg-white/40 dark:bg-white/5 backdrop-blur-lg backdrop-saturate-[1.5]',
+              'border border-white/25 dark:border-white/10',
+              'shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.3)]',
+              'hover:bg-white/50 dark:hover:bg-white/10 hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)]',
+              'transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
               !date && 'text-muted-foreground'
             )}
           >
@@ -63,7 +68,10 @@ export function DatePickerWithRange({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent
+          className="w-auto p-0 rounded-2xl backdrop-blur-2xl bg-white/80 dark:bg-black/40 border border-white/30 dark:border-white/15 shadow-[0_16px_48px_rgba(0,0,0,0.15),inset_1px_1px_0_rgba(255,255,255,0.5)]"
+          align="start"
+        >
           <Calendar
             initialFocus
             mode="range"
@@ -73,7 +81,7 @@ export function DatePickerWithRange({
             numberOfMonths={2}
             locale={zhCN}
             showOutsideDays={false}
-            className="rounded-md border"
+            className="rounded-2xl"
           />
         </PopoverContent>
       </Popover>

@@ -104,13 +104,14 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">仪表板</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">欢迎来到 AIGate 管理后台</p>
+      {/* Header with Liquid Glass */}
+      <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/60 dark:bg-black/30 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)]">
+        <h1 className="text-2xl font-bold text-foreground">仪表板</h1>
+        <p className="text-muted-foreground mt-2">欢迎来到 AIGate 管理后台</p>
       </div>
 
-      {/* 日期筛选器 */}
-      <div className="flex justify-between items-center">
+      {/* 日期筛选器 - Liquid Glass */}
+      <div className="flex justify-between items-center rounded-xl p-4 backdrop-blur-lg bg-white/40 dark:bg-white/5 border border-white/25 dark:border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
         <div className="flex items-center gap-4">
           <DateRangePicker dateRange={dateRange} setDateRange={setDateRange} />
           {dateRange === 'custom' && (
@@ -124,7 +125,7 @@ const HomePage: React.FC = () => {
             />
           )}
         </div>
-        <div className="text-sm text-muted-foreground" suppressHydrationWarning>
+        <div className="text-sm text-muted-foreground font-medium" suppressHydrationWarning>
           数据更新时间: {currentTime}
         </div>
       </div>
@@ -189,33 +190,33 @@ const HomePage: React.FC = () => {
         />
       </div>
 
-      {/* Charts */}
+      {/* Charts - Enhanced Liquid Glass */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="rounded-2xl p-6 backdrop-blur-md bg-card border border-(--card-border) shadow-(--card-shadow)">
+        <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
           <h2 className="text-lg font-semibold text-foreground mb-4">近期请求趋势</h2>
           <UsageTrendChart data={usageTrend || []} loading={trendLoading} />
         </div>
 
-        <div className="rounded-2xl p-6 backdrop-blur-md bg-card border border-(--card-border) shadow-(--card-shadow)">
+        <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
           <h2 className="text-lg font-semibold text-foreground mb-4">模型使用分布</h2>
           <ModelDistributionChart data={modelDistribution || []} loading={distributionLoading} />
         </div>
       </div>
 
-      {/* Region Heatmap */}
-      <div className="rounded-2xl p-6 backdrop-blur-md bg-card border border-(--card-border) shadow-(--card-shadow)">
+      {/* Region Heatmap - Enhanced Liquid Glass */}
+      <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
         <h2 className="text-lg font-semibold text-foreground mb-4">请求地区分布</h2>
         <RegionHeatmapChart data={regionDistribution || []} loading={regionLoading} />
       </div>
 
-      {/* Recent IP Requests */}
-      <div className="rounded-2xl p-6 backdrop-blur-md bg-card border border-(--card-border) shadow-(--card-shadow)">
+      {/* Recent IP Requests - Enhanced Liquid Glass */}
+      <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
         <h2 className="text-lg font-semibold text-foreground mb-4">最近 IP 请求记录</h2>
         <RecentIpRequests data={recentIpRequests || []} loading={ipRequestsLoading} />
       </div>
 
-      {/* Recent Activity */}
-      <div className="rounded-2xl p-6 backdrop-blur-md bg-card border border-(--card-border) shadow-(--card-shadow)">
+      {/* Recent Activity - Enhanced Liquid Glass */}
+      <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
         <h2 className="text-lg font-semibold text-foreground mb-4">最近活动</h2>
         <RecentActivity activities={activities || []} isLoading={activitiesLoading} />
       </div>
