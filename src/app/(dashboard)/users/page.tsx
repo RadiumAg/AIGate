@@ -8,6 +8,7 @@ import WhitelistRuleTable from './components/whitelist-rule-table';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { confirm } from '@/components/ui/confirm';
+import { toast } from 'sonner';
 
 interface WhitelistRule {
   id: string;
@@ -34,6 +35,10 @@ const UsersPage: React.FC = () => {
       refetchRules();
       setIsDialogOpen(false);
       setEditingRule(null);
+      toast.success('白名单规则创建成功');
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : '创建失败');
     },
   });
 
@@ -43,6 +48,10 @@ const UsersPage: React.FC = () => {
       refetchRules();
       setIsDialogOpen(false);
       setEditingRule(null);
+      toast.success('白名单规则更新成功');
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : '更新失败');
     },
   });
 
@@ -50,6 +59,10 @@ const UsersPage: React.FC = () => {
   const deleteRuleMutation = trpc.whitelist.delete.useMutation({
     onSuccess: () => {
       refetchRules();
+      toast.success('白名单规则删除成功');
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : '删除失败');
     },
   });
 
@@ -57,6 +70,10 @@ const UsersPage: React.FC = () => {
   const toggleStatusMutation = trpc.whitelist.toggleStatus.useMutation({
     onSuccess: () => {
       refetchRules();
+      toast.success('白名单规则状态切换成功');
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : '状态切换失败');
     },
   });
 
