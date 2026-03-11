@@ -43,7 +43,7 @@ const KeysPage: React.FC = () => {
       confirm({
         title: '确定要删除这个 API Key 吗？',
         onConfirm: () => {
-          return deleteMutation.mutate({ id });
+          deleteMutation.mutate({ id });
         },
       }).catch((error) => {
         toast.error(error instanceof Error ? error.message : '删除失败');
