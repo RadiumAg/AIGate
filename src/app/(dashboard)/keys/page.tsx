@@ -9,7 +9,7 @@ import DeleteConfirmModal from './components/delete-confirm-modal';
 import AddApiKeyDialog from './components/add-api-key-dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 const KeysPage: React.FC = () => {
   // tRPC hooks
@@ -31,21 +31,12 @@ const KeysPage: React.FC = () => {
     keyId: '',
     keyName: '',
   });
-  const [error, setError] = React.useState<string | null>(null);
-
-  // 清除错误消息
-  const clearError = () => {
-    setError(null);
-  };
-
   const handleAddKey = () => {
-    clearError();
     setEditingKey(null);
     setShowDialog(true);
   };
 
   const handleEditKey = (key: ApiKey) => {
-    clearError();
     setEditingKey(key);
     setShowDialog(true);
   };
@@ -68,7 +59,7 @@ const KeysPage: React.FC = () => {
       setDeleteModal({ isOpen: false, keyId: '', keyName: '' });
       refetch();
     } catch (error) {
-      setError(error instanceof Error ? error.message : '删除失败');
+      toast.error(error instanceof Error ? error.message : '删除失败');
     }
   };
 
@@ -78,7 +69,7 @@ const KeysPage: React.FC = () => {
       toast.success('状态切换成功');
       refetch();
     } catch (error) {
-      setError(error instanceof Error ? error.message : '状态切换失败');
+      toast.error(error instanceof Error ? error.message : '状态切换失败');
     }
   };
 
@@ -99,7 +90,7 @@ const KeysPage: React.FC = () => {
       setEditingKey(null);
       refetch();
     } catch (error) {
-      setError(error instanceof Error ? error.message : '保存失败');
+      toast.error(error instanceof Error ? error.message : '保存失败');
     }
   };
 
@@ -112,24 +103,6 @@ const KeysPage: React.FC = () => {
           添加密钥
         </Button>
       </div>
-
-      {/* 错误提示 */}
-      {error && (
-        <div className="p-4 rounded-xl backdrop-blur-lg bg-red-500/10 dark:bg-red-500/10 border border-red-500/30">
-          <div className="flex items-center">
-            <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
-            <span className="text-sm text-red-700 dark:text-red-300">{error}</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={clearError}
-              className="ml-auto h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-500/10"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      )}
 
       {isLoading ? (
         <div className="rounded-2xl p-8 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]">
@@ -160,7 +133,6 @@ const KeysPage: React.FC = () => {
         onOpenChange={(open) => {
           setShowDialog(open);
           if (!open) {
-            clearError();
             setEditingKey(null);
           }
         }}
