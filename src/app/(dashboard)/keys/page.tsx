@@ -52,7 +52,7 @@ const KeysPage: React.FC = () => {
   };
 
   const handleDeleteKey = (id: string) => {
-    const key = keys.find((k) => k.id === id);
+    const key = keys.find((k) => k.originId === id);
     if (key) {
       setDeleteModal({
         isOpen: true,

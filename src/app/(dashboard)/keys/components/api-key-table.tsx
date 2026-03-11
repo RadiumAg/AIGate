@@ -160,7 +160,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onDelete(key.id)}
+                onClick={() => onDelete(key.originId)}
                 className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
               >
                 删除
