@@ -113,15 +113,15 @@ const KeysPage: React.FC = () => {
 
       <AddApiKeyDialog
         open={showDialog}
+        keyData={editingKey}
+        isLoading={createMutation.isPending || updateMutation.isPending}
+        onSave={handleSaveKey}
         onOpenChange={(open) => {
           setShowDialog(open);
           if (!open) {
             setEditingKey(null);
           }
         }}
-        keyData={editingKey}
-        onSave={handleSaveKey}
-        isLoading={createMutation.isPending || updateMutation.isPending}
       />
     </div>
   );
