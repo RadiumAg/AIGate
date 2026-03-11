@@ -5,10 +5,10 @@ import { toast } from 'sonner';
 import { trpc } from '@/components/trpc-provider';
 import type { ApiKey, ApiKeyFormData } from '@/types/api-key';
 import ApiKeyTable from './components/api-key-table';
-import DeleteConfirmModal from './components/delete-confirm-modal';
 import AddApiKeyDialog from './components/add-api-key-dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
+import { confirm } from '@/components/ui/confirm';
 
 const KeysPage: React.FC = () => {
   // tRPC hooks
@@ -21,15 +21,7 @@ const KeysPage: React.FC = () => {
   // 状态管理
   const [showDialog, setShowDialog] = React.useState(false);
   const [editingKey, setEditingKey] = React.useState<ApiKey | null>(null);
-  const [deleteModal, setDeleteModal] = React.useState<{
-    isOpen: boolean;
-    keyId: string;
-    keyName: string;
-  }>({
-    isOpen: false,
-    keyId: '',
-    keyName: '',
-  });
+
   const handleAddKey = () => {
     setEditingKey(null);
     setShowDialog(true);
@@ -43,22 +35,14 @@ const KeysPage: React.FC = () => {
   const handleDeleteKey = (id: string) => {
     const key = keys.find((k) => k.originId === id);
     if (key) {
-      setDeleteModal({
-        isOpen: true,
-        keyId: id,
-        keyName: key.name,
+      confirm({
+        title: '确定要删除这个 API Key 吗？',
+        onConfirm: () => {
+          return deleteMutation.mutate({ id });
+        },
+      }).catch((error) => {
+        toast.error(error instanceof Error ? error.message : '删除失败');
       });
-    }
-  };
-
-  const confirmDelete = async () => {
-    try {
-      await deleteMutation.mutateAsync({ id: deleteModal.keyId });
-      toast.success('API Key 删除成功');
-      setDeleteModal({ isOpen: false, keyId: '', keyName: '' });
-      refetch();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : '删除失败');
     }
   };
 
@@ -118,14 +102,6 @@ const KeysPage: React.FC = () => {
           onToggleStatus={handleToggleStatus}
         />
       )}
-
-      <DeleteConfirmModal
-        isOpen={deleteModal.isOpen}
-        keyName={deleteModal.keyName}
-        onConfirm={confirmDelete}
-        onCancel={() => setDeleteModal({ isOpen: false, keyId: '', keyName: '' })}
-        isDeleting={deleteMutation.isPending}
-      />
 
       <AddApiKeyDialog
         open={showDialog}

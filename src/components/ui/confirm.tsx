@@ -11,20 +11,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn, useMount } from 'ahooks';
 
-interface ConfirmOptions {
+export interface ConfirmOptions {
   title?: string;
   description?: string;
   confirmText?: string;
   cancelText?: string;
   variant?: 'default' | 'destructive';
+  onConfirm?: () => Promise<void> | void;
 }
 
 interface ConfirmState {
   isOpen: boolean;
   options: ConfirmOptions;
   resolve: ((value: boolean) => void) | null;
+  isLoading: boolean;
 }
 
 let confirmInstance: {
@@ -36,6 +38,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     isOpen: false,
     options: {},
     resolve: null,
+    isLoading: false,
   });
 
   const show = useMemoizedFn((options: ConfirmOptions): Promise<boolean> => {
@@ -43,24 +46,40 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
       setState({
         isOpen: true,
         options,
+        isLoading: false,
         resolve,
       });
     });
   });
 
-  React.useEffect(() => {
+  useMount(() => {
     confirmInstance = { show };
     return () => {
       confirmInstance = null;
     };
-  }, []);
+  });
 
-  const handleConfirm = () => {
-    state.resolve?.(true);
-    setState((prev) => ({ ...prev, isOpen: false, resolve: null }));
+  const handleConfirm = async () => {
+    const { onConfirm } = state.options;
+    
+    if (onConfirm) {
+      setState((prev) => ({ ...prev, isLoading: true }));
+      try {
+        await onConfirm();
+        state.resolve?.(true);
+        setState((prev) => ({ ...prev, isOpen: false, resolve: null, isLoading: false }));
+      } catch (error) {
+        setState((prev) => ({ ...prev, isLoading: false }));
+        throw error;
+      }
+    } else {
+      state.resolve?.(true);
+      setState((prev) => ({ ...prev, isOpen: false, resolve: null }));
+    }
   };
 
   const handleCancel = () => {
+    if (state.isLoading) return;
     state.resolve?.(false);
     setState((prev) => ({ ...prev, isOpen: false, resolve: null }));
   };
@@ -95,13 +114,36 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirm}
-              className={`rounded-xl backdrop-blur-lg transition-all duration-200 ${
+              disabled={state.isLoading}
+              className={`rounded-xl backdrop-blur-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                 variant === 'destructive'
                   ? 'bg-red-500/80 hover:bg-red-500 text-white border border-red-500/30'
                   : 'bg-primary/80 hover:bg-primary text-primary-foreground border border-primary/30'
               }`}
             >
-              {confirmText}
+              {state.isLoading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  处理中...
+                </span>
+              ) : (
+                confirmText
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
