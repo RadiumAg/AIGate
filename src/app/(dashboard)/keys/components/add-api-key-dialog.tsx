@@ -35,18 +35,12 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
 
   const [formData, setFormData] = React.useState<ApiKeyFormData>({
     name: keyData?.name || '',
-    provider:
-      (keyData?.provider as
-        | 'openai'
-        | 'anthropic'
-        | 'google'
-        | 'deepseek'
-        | 'moonshot'
-        | 'spark') || 'openai',
-    maskKey: keyData?.maskKey || '',
+    id: keyData?.id || '',
+    key: keyData?.key || '',
     baseUrl: keyData?.baseUrl || '',
-    lastUsed: keyData?.lastUsed || undefined,
+    lastUsed: keyData?.lastUsed || '',
     status: keyData?.status || 'active',
+    provider: keyData?.provider as ApiKey['provider'],
   });
   const [showKey, setShowKey] = React.useState(false);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
@@ -58,7 +52,7 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
       newErrors.name = '名称不能为空';
     }
 
-    if (!formData.maskKey.trim()) {
+    if (!formData.key.trim()) {
       newErrors.key = 'API Key 不能为空';
     }
 
@@ -120,8 +114,8 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
   // 当 keyData 变化时更新表单数据
   React.useEffect(() => {
     if (keyData) {
-      debugger;
       setFormData({
+        id: keyData.id,
         name: keyData.name,
         provider: keyData.provider as
           | 'openai'
@@ -130,16 +124,17 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
           | 'deepseek'
           | 'moonshot'
           | 'spark',
-        maskKey: keyData.maskKey,
+        key: keyData.key,
         baseUrl: keyData.baseUrl || '',
         lastUsed: keyData.lastUsed,
         status: keyData.status,
       });
     } else {
       setFormData({
+        id: '',
         name: '',
         provider: 'openai',
-        maskKey: '',
+        key: '',
         baseUrl: '',
         lastUsed: undefined,
         status: 'active',
@@ -191,7 +186,7 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
                   <SelectItem value="google">Google</SelectItem>
                   <SelectItem value="deepseek">DeepSeek</SelectItem>
                   <SelectItem value="moonshot">Moonshot</SelectItem>
-                  <SelectItem value="spark">星火大模型</SelectItem>
+                  <SelectItem value="spark">Spark</SelectItem>
                 </SelectContent>
               </Select>
             </Field>
@@ -204,8 +199,8 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
                 <Input
                   id="key"
                   type={showKey ? 'text' : 'password'}
-                  value={formData.maskKey}
-                  onChange={(e) => handleInputChange('maskKey', e.target.value)}
+                  value={formData.key}
+                  onChange={(e) => handleInputChange('key', e.target.value)}
                   placeholder={getKeyPlaceholder(formData.provider)}
                   className="pr-10"
                   aria-invalid={!!errors.key}

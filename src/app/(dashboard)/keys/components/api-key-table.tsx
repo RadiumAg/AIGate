@@ -43,7 +43,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
         header: 'API Key Id',
         cell: ({ row }) => (
           <div className="flex items-center text-muted-foreground">
-            <span className="mr-2">{row.original.id}</span>
+            <span className="mr-2">{row.original.maskId}</span>
             <Button
               variant="ghost"
               size="icon"
@@ -119,28 +119,9 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
         header: () => <div className="text-right">操作</div>,
         cell: ({ row }) => {
           const key = row.original;
-          const isTesting = isTestingId === key.id;
 
           return (
             <div className="flex justify-end space-x-3">
-              {onTest && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onTest(key)}
-                  disabled={isTesting}
-                  className="text-blue-500 hover:text-blue-600 hover:bg-blue-500/10"
-                >
-                  {isTesting ? (
-                    <>
-                      <Spinner className="-ml-1 mr-1 h-3 w-3" />
-                      测试中
-                    </>
-                  ) : (
-                    '测试'
-                  )}
-                </Button>
-              )}
               <Button
                 variant="ghost"
                 size="sm"
