@@ -26,6 +26,7 @@
 - 优化用户反馈机制：使用 toast.success() 和 toast.error() 提供更直观的用户体验
 - 改进删除操作：确保 API Key 表格组件使用正确的 originId 字段进行删除
 - 增强前端交互体验：通过 Toast 通知提供即时的操作反馈
+- 修复 API Key 表格组件状态切换 ID 错误：从 key.id 更改为 key.originId
 
 ## 目录
 1. [简介](#简介)
@@ -42,7 +43,7 @@
 ## 简介
 本文件面向管理员与开发者，系统性阐述 API Key 管理系统的实现与使用。内容涵盖密钥的生成、验证、状态管理与生命周期控制；密钥绑定策略（白名单规则）、提供商关联、权限控制与使用统计；密钥轮换机制、安全策略配置、批量管理操作与审计日志记录。同时提供具体 API 调用示例与管理界面使用指南，帮助管理员高效、安全地管理 API Key。
 
-**更新** 系统现已采用现代化的 Toast 通知系统替代传统状态消息，提供更流畅的用户体验。
+**更新** 系统现已采用现代化的 Toast 通知系统替代传统状态消息，提供更流畅的用户体验。API Key 表格组件已修复状态切换使用的 ID 错误，确保操作的准确性。
 
 ## 项目结构
 API Key 管理涉及三层：前端页面与对话框、后端 tRPC 路由层、数据库与缓存层。前端负责展示与交互，tRPC 路由负责业务编排与参数校验，数据库与缓存负责持久化与高性能读取。
@@ -78,12 +79,12 @@ QuotaRouter --> DB
 ```
 
 **图表来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L176)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L148)
 - [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L194)
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
 
 **章节来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L176)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L148)
 - [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
 
 ## 核心组件
@@ -94,13 +95,13 @@ QuotaRouter --> DB
 - **配额与审计**：基于 Redis 的配额检查与记录，结合日志系统实现审计追踪。
 - **Toast 通知系统**：基于 Sonner 库的现代化通知组件，提供成功、错误、警告等多类型反馈。
 
-**更新** 新增 Toast 通知系统作为统一的用户反馈机制，替代传统的错误/成功消息显示。
+**更新** 新增 Toast 通知系统作为统一的用户反馈机制，替代传统的错误/成功消息显示。API Key 表格组件已修复状态切换 ID 错误，确保使用正确的 originId 字段。
 
 **章节来源**
 - [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
 - [src/lib/database.ts:19-81](file://src/lib/database.ts#L19-L81)
 - [src/lib/redis.ts:18-43](file://src/lib/redis.ts#L18-L43)
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L176)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L148)
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
 
 ## 架构总览
@@ -170,11 +171,11 @@ Stats --> End
 ### 前端页面与交互
 - **KeysPage**：集中管理 tRPC 查询与变更，处理加载状态，集成 Toast 通知系统，触发刷新。
 - **AddApiKeyDialog**：表单校验（名称、API Key 必填），动态占位符与提供商提示，支持新增与编辑。
-- **ApiKeyTable**：展示密钥列表，支持复制、启用/禁用、编辑、删除与测试按钮，使用 Toast 进行即时反馈。
+- **ApiKeyTable**：展示密钥列表，支持复制、启用/禁用、编辑、删除与测试按钮，使用 Toast 进行即时反馈。**更新**：已修复状态切换使用正确的 originId 字段。
 - **DeleteConfirmModal**：二次确认删除，防止误操作。
 - **Toast 通知系统**：基于 Sonner 的现代化通知组件，提供成功、错误、警告等多类型反馈。
 
-**更新** KeysPage 组件已完全迁移到基于 Sonner 的 Toast 通知系统，移除了传统的错误/成功消息状态管理。
+**更新** KeysPage 组件已完全迁移到基于 Sonner 的 Toast 通知系统，移除了传统的错误/成功消息状态管理。API Key 表格组件已修复状态切换 ID 错误，从 key.id 更改为 key.originId。
 
 ```mermaid
 sequenceDiagram
@@ -202,14 +203,14 @@ Page->>Table : 刷新数据
 ```
 
 **图表来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L176)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L148)
 - [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L273)
 - [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L194)
 - [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L1-L54)
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
 
 **章节来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L176)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L148)
 - [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L273)
 - [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L194)
 - [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L1-L54)
@@ -304,7 +305,7 @@ Note over API,Log : 生产环境输出到按日期轮转的日志文件
 - **主题适配**：自动适配明暗主题，确保在不同界面下都有良好的可读性。
 - **图标系统**：集成 Lucide 图标库，为不同类型的通知提供相应的视觉标识。
 
-**更新** 新增基于 Sonner 的 Toast 通知系统，作为统一的用户反馈机制。
+**更新** 新增基于 Sonner 的 Toast 通知系统，作为统一的用户反馈机制。系统已在全局布局中集成 Toaster 组件，确保所有页面都能使用通知功能。
 
 **章节来源**
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
@@ -372,10 +373,12 @@ Toast --> QR
 - **Toast 通知问题**
   - 检查全局布局中是否正确引入了 Toaster 组件。
   - 确认网络连接正常，Toast 通知系统能够正常工作。
+- **状态切换错误**
+  - **更新** 确保使用正确的 originId 字段进行状态切换，而非 key.id。
 - **日志定位**
   - 查看日志模块输出的配额检查与 AI 请求记录，定位异常原因。
 
-**更新** 新增 Toast 通知系统故障排除指南。
+**更新** 新增 Toast 通知系统故障排除指南和状态切换错误的故障排除指导。
 
 **章节来源**
 - [src/server/api/routers/api-key.ts:272-322](file://src/server/api/routers/api-key.ts#L272-L322)
@@ -388,7 +391,7 @@ Toast --> QR
 ## 结论
 本系统通过 tRPC、数据库与 Redis 的协同，实现了 API Key 的全生命周期管理与严格的权限控制。白名单规则与配额策略解耦设计，既保证灵活性又兼顾性能。配合完善的审计日志与现代化的 Toast 通知系统，管理员可以高效、安全地管理密钥并保障系统稳定运行。
 
-**更新** 新的 Toast 通知系统提供了更直观、一致的用户反馈体验，进一步提升了系统的易用性和专业性。
+**更新** 新的 Toast 通知系统提供了更直观、一致的用户反馈体验，进一步提升了系统的易用性和专业性。API Key 表格组件的 ID 错误修复确保了操作的准确性和可靠性。
 
 ## 附录
 
@@ -418,8 +421,7 @@ Toast --> QR
 - 在列表中可复制密钥、切换状态、编辑或删除。
 - 如需测试密钥有效性，可在表格中点击"测试"按钮（若后端提供相应能力）。
 - 所有操作都会通过 Toast 通知系统提供即时反馈，包括成功、错误或警告信息。
-
-**更新** 新增 Toast 通知系统使用指南，说明所有操作的即时反馈机制。
+- **更新** 状态切换操作使用正确的 originId 字段，确保操作的准确性。
 
 ### Toast 通知系统配置
 - **全局集成**：在应用根布局中引入 Toaster 组件，确保所有页面都能使用通知功能。
@@ -427,10 +429,10 @@ Toast --> QR
 - **图标定制**：支持自定义成功、错误、警告等不同类型的图标。
 - **样式定制**：可通过 classNames 属性自定义通知的外观样式。
 
-**更新** 新增 Toast 通知系统配置说明。
+**更新** 新增 Toast 通知系统配置说明和使用指南。
 
 **章节来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L176)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L148)
 - [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L273)
 - [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L194)
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
