@@ -59,7 +59,7 @@ const StatCard: React.FC<StatCardProps> = (props) => {
           <p className="text-muted-foreground text-sm font-medium">{title}</p>
           <p className="text-2xl font-bold text-foreground mt-1">{formatValue(value)}</p>
         </div>
-        <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-violet-500/20 text-primary backdrop-blur-sm border border-white/40 dark:border-white/20 shadow-lg">
+        <div className="p-3 rounded-xl bg-linear-to-br from-primary/20 to-violet-500/20 text-primary backdrop-blur-sm border border-white/40 dark:border-white/20 shadow-lg">
           {icon}
         </div>
       </div>

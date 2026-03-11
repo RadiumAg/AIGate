@@ -90,12 +90,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
   }, [darkMode]);
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50/50 to-gray-100/50 dark:from-gray-900/50 dark:to-gray-800/50">
+    <div className="flex h-screen bg-linear-to-br from-gray-50/50 to-gray-100/50 dark:from-gray-900/50 dark:to-gray-800/50">
       {/* Sidebar - Enhanced Liquid Glass */}
       <aside className="w-64 flex flex-col backdrop-blur-2xl bg-white/70 dark:bg-black/40 border-r border-white/20 dark:border-white/10 shadow-[4px_0_24px_rgba(0,0,0,0.08)]">
         <div className="p-4 border-b border-white/20 dark:border-white/10">
           <h1 className="text-xl font-bold text-foreground flex items-center">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-violet-500/20 backdrop-blur-sm border border-white/30 dark:border-white/10 mr-3 shadow-lg">
+            <div className="p-2 rounded-xl bg-linear-to-br from-primary/20 to-violet-500/20 backdrop-blur-sm border border-white/30 dark:border-white/10 mr-3 shadow-lg">
               <ShieldCheck className="h-5 w-5 text-primary" />
             </div>
             AIGate
@@ -143,7 +143,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
                 <PopoverTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/80 to-violet-500/80 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white shadow-lg p-0 hover:scale-110 hover:shadow-xl transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+                    className="w-9 h-9 rounded-full bg-linear-to-br from-primary/80 to-violet-500/80 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white shadow-lg p-0 hover:scale-110 hover:shadow-xl transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
                   >
                     A
                   </Button>

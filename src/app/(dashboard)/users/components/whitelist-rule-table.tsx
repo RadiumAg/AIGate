@@ -75,7 +75,7 @@ const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
               </span>
               {rule.validationPattern && (
                 <code
-                  className="text-xs bg-white/60 dark:bg-black/40 px-1.5 py-0.5 rounded-lg max-w-[120px] truncate block border border-white/30 dark:border-white/10"
+                  className="text-xs bg-white/60 dark:bg-black/40 px-1.5 py-0.5 rounded-lg max-w-30 truncate block border border-white/30 dark:border-white/10"
                   title={rule.validationPattern}
                 >
                   {rule.validationPattern}

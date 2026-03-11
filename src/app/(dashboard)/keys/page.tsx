@@ -84,6 +84,7 @@ const KeysPage: React.FC = () => {
       updateMutation.mutate({
         ...keyData,
         id: editingKey.originId,
+        key: editingKey.originKey,
         createdAt: editingKey.createdAt,
       });
     } else {

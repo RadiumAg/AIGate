@@ -81,7 +81,7 @@ For higher-fidelity Liquid Glass requiring refraction distortion, use a multi-la
   {/* Layer 1: Blur */}
   <div
     className="absolute inset-0 backdrop-blur-xl backdrop-saturate-[1.8]
-    [filter:url(#glass-distortion)]"
+    filter-[url(#glass-distortion)]"
   />
 
   {/* Layer 2: Tint */}
