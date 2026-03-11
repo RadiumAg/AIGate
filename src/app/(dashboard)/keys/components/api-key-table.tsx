@@ -144,7 +144,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onToggleStatus(key.id)}
+                onClick={() => onToggleStatus(key.originId)}
                 className="text-primary hover:text-primary/80 hover:bg-primary/10"
               >
                 {key.status === 'active' ? '禁用' : '启用'}

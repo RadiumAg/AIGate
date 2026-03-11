@@ -87,7 +87,7 @@ const KeysPage: React.FC = () => {
       if (editingKey) {
         await updateMutation.mutateAsync({
           ...keyData,
-          id: editingKey.id,
+          id: editingKey.originId,
           createdAt: editingKey.createdAt,
         });
         toast.success('API Key 更新成功');
