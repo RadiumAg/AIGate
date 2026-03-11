@@ -43,7 +43,7 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
         | 'deepseek'
         | 'moonshot'
         | 'spark') || 'openai',
-    originKey: keyData?.originKey || '',
+    maskKey: keyData?.maskKey || '',
     baseUrl: keyData?.baseUrl || '',
     lastUsed: keyData?.lastUsed || undefined,
     status: keyData?.status || 'active',
@@ -58,7 +58,7 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
       newErrors.name = '名称不能为空';
     }
 
-    if (!formData.originKey.trim()) {
+    if (!formData.maskKey.trim()) {
       newErrors.key = 'API Key 不能为空';
     }
 
@@ -130,7 +130,7 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
           | 'deepseek'
           | 'moonshot'
           | 'spark',
-        originKey: keyData.originKey,
+        maskKey: keyData.maskKey,
         baseUrl: keyData.baseUrl || '',
         lastUsed: keyData.lastUsed,
         status: keyData.status,
@@ -139,7 +139,7 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
       setFormData({
         name: '',
         provider: 'openai',
-        originKey: '',
+        maskKey: '',
         baseUrl: '',
         lastUsed: undefined,
         status: 'active',
@@ -204,8 +204,8 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
                 <Input
                   id="key"
                   type={showKey ? 'text' : 'password'}
-                  value={formData.originKey}
-                  onChange={(e) => handleInputChange('originKey', e.target.value)}
+                  value={formData.maskKey}
+                  onChange={(e) => handleInputChange('maskKey', e.target.value)}
                   placeholder={getKeyPlaceholder(formData.provider)}
                   className="pr-10"
                   aria-invalid={!!errors.key}

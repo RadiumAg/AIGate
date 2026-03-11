@@ -135,9 +135,9 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
             <label className="block text-sm font-medium text-foreground/80 mb-2">API Key</label>
             <Select
               value={form?.apiKeyId || ''}
-              onValueChange={(originId: string) => {
+              onValueChange={(id: string) => {
                 if (!form) return;
-                setForm({ ...form, apiKeyId: originId });
+                setForm({ ...form, apiKeyId: id });
               }}
             >
               <SelectTrigger className="w-full">
@@ -148,8 +148,8 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
                   apiKeys
                     .filter((key) => key.status === 'active')
                     .map((apiKey) => (
-                      <SelectItem key={apiKey.id} value={apiKey.originId}>
-                        {apiKey.name} ({apiKey.provider}) - {apiKey.id}
+                      <SelectItem key={apiKey.id} value={apiKey.id}>
+                        {apiKey.name} ({apiKey.provider}) - {apiKey.maskId}
                       </SelectItem>
                     ))
                 ) : (

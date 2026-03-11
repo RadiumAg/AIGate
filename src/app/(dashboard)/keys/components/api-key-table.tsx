@@ -47,7 +47,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => handleCopyToClipboard(row.original.originId)}
+              onClick={() => handleCopyToClipboard(row.original.id)}
               className="h-8 w-8 text-muted-foreground hover:text-foreground"
             >
               <Copy className="h-4 w-4" />
@@ -60,11 +60,11 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
         header: 'API Key',
         cell: ({ row }) => (
           <div className="flex items-center text-gray-500 dark:text-white">
-            <span className="mr-2">{row.original.key}</span>
+            <span className="mr-2">{row.original.maskKey}</span>
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => handleCopyToClipboard(row.original.originKey)}
+              onClick={() => handleCopyToClipboard(row.original.key)}
               className="h-8 w-8 text-muted-foreground hover:text-foreground"
             >
               <Copy className="h-4 w-4" />
@@ -144,7 +144,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onToggleStatus(key.originId)}
+                onClick={() => onToggleStatus(key.id)}
                 className="text-primary hover:text-primary/80 hover:bg-primary/10"
               >
                 {key.status === 'active' ? '禁用' : '启用'}
@@ -160,7 +160,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onDelete(key.originId)}
+                onClick={() => onDelete(key.id)}
                 className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
               >
                 删除

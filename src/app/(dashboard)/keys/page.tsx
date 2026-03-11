@@ -63,7 +63,7 @@ const KeysPage: React.FC = () => {
   };
 
   const handleDeleteKey = (id: string) => {
-    const key = keys.find((k) => k.originId === id);
+    const key = keys.find((k) => k.id === id);
     if (key) {
       confirm({
         title: '确定要删除这个 API Key 吗？',
@@ -83,8 +83,8 @@ const KeysPage: React.FC = () => {
     if (editingKey) {
       updateMutation.mutate({
         ...keyData,
-        id: editingKey.originId,
-        key: editingKey.originKey,
+        id: editingKey.id,
+        key: editingKey.key,
         createdAt: editingKey.createdAt,
       });
     } else {

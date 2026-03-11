@@ -2,8 +2,8 @@
 export interface ApiKey {
   id: string;
   key: string;
-  originId: string;
-  originKey: string;
+  maskId: string;
+  maskKey: string;
   name: string;
   provider: 'openai' | 'anthropic' | 'google' | 'deepseek' | 'moonshot' | 'spark';
   baseUrl?: string; // AI 服务商的自定义 baseUrl
@@ -12,7 +12,7 @@ export interface ApiKey {
   status: 'active' | 'disabled';
 }
 
-export type ApiKeyFormData = Omit<ApiKey, 'id' | 'createdAt' | 'key' | 'originId'>;
+export type ApiKeyFormData = Omit<ApiKey, 'id' | 'createdAt' | 'key' | 'maskId'>;
 
 export interface ApiKeyTestResult {
   isValid: boolean;
