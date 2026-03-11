@@ -47,7 +47,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => handleCopyToClipboard(row.original.originKey)}
+              onClick={() => handleCopyToClipboard(row.original.originId)}
               className="h-8 w-8 text-muted-foreground hover:text-foreground"
             >
               <Copy className="h-4 w-4" />
