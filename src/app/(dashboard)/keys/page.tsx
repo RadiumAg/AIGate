@@ -13,8 +13,24 @@ import { confirm } from '@/components/ui/confirm';
 const KeysPage: React.FC = () => {
   // tRPC hooks
   const { data: keys = [], isLoading, refetch } = trpc.apiKey.getAll.useQuery();
-  const createMutation = trpc.apiKey.create.useMutation();
-  const updateMutation = trpc.apiKey.update.useMutation();
+  const createMutation = trpc.apiKey.create.useMutation({
+    onSuccess: () => {
+      toast.success('API Key 创建成功');
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : '创建失败');
+    },
+  });
+  const updateMutation = trpc.apiKey.update.useMutation({
+    onSuccess: () => {
+      toast.success('API Key 更新成功');
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : '更新失败');
+    },
+  });
   const deleteMutation = trpc.apiKey.delete.useMutation({
     onSuccess: () => {
       toast.success('API Key 删除成功');
@@ -24,9 +40,15 @@ const KeysPage: React.FC = () => {
       toast.error(error instanceof Error ? error.message : '删除失败');
     },
   });
-  const toggleStatusMutation = trpc.apiKey.toggleStatus.useMutation();
-
-  // 状态管理
+  const toggleStatusMutation = trpc.apiKey.toggleStatus.useMutation({
+    onSuccess: () => {
+      toast.success('API Key 状态切换成功');
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : '状态切换失败');
+    },
+  });
   const [showDialog, setShowDialog] = React.useState(false);
   const [editingKey, setEditingKey] = React.useState<ApiKey | null>(null);
 
@@ -48,41 +70,28 @@ const KeysPage: React.FC = () => {
         onConfirm: () => {
           deleteMutation.mutate({ id });
         },
-      }).catch((error) => {
-        toast.error(error instanceof Error ? error.message : '删除失败');
       });
     }
   };
 
-  const handleToggleStatus = async (id: string) => {
-    try {
-      await toggleStatusMutation.mutateAsync({ id });
-      toast.success('状态切换成功');
-      refetch();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : '状态切换失败');
-    }
+  const handleToggleStatus = (id: string) => {
+    toggleStatusMutation.mutate({ id });
+    refetch();
   };
 
-  const handleSaveKey = async (keyData: ApiKeyFormData) => {
-    try {
-      if (editingKey) {
-        await updateMutation.mutateAsync({
-          ...keyData,
-          id: editingKey.originId,
-          createdAt: editingKey.createdAt,
-        });
-        toast.success('API Key 更新成功');
-      } else {
-        await createMutation.mutateAsync(keyData);
-        toast.success('API Key 创建成功');
-      }
-      setShowDialog(false);
-      setEditingKey(null);
-      refetch();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : '保存失败');
+  const handleSaveKey = (keyData: ApiKeyFormData) => {
+    if (editingKey) {
+      updateMutation.mutate({
+        ...keyData,
+        id: editingKey.originId,
+        createdAt: editingKey.createdAt,
+      });
+    } else {
+      createMutation.mutate(keyData);
     }
+    setShowDialog(false);
+    setEditingKey(null);
+    refetch();
   };
 
   return (

@@ -8,6 +8,7 @@ import PolicyTable from './components/policy-table';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { confirm } from '@/components/ui/confirm';
+import { toast } from 'sonner';
 
 interface QuotaPolicy {
   id: string;
@@ -34,6 +35,7 @@ const QuotasPage: React.FC = () => {
       refetchPolicies();
       setIsDialogOpen(false);
       setEditingPolicy(null);
+      toast.success('配额策略创建成功');
     },
   });
 
@@ -42,12 +44,14 @@ const QuotasPage: React.FC = () => {
       refetchPolicies();
       setIsDialogOpen(false);
       setEditingPolicy(null);
+      toast.success('配额策略更新成功');
     },
   });
 
   const deletePolicyMutation = trpc.quota.deletePolicy.useMutation({
     onSuccess: () => {
       refetchPolicies();
+      toast.success('配额策略删除成功');
     },
   });
 
