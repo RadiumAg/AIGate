@@ -9,7 +9,6 @@ import DeleteConfirmModal from './components/delete-confirm-modal';
 import AddApiKeyDialog from './components/add-api-key-dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
 
 const KeysPage: React.FC = () => {
   // tRPC hooks
