@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { toast } from 'sonner';
 import { trpc } from '@/components/trpc-provider';
 import type { ApiKey, ApiKeyFormData } from '@/types/api-key';
 import ApiKeyTable from './components/api-key-table';
@@ -8,7 +9,7 @@ import DeleteConfirmModal from './components/delete-confirm-modal';
 import AddApiKeyDialog from './components/add-api-key-dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, CheckCircle, X } from 'lucide-react';
+import { AlertCircle, X } from 'lucide-react';
 
 const KeysPage: React.FC = () => {
   // tRPC hooks
@@ -31,22 +32,20 @@ const KeysPage: React.FC = () => {
     keyName: '',
   });
   const [error, setError] = React.useState<string | null>(null);
-  const [success, setSuccess] = React.useState<string | null>(null);
 
-  // 清除消息
-  const clearMessages = () => {
+  // 清除错误消息
+  const clearError = () => {
     setError(null);
-    setSuccess(null);
   };
 
   const handleAddKey = () => {
-    clearMessages();
+    clearError();
     setEditingKey(null);
     setShowDialog(true);
   };
 
   const handleEditKey = (key: ApiKey) => {
-    clearMessages();
+    clearError();
     setEditingKey(key);
     setShowDialog(true);
   };
@@ -65,7 +64,7 @@ const KeysPage: React.FC = () => {
   const confirmDelete = async () => {
     try {
       await deleteMutation.mutateAsync({ id: deleteModal.keyId });
-      setSuccess('API Key 删除成功');
+      toast.success('API Key 删除成功');
       setDeleteModal({ isOpen: false, keyId: '', keyName: '' });
       refetch();
     } catch (error) {
@@ -76,7 +75,7 @@ const KeysPage: React.FC = () => {
   const handleToggleStatus = async (id: string) => {
     try {
       await toggleStatusMutation.mutateAsync({ id });
-      setSuccess('状态切换成功');
+      toast.success('状态切换成功');
       refetch();
     } catch (error) {
       setError(error instanceof Error ? error.message : '状态切换失败');
@@ -91,10 +90,10 @@ const KeysPage: React.FC = () => {
           id: editingKey.id,
           createdAt: editingKey.createdAt,
         });
-        setSuccess('API Key 更新成功');
+        toast.success('API Key 更新成功');
       } else {
         await createMutation.mutateAsync(keyData);
-        setSuccess('API Key 创建成功');
+        toast.success('API Key 创建成功');
       }
       setShowDialog(false);
       setEditingKey(null);
@@ -114,7 +113,7 @@ const KeysPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* 消息提示 */}
+      {/* 错误提示 */}
       {error && (
         <div className="p-4 rounded-xl backdrop-blur-lg bg-red-500/10 dark:bg-red-500/10 border border-red-500/30">
           <div className="flex items-center">
@@ -123,25 +122,8 @@ const KeysPage: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={clearMessages}
+              onClick={clearError}
               className="ml-auto h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-500/10"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {success && (
-        <div className="p-4 rounded-xl backdrop-blur-lg bg-green-500/10 dark:bg-green-500/10 border border-green-500/30">
-          <div className="flex items-center">
-            <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-            <span className="text-sm text-green-700 dark:text-green-300">{success}</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={clearMessages}
-              className="ml-auto h-8 w-8 text-green-500 hover:text-green-600 hover:bg-green-500/10"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -178,7 +160,7 @@ const KeysPage: React.FC = () => {
         onOpenChange={(open) => {
           setShowDialog(open);
           if (!open) {
-            clearMessages();
+            clearError();
             setEditingKey(null);
           }
         }}
