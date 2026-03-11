@@ -20,6 +20,9 @@ const KeysPage: React.FC = () => {
       toast.success('API Key 删除成功');
       refetch();
     },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : '删除失败');
+    },
   });
   const toggleStatusMutation = trpc.apiKey.toggleStatus.useMutation();
 
