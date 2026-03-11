@@ -362,7 +362,7 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
             <SelectContent>
               <SelectItem value="none">不关联 API Key</SelectItem>
               {apiKeys.map((apiKey) => (
-                <SelectItem key={apiKey.id} value={apiKey.originId}>
+                <SelectItem key={apiKey.id} value={apiKey.id}>
                   {apiKey.name} ({apiKey.provider})
                 </SelectItem>
               ))}
