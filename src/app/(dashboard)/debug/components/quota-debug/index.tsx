@@ -7,6 +7,7 @@ import { QuotaDebugProps, TabType, GetUserUsageResult, ResetQuotaResult } from '
 import CheckQuotaTab from './check-quota-tab';
 import UsageTab from './usage-tab';
 import ResetTab from './reset-tab';
+import { confirm } from '@/components/ui/confirm';
 
 const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
   const [checkQuotaResult, setCheckQuotaResult] = React.useState<Record<string, any>>({});
@@ -60,7 +61,7 @@ const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
       setResetQuotaResult({ error: '请先填写 User ID 和选择 API Key' });
       return;
     }
-    if (!confirm('确定要重置该用户的配额吗？')) {
+    if (await confirm('确定要重置该用户的配额吗？')) {
       return;
     }
     try {

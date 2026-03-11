@@ -7,6 +7,7 @@ import WhitelistRuleForm from './components/whitelist-rule-form';
 import WhitelistRuleTable from './components/whitelist-rule-table';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
+import { confirm } from '@/components/ui/confirm';
 
 interface WhitelistRule {
   id: string;
@@ -74,9 +75,9 @@ const UsersPage: React.FC = () => {
   };
 
   const handleDeleteRule = (id: string) => {
-    if (confirm('确定要删除这条白名单规则吗？')) {
+    confirm('确定要删除这条白名单规则吗？').then(() => {
       deleteRuleMutation.mutate({ id });
-    }
+    });
   };
 
   const handleToggleRuleStatus = (id: string) => {

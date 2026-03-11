@@ -7,6 +7,7 @@ import PolicyForm from './components/policy-form';
 import PolicyTable from './components/policy-table';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
+import { confirm } from '@/components/ui/confirm';
 
 interface QuotaPolicy {
   id: string;
@@ -64,9 +65,9 @@ const QuotasPage: React.FC = () => {
   };
 
   const handleDeletePolicy = (id: string) => {
-    if (confirm('确定要删除这个配额策略吗？')) {
+    confirm('确定要删除这个配额策略吗？').then(() => {
       deletePolicyMutation.mutate({ id });
-    }
+    });
   };
 
   const handleSavePolicy = (policy: Omit<QuotaPolicy, 'id' | 'createdAt' | 'updatedAt'>) => {

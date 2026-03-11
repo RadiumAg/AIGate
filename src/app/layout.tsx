@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import { TRPCProvider } from '../components/trpc-provider';
 import { Toaster } from '@/components/ui/sonner';
+import { ConfirmProvider } from '@/components/ui/confirm';
 import { syncAdminUserOnStartup } from '@/lib/init-admin';
 import './globals.css';
 
@@ -50,7 +51,9 @@ export default function RootLayout({
       </head>
       <body>
         <Toaster />
-        <TRPCProvider>{children}</TRPCProvider>
+        <ConfirmProvider>
+          <TRPCProvider>{children}</TRPCProvider>
+        </ConfirmProvider>
       </body>
     </html>
   );
