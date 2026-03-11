@@ -15,7 +15,12 @@ const KeysPage: React.FC = () => {
   const { data: keys = [], isLoading, refetch } = trpc.apiKey.getAll.useQuery();
   const createMutation = trpc.apiKey.create.useMutation();
   const updateMutation = trpc.apiKey.update.useMutation();
-  const deleteMutation = trpc.apiKey.delete.useMutation();
+  const deleteMutation = trpc.apiKey.delete.useMutation({
+    onSuccess: () => {
+      toast.success('API Key 删除成功');
+      refetch();
+    },
+  });
   const toggleStatusMutation = trpc.apiKey.toggleStatus.useMutation();
 
   // 状态管理
