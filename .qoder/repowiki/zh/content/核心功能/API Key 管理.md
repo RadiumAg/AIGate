@@ -25,7 +25,7 @@
 
 ## 更新摘要
 **变更内容**
-- 集成新的液体玻璃样式确认对话框系统，替代了原有的简单确认对话框
+- 集成新的液体玻璃样式确认对话框系统，替代了原有的 DeleteConfirmModal 组件
 - 采用现代化的 ConfirmProvider 和 confirm 函数提供统一的确认操作体验
 - 优化用户反馈机制：使用 toast.success() 和 toast.error() 提供更直观的用户体验
 - 改进删除操作：确保 API Key 表格组件使用正确的 originId 字段进行删除
@@ -87,14 +87,14 @@ QuotaRouter --> DB
 ```
 
 **图表来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L147)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L140)
 - [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L194)
 - [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
 - [src/components/ui/dialog.tsx:30-56](file://src/components/ui/dialog.tsx#L30-L56)
 - [src/components/ui/alert-dialog.tsx:30-50](file://src/components/ui/alert-dialog.tsx#L30-L50)
 
 **章节来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L147)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L140)
 - [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
 
 ## 核心组件
@@ -112,7 +112,7 @@ QuotaRouter --> DB
 - [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
 - [src/lib/database.ts:19-81](file://src/lib/database.ts#L19-L81)
 - [src/lib/redis.ts:18-43](file://src/lib/redis.ts#L18-L43)
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L147)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L140)
 - [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
 
@@ -189,11 +189,11 @@ Stats --> End
 - **KeysPage**：集中管理 tRPC 查询与变更，处理加载状态，集成液体玻璃样式确认对话框系统和 Toast 通知系统，触发刷新。
 - **AddApiKeyDialog**：表单校验（名称、API Key 必填），动态占位符与提供商提示，支持新增与编辑。
 - **ApiKeyTable**：展示密钥列表，支持复制、启用/禁用、编辑、删除与测试按钮，使用 Toast 进行即时反馈。**更新**：已修复状态切换使用正确的 originId 字段。
-- **DeleteConfirmModal**：基于液体玻璃样式的二次确认删除对话框，提供毛玻璃背景和阴影效果，防止误操作。
+- **DeleteConfirmModal**：基于液体玻璃样式的二次确认删除对话框，提供毛玻璃背景和阴影效果，防止误操作。**更新**：该组件已被新的 confirm() 函数系统替代。
 - **液体玻璃确认系统**：基于 ConfirmProvider 和 confirm 函数的现代化确认对话框系统，提供统一的用户交互体验。
 - **Toast 通知系统**：基于 Sonner 的现代化通知组件，提供成功、错误、警告等多类型反馈。
 
-**更新** KeysPage 组件已完全迁移到基于液体玻璃样式确认对话框系统，移除了传统的简单确认对话框。API Key 表格组件已修复状态切换 ID 错误，从 key.id 更改为 key.originId。液体玻璃样式确认对话框系统提供毛玻璃效果、阴影和动画过渡，增强用户体验。
+**更新** KeysPage 组件已完全迁移到基于液体玻璃样式确认对话框系统，移除了传统的 DeleteConfirmModal 组件。API Key 表格组件已修复状态切换 ID 错误，从 key.id 更改为 key.originId。液体玻璃样式确认对话框系统提供毛玻璃效果、阴影和动画过渡，增强用户体验。
 
 ```mermaid
 sequenceDiagram
@@ -225,7 +225,7 @@ Page->>Table : 刷新数据
 ```
 
 **图表来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L147)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L140)
 - [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L273)
 - [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L194)
 - [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L1-L54)
@@ -233,7 +233,7 @@ Page->>Table : 刷新数据
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
 
 **章节来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L147)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L140)
 - [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L273)
 - [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L194)
 - [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L1-L54)
@@ -275,6 +275,20 @@ Error --> End
 **章节来源**
 - [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
 - [src/components/ui/confirm.tsx:113-127](file://src/components/ui/confirm.tsx#L113-L127)
+
+### 确认对话框系统迁移详解
+**更新** 系统已完成从 DeleteConfirmModal 到 confirm() 函数系统的迁移，提供更统一的确认对话框体验。
+
+- **迁移前**：使用独立的 DeleteConfirmModal 组件，需要手动管理状态和事件处理。
+- **迁移后**：使用全局的 ConfirmProvider 和 confirm 函数，提供统一的确认对话框入口。
+- **集成方式**：在应用根布局中通过 ConfirmProvider 包装整个应用，确保所有页面都能使用确认对话框功能。
+- **调用方式**：通过 confirm({ title, description, onConfirm }) 方式调用，支持 Promise 风格的异步处理。
+- **样式保持**：新系统完全保持液体玻璃样式效果，包括毛玻璃背景、阴影和动画过渡。
+
+**章节来源**
+- [src/app/(dashboard)/keys/page.tsx:65-75](file://src/app/(dashboard)/keys/page.tsx#L65-L75)
+- [src/app/layout.tsx:54-56](file://src/app/layout.tsx#L54-L56)
+- [src/components/ui/confirm.tsx:155-169](file://src/components/ui/confirm.tsx#L155-L169)
 
 ### 密钥绑定策略与提供商关联
 - **白名单规则**：每个 API Key 可绑定一条白名单规则，规则包含匹配模式、优先级与策略名称，支持按 userId 格式校验与占位符生成最终 userId。
@@ -519,7 +533,7 @@ Toast --> QR
 **更新** 新增液体玻璃确认对话框系统配置说明和使用指南。系统提供完整的样式定制和动画配置选项。
 
 **章节来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L147)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L140)
 - [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L273)
 - [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L194)
 - [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
@@ -537,3 +551,20 @@ Toast --> QR
 **章节来源**
 - [src/components/ui/dialog.tsx:30-56](file://src/components/ui/dialog.tsx#L30-L56)
 - [src/components/ui/alert-dialog.tsx:30-50](file://src/components/ui/alert-dialog.tsx#L30-L50)
+
+### 确认对话框系统迁移指南
+**更新** 新增确认对话框系统迁移指南，帮助开发者理解从 DeleteConfirmModal 到 confirm() 函数系统的迁移过程。
+
+- **迁移目标**：统一确认对话框体验，提供更好的用户交互。
+- **迁移步骤**：
+  1. 在应用根布局中添加 ConfirmProvider 包装
+  2. 移除 DeleteConfirmModal 组件
+  3. 将删除操作改为使用 confirm() 函数
+  4. 保持液体玻璃样式不变
+- **兼容性**：新系统完全向后兼容，无需修改现有业务逻辑
+- **优势**：统一的确认对话框入口，更好的可维护性
+
+**章节来源**
+- [src/app/(dashboard)/keys/page.tsx:65-75](file://src/app/(dashboard)/keys/page.tsx#L65-L75)
+- [src/app/layout.tsx:54-56](file://src/app/layout.tsx#L54-L56)
+- [src/components/ui/confirm.tsx:155-169](file://src/components/ui/confirm.tsx#L155-L169)

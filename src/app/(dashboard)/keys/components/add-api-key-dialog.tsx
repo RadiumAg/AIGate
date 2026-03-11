@@ -12,13 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import {
   Select,
   SelectContent,
@@ -49,44 +43,13 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
         | 'deepseek'
         | 'moonshot'
         | 'spark') || 'openai',
-    key: keyData?.key || '',
+    originKey: keyData?.originKey || '',
     baseUrl: keyData?.baseUrl || '',
     lastUsed: keyData?.lastUsed || undefined,
     status: keyData?.status || 'active',
   });
   const [showKey, setShowKey] = React.useState(false);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
-
-  // 当 keyData 变化时更新表单数据
-  React.useEffect(() => {
-    if (keyData) {
-      setFormData({
-        name: keyData.name,
-        provider: keyData.provider as
-          | 'openai'
-          | 'anthropic'
-          | 'google'
-          | 'deepseek'
-          | 'moonshot'
-          | 'spark',
-        key: keyData.key,
-        baseUrl: keyData.baseUrl || '',
-        lastUsed: keyData.lastUsed,
-        status: keyData.status,
-      });
-    } else {
-      setFormData({
-        name: '',
-        provider: 'openai',
-        key: '',
-        baseUrl: '',
-        lastUsed: undefined,
-        status: 'active',
-      });
-    }
-    setErrors({});
-    setShowKey(false);
-  }, [keyData, open]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -95,7 +58,7 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
       newErrors.name = '名称不能为空';
     }
 
-    if (!formData.key.trim()) {
+    if (!formData.originKey.trim()) {
       newErrors.key = 'API Key 不能为空';
     }
 
@@ -154,6 +117,38 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
     return placeholders[provider as keyof typeof placeholders] || 'https://api.example.com/v1';
   };
 
+  // 当 keyData 变化时更新表单数据
+  React.useEffect(() => {
+    if (keyData) {
+      debugger;
+      setFormData({
+        name: keyData.name,
+        provider: keyData.provider as
+          | 'openai'
+          | 'anthropic'
+          | 'google'
+          | 'deepseek'
+          | 'moonshot'
+          | 'spark',
+        originKey: keyData.originKey,
+        baseUrl: keyData.baseUrl || '',
+        lastUsed: keyData.lastUsed,
+        status: keyData.status,
+      });
+    } else {
+      setFormData({
+        name: '',
+        provider: 'openai',
+        originKey: '',
+        baseUrl: '',
+        lastUsed: undefined,
+        status: 'active',
+      });
+    }
+    setErrors({});
+    setShowKey(false);
+  }, [keyData, open]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-106.25">
@@ -209,8 +204,8 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
                 <Input
                   id="key"
                   type={showKey ? 'text' : 'password'}
-                  value={formData.key}
-                  onChange={(e) => handleInputChange('key', e.target.value)}
+                  value={formData.originKey}
+                  onChange={(e) => handleInputChange('originKey', e.target.value)}
                   placeholder={getKeyPlaceholder(formData.provider)}
                   className="pr-10"
                   aria-invalid={!!errors.key}

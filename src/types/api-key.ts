@@ -12,7 +12,7 @@ export interface ApiKey {
   status: 'active' | 'disabled';
 }
 
-export type ApiKeyFormData = Omit<ApiKey, 'id' | 'createdAt' | 'originKey' | 'originId'>;
+export type ApiKeyFormData = Omit<ApiKey, 'id' | 'createdAt' | 'key' | 'originId'>;
 
 export interface ApiKeyTestResult {
   isValid: boolean;
