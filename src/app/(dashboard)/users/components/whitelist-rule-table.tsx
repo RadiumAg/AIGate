@@ -19,10 +19,10 @@ interface WhitelistRule {
 
 interface WhitelistRuleTableProps {
   rules: WhitelistRule[];
+  isLoading?: boolean;
   onEdit: (rule: WhitelistRule) => void;
   onDelete: (id: string) => void;
   onToggleStatus: (id: string) => void;
-  isLoading?: boolean;
 }
 
 const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
