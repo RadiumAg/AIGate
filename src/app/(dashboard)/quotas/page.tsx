@@ -9,6 +9,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { confirm } from '@/components/ui/confirm';
 import { toast } from 'sonner';
+import { useMemoizedFn } from 'ahooks';
 
 interface QuotaPolicy {
   id: string;
@@ -29,7 +30,8 @@ const QuotasPage: React.FC = () => {
     refetch: refetchPolicies,
     isLoading,
   } = trpc.quota.getAllPolicies.useQuery();
-
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [editingPolicy, setEditingPolicy] = React.useState<QuotaPolicy | null>(null);
   const createPolicyMutation = trpc.quota.createPolicy.useMutation({
     onSuccess: () => {
       refetchPolicies();
@@ -55,24 +57,21 @@ const QuotasPage: React.FC = () => {
     },
   });
 
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [editingPolicy, setEditingPolicy] = React.useState<QuotaPolicy | null>(null);
-
-  const handleAddPolicy = () => {
+  const handleAddPolicy = useMemoizedFn(() => {
     setEditingPolicy(null);
     setIsDialogOpen(true);
-  };
+  });
 
-  const handleEditPolicy = (policy: QuotaPolicy) => {
+  const handleEditPolicy = useMemoizedFn((policy: QuotaPolicy) => {
     setEditingPolicy(policy);
     setIsDialogOpen(true);
-  };
+  });
 
-  const handleDeletePolicy = (id: string) => {
+  const handleDeletePolicy = useMemoizedFn((id: string) => {
     confirm('确定要删除这个配额策略吗？').then(() => {
       deletePolicyMutation.mutate({ id });
     });
-  };
+  });
 
   const handleSavePolicy = (policy: Omit<QuotaPolicy, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingPolicy) {

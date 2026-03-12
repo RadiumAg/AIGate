@@ -9,6 +9,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { confirm } from '@/components/ui/confirm';
 import { toast } from 'sonner';
+import { useMemoizedFn } from 'ahooks';
 
 interface WhitelistRule {
   id: string;
@@ -22,6 +23,8 @@ interface WhitelistRule {
 }
 
 const UsersPage: React.FC = () => {
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [editingRule, setEditingRule] = React.useState<WhitelistRule | null>(null);
   // 获取白名单规则数据
   const {
     data: whitelistRules = [],
@@ -77,31 +80,28 @@ const UsersPage: React.FC = () => {
     },
   });
 
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [editingRule, setEditingRule] = React.useState<WhitelistRule | null>(null);
-
   // 白名单管理函数
-  const handleAddRule = () => {
+  const handleAddRule = useMemoizedFn(() => {
     setEditingRule(null);
     setIsDialogOpen(true);
-  };
+  });
 
-  const handleEditRule = (rule: WhitelistRule) => {
+  const handleEditRule = useMemoizedFn((rule: WhitelistRule) => {
     setEditingRule(rule);
     setIsDialogOpen(true);
-  };
+  });
 
-  const handleDeleteRule = (id: string) => {
+  const handleDeleteRule = useMemoizedFn((id: string) => {
     confirm('确定要删除这条白名单规则吗？').then(() => {
       deleteRuleMutation.mutate({ id });
     });
-  };
+  });
 
-  const handleToggleRuleStatus = (id: string) => {
+  const handleToggleRuleStatus = useMemoizedFn((id: string) => {
     toggleStatusMutation.mutate({ id });
-  };
+  });
 
-  const handleSaveRule = (rule: Omit<WhitelistRule, 'id' | 'createdAt'>) => {
+  const handleSaveRule = useMemoizedFn((rule: Omit<WhitelistRule, 'id' | 'createdAt'>) => {
     if (editingRule) {
       updateRuleMutation.mutate({
         ...rule,
@@ -110,7 +110,7 @@ const UsersPage: React.FC = () => {
     } else {
       createRuleMutation.mutate(rule);
     }
-  };
+  });
 
   return (
     <div className="space-y-6">

@@ -3,7 +3,6 @@
 import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Copy, KeyRound } from 'lucide-react';
-import { Spinner } from '@/components/ui/spinner';
 import type { ApiKey } from '@/types/api-key';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,7 @@ interface ApiKeyTableProps {
 }
 
 const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
-  const { keys, onEdit, onDelete, onToggleStatus, onTest, isTestingId } = props;
+  const { keys, onEdit, onDelete, onToggleStatus } = props;
 
   const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -151,7 +150,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
         },
       },
     ],
-    [onEdit, onDelete, onToggleStatus, onTest, isTestingId]
+    [onDelete, onEdit, onToggleStatus]
   );
 
   const emptyIcon = (

@@ -9,9 +9,11 @@ import AddApiKeyDialog from './components/add-api-key-dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { confirm } from '@/components/ui/confirm';
+import { useMemoizedFn } from 'ahooks';
 
 const KeysPage: React.FC = () => {
-  // tRPC hooks
+  const [showDialog, setShowDialog] = React.useState(false);
+  const [editingKey, setEditingKey] = React.useState<ApiKey | null>(null);
   const { data: keys = [], isLoading, refetch } = trpc.apiKey.getAll.useQuery();
   const createMutation = trpc.apiKey.create.useMutation({
     onSuccess: () => {
@@ -49,20 +51,18 @@ const KeysPage: React.FC = () => {
       toast.error(error instanceof Error ? error.message : '状态切换失败');
     },
   });
-  const [showDialog, setShowDialog] = React.useState(false);
-  const [editingKey, setEditingKey] = React.useState<ApiKey | null>(null);
 
   const handleAddKey = () => {
     setEditingKey(null);
     setShowDialog(true);
   };
 
-  const handleEditKey = (key: ApiKey) => {
+  const handleEditKey = useMemoizedFn((key: ApiKey) => {
     setEditingKey(key);
     setShowDialog(true);
-  };
+  });
 
-  const handleDeleteKey = (id: string) => {
+  const handleDeleteKey = useMemoizedFn((id: string) => {
     const key = keys.find((k) => k.id === id);
     if (key) {
       confirm({
@@ -72,14 +72,14 @@ const KeysPage: React.FC = () => {
         },
       });
     }
-  };
+  });
 
-  const handleToggleStatus = (id: string) => {
+  const handleToggleStatus = useMemoizedFn((id: string) => {
     toggleStatusMutation.mutate({ id });
     refetch();
-  };
+  });
 
-  const handleSaveKey = (keyData: ApiKeyFormData) => {
+  const handleSaveKey = useMemoizedFn((keyData: ApiKeyFormData) => {
     if (editingKey) {
       updateMutation.mutate({
         ...keyData,
@@ -93,7 +93,7 @@ const KeysPage: React.FC = () => {
     setShowDialog(false);
     setEditingKey(null);
     refetch();
-  };
+  });
 
   return (
     <div className="space-y-6">
