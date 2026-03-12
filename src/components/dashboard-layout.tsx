@@ -14,9 +14,11 @@ import {
   Moon,
   LogOut,
   User,
+  Github,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { isDemoMode } from '@/lib/demo-config';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -131,6 +133,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
               {navigation.find((item) => item.href === pathname)?.name || '仪表板'}
             </h2>
             <div className="flex items-center space-x-3">
+              {isDemoMode() && (
+                <a
+                  href="https://github.com/RadiumAg/AIGate"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 rounded-xl bg-white/40 dark:bg-white/5 text-foreground/70 hover:bg-white/60 dark:hover:bg-white/10 hover:text-foreground transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] backdrop-blur-sm border border-white/30 dark:border-white/10 hover:scale-110 shadow-sm"
+                  title="查看项目源码"
+                >
+                  <Github className="h-5 w-5" />
+                </a>
+              )}
               <button
                 onClick={toggleTheme}
                 className="p-2.5 rounded-xl bg-white/40 dark:bg-white/5 text-foreground/70 hover:bg-white/60 dark:hover:bg-white/10 hover:text-foreground transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] backdrop-blur-sm border border-white/30 dark:border-white/10 hover:scale-110 shadow-sm"
