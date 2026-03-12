@@ -21,16 +21,16 @@
 - [src/pages/api/ai/chat/stream.ts](file://src/pages/api/ai/chat/stream.ts)
 - [src/server/api/routers/ai.ts](file://src/server/api/routers/ai.ts)
 - [src/types/api-key.ts](file://src/types/api-key.ts)
+- [src/lib/schema.ts](file://src/lib/schema.ts)
 </cite>
 
 ## 更新摘要
 **变更内容**
-- 集成新的液体玻璃样式确认对话框系统，替代了原有的 DeleteConfirmModal 组件
-- 采用现代化的 ConfirmProvider 和 confirm 函数提供统一的确认操作体验
-- 优化用户反馈机制：使用 toast.success() 和 toast.error() 提供更直观的用户体验
-- 改进删除操作：确保 API Key 表格组件使用正确的 originId 字段进行删除
-- 增强前端交互体验：通过液体玻璃效果的对话框提供沉浸式的确认操作
-- 修复 API Key 表格组件状态切换 ID 错误：从 key.id 更改为 key.originId
+- API Key 字段命名标准化：将 `originId` 和 `originKey` 替换为 `id` 和 `key`，提升字段命名的一致性和语义清晰度
+- API Key 表格显示逻辑更新：表格组件现在直接使用标准字段 `id` 和 `key` 进行显示和操作
+- API Key 表单状态管理优化：表单组件使用标准化的字段命名，确保编辑和新增操作的准确性
+- 服务器端 API 路由器数据转换：后端路由层已适配新的字段命名，保持前后端数据格式一致
+- 数据库模式保持不变：数据库层面的字段仍为 `id` 和 `key`，与前端标准化保持一致
 
 ## 目录
 1. [简介](#简介)
@@ -47,7 +47,7 @@
 ## 简介
 本文件面向管理员与开发者，系统性阐述 API Key 管理系统的实现与使用。内容涵盖密钥的生成、验证、状态管理与生命周期控制；密钥绑定策略（白名单规则）、提供商关联、权限控制与使用统计；密钥轮换机制、安全策略配置、批量管理操作与审计日志记录。同时提供具体 API 调用示例与管理界面使用指南，帮助管理员高效、安全地管理 API Key。
 
-**更新** 系统现已集成全新的液体玻璃样式确认对话框系统，提供现代化的用户体验。该系统基于 ConfirmProvider 和 confirm 函数，采用 Radix UI 对话框组件，具备毛玻璃效果和动画过渡。Toast 通知系统已完全集成，替代传统的错误/成功消息显示。
+**更新** 系统已完成 API Key 字段命名标准化，将 `originId` 和 `originKey` 统一为 `id` 和 `key`，提升了代码的一致性和可维护性。这一变更已全面适配前端表格显示逻辑、表单状态管理和服务器端 API 路由器的数据转换。
 
 ## 项目结构
 API Key 管理涉及三层：前端页面与对话框、后端 tRPC 路由层、数据库与缓存层。前端负责展示与交互，tRPC 路由负责业务编排与参数校验，数据库与缓存负责持久化与高性能读取。新的液体玻璃样式确认对话框系统通过 ConfirmProvider 全局集成，为所有页面提供统一的确认操作体验。
@@ -106,7 +106,7 @@ QuotaRouter --> DB
 - **液体玻璃确认系统**：基于 ConfirmProvider 和 confirm 函数的现代化确认对话框系统，提供统一的用户反馈层。
 - **Toast 通知系统**：基于 Sonner 库的现代化通知组件，提供成功、错误、警告等多类型反馈。
 
-**更新** 新增液体玻璃样式确认对话框系统，采用 ConfirmProvider 和 confirm 函数实现统一的确认操作体验。系统现已完全集成液体玻璃效果的对话框组件，提供毛玻璃背景、阴影和动画过渡。
+**更新** API Key 字段命名已完成标准化，统一使用 `id` 和 `key` 字段，提升了代码的一致性和可维护性。前端表格组件、表单组件和后端路由层均已适配新的字段命名规范。
 
 **章节来源**
 - [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
@@ -188,12 +188,12 @@ Stats --> End
 ### 前端页面与交互
 - **KeysPage**：集中管理 tRPC 查询与变更，处理加载状态，集成液体玻璃样式确认对话框系统和 Toast 通知系统，触发刷新。
 - **AddApiKeyDialog**：表单校验（名称、API Key 必填），动态占位符与提供商提示，支持新增与编辑。
-- **ApiKeyTable**：展示密钥列表，支持复制、启用/禁用、编辑、删除与测试按钮，使用 Toast 进行即时反馈。**更新**：已修复状态切换使用正确的 originId 字段。
+- **ApiKeyTable**：展示密钥列表，支持复制、启用/禁用、编辑、删除与测试按钮，使用 Toast 进行即时反馈。**更新**：已适配标准化的字段命名，使用 `id` 和 `key` 字段进行操作。
 - **DeleteConfirmModal**：基于液体玻璃样式的二次确认删除对话框，提供毛玻璃背景和阴影效果，防止误操作。**更新**：该组件已被新的 confirm() 函数系统替代。
 - **液体玻璃确认系统**：基于 ConfirmProvider 和 confirm 函数的现代化确认对话框系统，提供统一的用户交互体验。
 - **Toast 通知系统**：基于 Sonner 的现代化通知组件，提供成功、错误、警告等多类型反馈。
 
-**更新** KeysPage 组件已完全迁移到基于液体玻璃样式确认对话框系统，移除了传统的 DeleteConfirmModal 组件。API Key 表格组件已修复状态切换 ID 错误，从 key.id 更改为 key.originId。液体玻璃样式确认对话框系统提供毛玻璃效果、阴影和动画过渡，增强用户体验。
+**更新** KeysPage 组件已完全迁移到基于液体玻璃样式确认对话框系统，移除了传统的 DeleteConfirmModal 组件。API Key 表格组件已适配标准化的字段命名，使用 `key.id` 和 `key.key` 进行状态切换和操作。液体玻璃样式确认对话框系统提供毛玻璃效果、阴影和动画过渡，增强用户体验。
 
 ```mermaid
 sequenceDiagram
@@ -239,6 +239,24 @@ Page->>Table : 刷新数据
 - [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L1-L54)
 - [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
+
+### API Key 字段命名标准化
+**更新** 系统已完成 API Key 字段命名标准化，将 `originId` 和 `originKey` 统一为 `id` 和 `key`，提升代码的一致性和语义清晰度。
+
+- **标准化前**：前端组件使用 `originId` 和 `originKey` 字段，可能导致命名不一致和混淆。
+- **标准化后**：统一使用 `id` 和 `key` 字段，提升代码的可读性和维护性。
+- **适配范围**：前端表格组件、表单组件、后端路由层和数据库模式均已适配新的字段命名。
+- **字段含义**：
+  - `id`：API Key 的唯一标识符
+  - `key`：实际的 API 密钥值
+  - `maskId`：脱敏后的 ID 显示
+  - `maskKey`：脱敏后的密钥显示
+
+**章节来源**
+- [src/types/api-key.ts:1-21](file://src/types/api-key.ts#L1-L21)
+- [src/app/(dashboard)/keys/components/api-key-table.tsx:41-72](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L41-L72)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:36-44](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L36-L44)
+- [src/server/api/routers/api-key.ts:75-85](file://src/server/api/routers/api-key.ts#L75-L85)
 
 ### 液体玻璃样式确认对话框系统
 - **ConfirmProvider**：全局提供确认对话框服务，维护确认状态和回调函数，支持 Promise 风格的异步调用。
@@ -452,7 +470,7 @@ Toast --> QR
 - **Toast 性能**：Toast 通知系统采用轻量级实现，不会对页面性能造成显著影响。
 - **确认系统性能**：液体玻璃确认系统采用 React 状态管理，Promise 异步处理，性能开销最小化。
 
-**更新** Toast 通知系统和液体玻璃确认系统均采用轻量级实现，确保不影响页面性能。确认系统通过 ConfirmProvider 单例模式管理状态，避免重复实例化。
+**更新** API Key 字段命名标准化提升了代码的可维护性，但对性能影响微乎其微。Toast 通知系统和液体玻璃确认系统均采用轻量级实现，确保不影响页面性能。确认系统通过 ConfirmProvider 单例模式管理状态，避免重复实例化。
 
 ## 故障排除指南
 - **API Key 无法使用**
@@ -471,12 +489,14 @@ Toast --> QR
 - **Toast 通知问题**
   - 检查全局布局中是否正确引入了 Toaster 组件。
   - 确认网络连接正常，Toast 通知系统能够正常工作。
+- **字段命名错误**
+  - **更新** 确保使用标准化的 `id` 和 `key` 字段进行操作，而非旧的 `originId` 和 `originKey`。
 - **状态切换错误**
-  - **更新** 确保使用正确的 originId 字段进行状态切换，而非 key.id。
+  - **更新** 确保使用正确的 `key.id` 字段进行状态切换，而非其他字段。
 - **日志定位**
   - 查看日志模块输出的配额检查与 AI 请求记录，定位异常原因。
 
-**更新** 新增液体玻璃确认对话框系统故障排除指南和状态切换错误的故障排除指导。新增 confirm 函数调用方式检查和 backdrop-filter 属性支持检查。
+**更新** 新增 API Key 字段命名标准化相关的故障排除指南，包括 `id` 和 `key` 字段的正确使用方法。新增字段命名错误的故障排除指导，确保开发者正确使用标准化的字段命名。
 
 **章节来源**
 - [src/server/api/routers/api-key.ts:272-322](file://src/server/api/routers/api-key.ts#L272-L322)
@@ -490,7 +510,7 @@ Toast --> QR
 ## 结论
 本系统通过 tRPC、数据库与 Redis 的协同，实现了 API Key 的全生命周期管理与严格的权限控制。白名单规则与配额策略解耦设计，既保证灵活性又兼顾性能。配合完善的审计日志、现代化的 Toast 通知系统和液体玻璃样式确认对话框系统，管理员可以高效、安全地管理密钥并保障系统稳定运行。
 
-**更新** 新的液体玻璃样式确认对话框系统提供了更直观、一致的用户反馈体验，进一步提升了系统的易用性和专业性。Toast 通知系统和液体玻璃确认系统均采用现代化设计，提供沉浸式的用户体验。API Key 表格组件的 ID 错误修复确保了操作的准确性和可靠性。
+**更新** 新的液体玻璃样式确认对话框系统提供了更直观、一致的用户反馈体验，进一步提升了系统的易用性和专业性。Toast 通知系统和液体玻璃确认系统均采用现代化设计，提供沉浸式的用户体验。API Key 字段命名标准化提升了代码的一致性和可维护性，确保了操作的准确性和可靠性。
 
 ## 附录
 
@@ -521,7 +541,30 @@ Toast --> QR
 - 如需测试密钥有效性，可在表格中点击"测试"按钮（若后端提供相应能力）。
 - 所有操作都会通过 Toast 通知系统提供即时反馈，包括成功、错误或警告信息。
 - **更新** 删除操作会弹出液体玻璃样式确认对话框，提供毛玻璃背景和阴影效果，确保操作安全性。
-- **更新** 状态切换操作使用正确的 originId 字段，确保操作的准确性。
+- **更新** 状态切换操作使用标准化的 `key.id` 字段，确保操作的准确性和一致性。
+
+### API Key 字段命名标准化指南
+**更新** 新增 API Key 字段命名标准化使用指南，帮助开发者正确使用新的字段命名规范。
+
+- **标准化字段**：
+  - `id`：API Key 的唯一标识符
+  - `key`：实际的 API 密钥值
+  - `maskId`：脱敏后的 ID 显示
+  - `maskKey`：脱敏后的密钥显示
+- **使用规范**：
+  - 前端表格组件使用 `key.id` 和 `key.key` 进行显示和操作
+  - 表单组件使用 `formData.id` 和 `formData.key` 进行数据绑定
+  - 后端路由层使用 `input.id` 和 `input.key` 进行数据处理
+- **迁移注意事项**：
+  - 避免使用旧的 `originId` 和 `originKey` 字段
+  - 确保所有组件和路由层都使用标准化的字段命名
+  - 检查数据库查询和缓存操作中的字段引用
+
+**章节来源**
+- [src/types/api-key.ts:1-21](file://src/types/api-key.ts#L1-L21)
+- [src/app/(dashboard)/keys/components/api-key-table.tsx:127](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L127)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:118](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L118)
+- [src/server/api/routers/api-key.ts:141](file://src/server/api/routers/api-key.ts#L141)
 
 ### 液体玻璃确认对话框系统配置
 - **全局集成**：在应用根布局中引入 ConfirmProvider 组件，确保所有页面都能使用确认对话框功能。
@@ -568,3 +611,30 @@ Toast --> QR
 - [src/app/(dashboard)/keys/page.tsx:65-75](file://src/app/(dashboard)/keys/page.tsx#L65-L75)
 - [src/app/layout.tsx:54-56](file://src/app/layout.tsx#L54-L56)
 - [src/components/ui/confirm.tsx:155-169](file://src/components/ui/confirm.tsx#L155-L169)
+
+### 数据库模式与字段映射
+**更新** 新增数据库模式与字段映射说明，展示标准化前后字段的对应关系。
+
+- **数据库字段**（保持不变）：
+  - `id`：API Key 的唯一标识符
+  - `key`：实际的 API 密钥值
+  - `name`：API Key 的名称
+  - `provider`：提供商类型
+  - `base_url`：自定义基础 URL
+  - `status`：状态（ACTIVE/INACTIVE/SUSPENDED）
+  - `created_at`：创建时间
+  - `updated_at`：更新时间
+- **前端字段映射**：
+  - `id` ↔ `id`
+  - `key` ↔ `key`
+  - `maskId` ↔ `maskApiKey(id)`
+  - `maskKey` ↔ `maskApiKey(key)`
+- **标准化优势**：
+  - 提升代码一致性
+  - 减少命名混淆
+  - 便于维护和扩展
+
+**章节来源**
+- [src/lib/schema.ts:42-52](file://src/lib/schema.ts#L42-L52)
+- [src/server/api/routers/api-key.ts:75-85](file://src/server/api/routers/api-key.ts#L75-L85)
+- [src/types/api-key.ts:2-12](file://src/types/api-key.ts#L2-L12)
