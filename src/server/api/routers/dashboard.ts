@@ -5,6 +5,8 @@ import { db } from '@/lib/drizzle';
 import { usageRecords } from '@/lib/schema';
 import { and, gte, lte, count, sum, sql, isNotNull } from 'drizzle-orm';
 import { z } from 'zod';
+import { isDemoMode } from '@/lib/demo-config';
+import { getDemoStats } from '@/lib/demo-stats';
 
 export const dashboardRouter = createTRPCRouter({
   // 获取仪表盘统计数据
@@ -35,113 +37,135 @@ export const dashboardRouter = createTRPCRouter({
         comparisonEnd.setDate(comparisonEnd.getDate() - diffDays);
 
         // 获取当前时间段和对比时间段的数据
-        const [
-          currentPeriodUsersResult,
-          comparisonPeriodUsersResult,
-          currentPeriodRequestsResult,
-          comparisonPeriodRequestsResult,
-          currentPeriodTokensResult,
-          comparisonPeriodTokensResult,
-          currentPeriodActiveUsersResult,
-          comparisonPeriodActiveUsersResult,
-        ] = await Promise.all([
-          // 当前时间段唯一用户数
-          db
-            .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
-            .from(usageRecords)
-            .where(
-              and(
-                gte(usageRecords.timestamp, queryStartDate),
-                lte(usageRecords.timestamp, queryEndDate)
-              )
-            ),
+        let currentUsers: number;
+        let comparisonUsers: number;
+        let currentRequests: number;
+        let comparisonRequests: number;
+        let currentTokens: number;
+        let comparisonTokens: number;
+        let currentActiveUsers: number;
+        let comparisonActiveUsers: number;
 
-          // 对比时间段唯一用户数
-          db
-            .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
-            .from(usageRecords)
-            .where(
-              and(
-                gte(usageRecords.timestamp, comparisonStart),
-                lte(usageRecords.timestamp, comparisonEnd)
-              )
-            ),
+        if (isDemoMode()) {
+          // 演示模式：使用内存数据统计
+          currentUsers = getDemoStats.getDistinctUserCount(queryStartDate, queryEndDate).count;
+          comparisonUsers = getDemoStats.getDistinctUserCount(comparisonStart, comparisonEnd).count;
+          currentRequests = getDemoStats.getRequestCount(queryStartDate, queryEndDate).count;
+          comparisonRequests = getDemoStats.getRequestCount(comparisonStart, comparisonEnd).count;
+          currentTokens = getDemoStats.getTokenSum(queryStartDate, queryEndDate).sum || 0;
+          comparisonTokens = getDemoStats.getTokenSum(comparisonStart, comparisonEnd).sum || 0;
+          currentActiveUsers = currentUsers;
+          comparisonActiveUsers = comparisonUsers;
+        } else {
+          // 生产模式：使用数据库查询
+          const [
+            currentPeriodUsersResult,
+            comparisonPeriodUsersResult,
+            currentPeriodRequestsResult,
+            comparisonPeriodRequestsResult,
+            currentPeriodTokensResult,
+            comparisonPeriodTokensResult,
+            currentPeriodActiveUsersResult,
+            comparisonPeriodActiveUsersResult,
+          ] = await Promise.all([
+            // 当前时间段唯一用户数
+            db
+              .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
+              .from(usageRecords)
+              .where(
+                and(
+                  gte(usageRecords.timestamp, queryStartDate),
+                  lte(usageRecords.timestamp, queryEndDate)
+                )
+              ),
 
-          // 当前时间段请求数
-          db
-            .select({ count: count() })
-            .from(usageRecords)
-            .where(
-              and(
-                gte(usageRecords.timestamp, queryStartDate),
-                lte(usageRecords.timestamp, queryEndDate)
-              )
-            ),
+            // 对比时间段唯一用户数
+            db
+              .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
+              .from(usageRecords)
+              .where(
+                and(
+                  gte(usageRecords.timestamp, comparisonStart),
+                  lte(usageRecords.timestamp, comparisonEnd)
+                )
+              ),
 
-          // 对比时间段请求数
-          db
-            .select({ count: count() })
-            .from(usageRecords)
-            .where(
-              and(
-                gte(usageRecords.timestamp, comparisonStart),
-                lte(usageRecords.timestamp, comparisonEnd)
-              )
-            ),
+            // 当前时间段请求数
+            db
+              .select({ count: count() })
+              .from(usageRecords)
+              .where(
+                and(
+                  gte(usageRecords.timestamp, queryStartDate),
+                  lte(usageRecords.timestamp, queryEndDate)
+                )
+              ),
 
-          // 当前时间段 Token 消耗
-          db
-            .select({ sum: sum(usageRecords.totalTokens) })
-            .from(usageRecords)
-            .where(
-              and(
-                gte(usageRecords.timestamp, queryStartDate),
-                lte(usageRecords.timestamp, queryEndDate)
-              )
-            ),
+            // 对比时间段请求数
+            db
+              .select({ count: count() })
+              .from(usageRecords)
+              .where(
+                and(
+                  gte(usageRecords.timestamp, comparisonStart),
+                  lte(usageRecords.timestamp, comparisonEnd)
+                )
+              ),
 
-          // 对比时间段 Token 消耗
-          db
-            .select({ sum: sum(usageRecords.totalTokens) })
-            .from(usageRecords)
-            .where(
-              and(
-                gte(usageRecords.timestamp, comparisonStart),
-                lte(usageRecords.timestamp, comparisonEnd)
-              )
-            ),
+            // 当前时间段 Token 消耗
+            db
+              .select({ sum: sum(usageRecords.totalTokens) })
+              .from(usageRecords)
+              .where(
+                and(
+                  gte(usageRecords.timestamp, queryStartDate),
+                  lte(usageRecords.timestamp, queryEndDate)
+                )
+              ),
 
-          // 当前时间段活跃用户数
-          db
-            .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
-            .from(usageRecords)
-            .where(
-              and(
-                gte(usageRecords.timestamp, queryStartDate),
-                lte(usageRecords.timestamp, queryEndDate)
-              )
-            ),
+            // 对比时间段 Token 消耗
+            db
+              .select({ sum: sum(usageRecords.totalTokens) })
+              .from(usageRecords)
+              .where(
+                and(
+                  gte(usageRecords.timestamp, comparisonStart),
+                  lte(usageRecords.timestamp, comparisonEnd)
+                )
+              ),
 
-          // 对比时间段活跃用户数
-          db
-            .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
-            .from(usageRecords)
-            .where(
-              and(
-                gte(usageRecords.timestamp, comparisonStart),
-                lte(usageRecords.timestamp, comparisonEnd)
-              )
-            ),
-        ]);
+            // 当前时间段活跃用户数
+            db
+              .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
+              .from(usageRecords)
+              .where(
+                and(
+                  gte(usageRecords.timestamp, queryStartDate),
+                  lte(usageRecords.timestamp, queryEndDate)
+                )
+              ),
 
-        const currentUsers = Number(currentPeriodUsersResult[0]?.count || 0);
-        const comparisonUsers = Number(comparisonPeriodUsersResult[0]?.count || 0);
-        const currentRequests = Number(currentPeriodRequestsResult[0]?.count || 0);
-        const comparisonRequests = Number(comparisonPeriodRequestsResult[0]?.count || 0);
-        const currentTokens = Number(currentPeriodTokensResult[0]?.sum || 0);
-        const comparisonTokens = Number(comparisonPeriodTokensResult[0]?.sum || 0);
-        const currentActiveUsers = Number(currentPeriodActiveUsersResult[0]?.count || 0);
-        const comparisonActiveUsers = Number(comparisonPeriodActiveUsersResult[0]?.count || 0);
+            // 对比时间段活跃用户数
+            db
+              .select({ count: sql<number>`count(distinct ${usageRecords.userId})` })
+              .from(usageRecords)
+              .where(
+                and(
+                  gte(usageRecords.timestamp, comparisonStart),
+                  lte(usageRecords.timestamp, comparisonEnd)
+                )
+              ),
+          ]);
+
+          currentUsers = Number(currentPeriodUsersResult[0]?.count || 0);
+          comparisonUsers = Number(comparisonPeriodUsersResult[0]?.count || 0);
+          currentRequests = Number(currentPeriodRequestsResult[0]?.count || 0);
+          comparisonRequests = Number(comparisonPeriodRequestsResult[0]?.count || 0);
+          currentTokens = Number(currentPeriodTokensResult[0]?.sum || 0);
+          comparisonTokens = Number(comparisonPeriodTokensResult[0]?.sum || 0);
+          currentActiveUsers = Number(currentPeriodActiveUsersResult[0]?.count || 0);
+          comparisonActiveUsers = Number(comparisonPeriodActiveUsersResult[0]?.count || 0);
+        }
 
         // 计算增长率
         const userGrowthRate =
@@ -334,26 +358,42 @@ export const dashboardRouter = createTRPCRouter({
           queryEndDate.setHours(23, 59, 59, 999);
         }
 
-        const results = await db
-          .select({
-            region: usageRecords.region,
-            requestCount: count(),
-            tokenCount: sum(usageRecords.totalTokens),
-          })
-          .from(usageRecords)
-          .where(
-            and(
-              gte(usageRecords.timestamp, queryStartDate),
-              lte(usageRecords.timestamp, queryEndDate),
-              isNotNull(usageRecords.region)
+        let results: Array<{
+          region: string | null;
+          requestCount: number;
+          tokenCount: number | null;
+        }>;
+
+        if (isDemoMode()) {
+          results = getDemoStats.getRegionDistribution(queryStartDate, queryEndDate);
+        } else {
+          const dbResults = await db
+            .select({
+              region: usageRecords.region,
+              requestCount: count(),
+              tokenCount: sum(usageRecords.totalTokens),
+            })
+            .from(usageRecords)
+            .where(
+              and(
+                gte(usageRecords.timestamp, queryStartDate),
+                lte(usageRecords.timestamp, queryEndDate),
+                isNotNull(usageRecords.region)
+              )
             )
-          )
-          .groupBy(usageRecords.region);
+            .groupBy(usageRecords.region);
+
+          results = dbResults.map((item) => ({
+            region: item.region,
+            requestCount: Number(item.requestCount),
+            tokenCount: Number(item.tokenCount || 0),
+          }));
+        }
 
         return results.map((item) => ({
           name: item.region || '未知',
-          value: Number(item.requestCount),
-          tokens: Number(item.tokenCount || 0),
+          value: item.requestCount,
+          tokens: item.tokenCount || 0,
         }));
       } catch (error) {
         console.error('获取地区分布失败:', error);
@@ -364,21 +404,40 @@ export const dashboardRouter = createTRPCRouter({
   // 获取最近 IP 请求记录
   getRecentIpRequests: protectedProcedure.query(async () => {
     try {
-      const results = await db
-        .select({
-          id: usageRecords.id,
-          userId: usageRecords.userId,
-          clientIp: usageRecords.clientIp,
-          region: usageRecords.region,
-          model: usageRecords.model,
-          provider: usageRecords.provider,
-          totalTokens: usageRecords.totalTokens,
-          timestamp: usageRecords.timestamp,
-        })
-        .from(usageRecords)
-        .where(isNotNull(usageRecords.clientIp))
-        .orderBy(sql`${usageRecords.timestamp} desc`)
-        .limit(20);
+      let results: Array<{
+        id: string;
+        userId: string;
+        clientIp: string | null;
+        region: string | null;
+        model: string;
+        provider: string;
+        totalTokens: number;
+        timestamp: Date;
+      }>;
+
+      if (isDemoMode()) {
+        results = getDemoStats.getRecentIpRequests(20).map((r) => ({
+          ...r,
+          clientIp: r.clientIp as string | null,
+          region: r.region as string | null,
+        }));
+      } else {
+        results = await db
+          .select({
+            id: usageRecords.id,
+            userId: usageRecords.userId,
+            clientIp: usageRecords.clientIp,
+            region: usageRecords.region,
+            model: usageRecords.model,
+            provider: usageRecords.provider,
+            totalTokens: usageRecords.totalTokens,
+            timestamp: usageRecords.timestamp,
+          })
+          .from(usageRecords)
+          .where(isNotNull(usageRecords.clientIp))
+          .orderBy(sql`${usageRecords.timestamp} desc`)
+          .limit(20);
+      }
 
       return results.map((record) => ({
         id: record.id,

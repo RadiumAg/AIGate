@@ -15,10 +15,15 @@ import type {
   NewUser,
 } from './schema';
 import { convertProviderToDb } from './provider-utils';
+import { isDemoMode } from './demo-config';
+import { demoDataStore } from './demo-data';
 
 // API Key 数据库操作
 export const apiKeyDb = {
   getAll: async (): Promise<ApiKey[]> => {
+    if (isDemoMode()) {
+      return demoDataStore.getAllApiKeys();
+    }
     try {
       return await db.select().from(apiKeys);
     } catch (error) {
@@ -28,6 +33,9 @@ export const apiKeyDb = {
   },
 
   getByProvider: async (provider: string): Promise<ApiKey[]> => {
+    if (isDemoMode()) {
+      return demoDataStore.getApiKeysByProvider(provider);
+    }
     try {
       return await db
         .select()
@@ -40,6 +48,9 @@ export const apiKeyDb = {
   },
 
   getById: async (id: string): Promise<ApiKey | null> => {
+    if (isDemoMode()) {
+      return demoDataStore.getApiKeyById(id);
+    }
     try {
       const result = await db.select().from(apiKeys).where(eq(apiKeys.id, id)).limit(1);
       return result[0] || null;
@@ -50,11 +61,17 @@ export const apiKeyDb = {
   },
 
   create: async (apiKey: NewApiKey): Promise<ApiKey> => {
+    if (isDemoMode()) {
+      return demoDataStore.createApiKey(apiKey);
+    }
     const result = await db.insert(apiKeys).values(apiKey).returning();
     return result[0];
   },
 
   update: async (id: string, updates: Partial<ApiKey>): Promise<ApiKey | null> => {
+    if (isDemoMode()) {
+      return demoDataStore.updateApiKey(id, updates);
+    }
     try {
       const result = await db
         .update(apiKeys)
@@ -70,6 +87,9 @@ export const apiKeyDb = {
   },
 
   delete: async (id: string): Promise<boolean> => {
+    if (isDemoMode()) {
+      return demoDataStore.deleteApiKey(id);
+    }
     try {
       await db.delete(apiKeys).where(eq(apiKeys.id, id));
       return true;
@@ -83,6 +103,9 @@ export const apiKeyDb = {
 // 配额策略数据库操作
 export const quotaPolicyDb = {
   getAll: async (): Promise<QuotaPolicy[]> => {
+    if (isDemoMode()) {
+      return demoDataStore.getAllQuotaPolicies();
+    }
     try {
       return await db.select().from(quotaPolicies);
     } catch (error) {
@@ -92,6 +115,9 @@ export const quotaPolicyDb = {
   },
 
   getById: async (id: string): Promise<QuotaPolicy | null> => {
+    if (isDemoMode()) {
+      return demoDataStore.getQuotaPolicyById(id);
+    }
     try {
       const result = await db.select().from(quotaPolicies).where(eq(quotaPolicies.id, id)).limit(1);
       return result[0] || null;
@@ -110,11 +136,17 @@ export const quotaPolicyDb = {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+    if (isDemoMode()) {
+      return demoDataStore.createQuotaPolicy(newPolicy);
+    }
     const result = await db.insert(quotaPolicies).values(newPolicy).returning();
     return result[0];
   },
 
   update: async (id: string, updates: Partial<QuotaPolicy>): Promise<QuotaPolicy | null> => {
+    if (isDemoMode()) {
+      return demoDataStore.updateQuotaPolicy(id, updates);
+    }
     try {
       const result = await db
         .update(quotaPolicies)
@@ -130,6 +162,9 @@ export const quotaPolicyDb = {
   },
 
   delete: async (id: string): Promise<boolean> => {
+    if (isDemoMode()) {
+      return demoDataStore.deleteQuotaPolicy(id);
+    }
     try {
       await db.delete(quotaPolicies).where(eq(quotaPolicies.id, id));
       return true;
@@ -146,6 +181,17 @@ export const usageRecordDb = {
     Array<UsageRecord & { user: { id: string; name: string | null; email: string | null } }>
   > => {
     try {
+      if (isDemoMode()) {
+        const records = demoDataStore.getAllUsageRecords();
+        return records.map((record) => ({
+          ...record,
+          user: {
+            id: record.userId,
+            name: record.userId.includes('@') ? record.userId.split('@')[0] : '未知用户',
+            email: record.userId.includes('@') ? record.userId : null,
+          },
+        }));
+      }
       const results = await db.select().from(usageRecords).orderBy(desc(usageRecords.timestamp));
 
       return results.map((record) => ({
@@ -168,6 +214,17 @@ export const usageRecordDb = {
     Array<UsageRecord & { user: { id: string; name: string | null; email: string | null } }>
   > => {
     try {
+      if (isDemoMode()) {
+        const records = demoDataStore.getUsageRecordsByUserId(userId);
+        return records.map((record) => ({
+          ...record,
+          user: {
+            id: record.userId,
+            name: record.userId.includes('@') ? record.userId.split('@')[0] : '未知用户',
+            email: record.userId.includes('@') ? record.userId : null,
+          },
+        }));
+      }
       const results = await db
         .select()
         .from(usageRecords)
@@ -195,6 +252,17 @@ export const usageRecordDb = {
     Array<UsageRecord & { user: { id: string; name: string | null; email: string | null } }>
   > => {
     try {
+      if (isDemoMode()) {
+        const records = demoDataStore.getUsageRecordsByDateRange(startDate, endDate);
+        return records.map((record) => ({
+          ...record,
+          user: {
+            id: record.userId,
+            name: record.userId.includes('@') ? record.userId.split('@')[0] : '未知用户',
+            email: record.userId.includes('@') ? record.userId : null,
+          },
+        }));
+      }
       const results = await db
         .select()
         .from(usageRecords)
@@ -216,6 +284,9 @@ export const usageRecordDb = {
   },
 
   create: async (record: NewUsageRecord): Promise<UsageRecord> => {
+    if (isDemoMode()) {
+      return demoDataStore.createUsageRecord(record);
+    }
     const result = await db.insert(usageRecords).values(record).returning();
     return result[0];
   },
@@ -223,6 +294,31 @@ export const usageRecordDb = {
   // 获取统计数据
   getStats: async () => {
     try {
+      if (isDemoMode()) {
+        const records = demoDataStore.getAllUsageRecords();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+        const totalUsers = new Set(records.map((r) => r.userId)).size;
+        const todayRequests = records.filter((r) => r.timestamp >= today).length;
+        const todayTokens = records
+          .filter((r) => r.timestamp >= today)
+          .reduce((sum, r) => sum + r.totalTokens, 0);
+        const totalRequests = records.length;
+        const activeUsers = new Set(
+          records.filter((r) => r.timestamp >= sevenDaysAgo).map((r) => r.userId)
+        ).size;
+
+        return {
+          totalUsers,
+          todayRequests,
+          todayTokens,
+          totalRequests,
+          activeUsers,
+        };
+      }
+
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -292,6 +388,9 @@ export const getActiveApiKey = async (provider: string): Promise<string | null> 
 // 白名单规则数据库操作
 export const whitelistRuleDb = {
   getAll: async (): Promise<WhitelistRule[]> => {
+    if (isDemoMode()) {
+      return demoDataStore.getAllWhitelistRules();
+    }
     try {
       return await db.select().from(whitelistRules).orderBy(desc(whitelistRules.priority));
     } catch (error) {
@@ -301,6 +400,9 @@ export const whitelistRuleDb = {
   },
 
   getById: async (id: string): Promise<WhitelistRule | null> => {
+    if (isDemoMode()) {
+      return demoDataStore.getWhitelistRuleById(id);
+    }
     try {
       const result = await db
         .select()
@@ -316,6 +418,9 @@ export const whitelistRuleDb = {
 
   // 根据 API Key ID 获取白名单规则
   getByApiKeyId: async (apiKeyId: string): Promise<WhitelistRule | null> => {
+    if (isDemoMode()) {
+      return demoDataStore.getWhitelistRuleByApiKeyId(apiKeyId);
+    }
     try {
       const result = await db
         .select()
@@ -333,6 +438,13 @@ export const whitelistRuleDb = {
   getByApiKeyIdWithPolicy: async (
     apiKeyId: string
   ): Promise<{ rule: WhitelistRule; policy: QuotaPolicy } | null> => {
+    if (isDemoMode()) {
+      const rule = demoDataStore.getWhitelistRuleByApiKeyId(apiKeyId);
+      if (!rule) return null;
+      const policy = demoDataStore.getAllQuotaPolicies().find((p) => p.name === rule.policyName);
+      if (!policy) return null;
+      return { rule, policy };
+    }
     try {
       const result = await db
         .select({
@@ -360,6 +472,9 @@ export const whitelistRuleDb = {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+    if (isDemoMode()) {
+      return demoDataStore.createWhitelistRule(newRule);
+    }
     const result = await db.insert(whitelistRules).values(newRule).returning();
     return result[0];
   },
@@ -368,6 +483,9 @@ export const whitelistRuleDb = {
     id: string,
     updates: Partial<Omit<WhitelistRule, 'id' | 'createdAt'>>
   ): Promise<WhitelistRule | null> => {
+    if (isDemoMode()) {
+      return demoDataStore.updateWhitelistRule(id, updates);
+    }
     try {
       const result = await db
         .update(whitelistRules)
@@ -383,6 +501,9 @@ export const whitelistRuleDb = {
   },
 
   delete: async (id: string): Promise<boolean> => {
+    if (isDemoMode()) {
+      return demoDataStore.deleteWhitelistRule(id);
+    }
     try {
       await db.delete(whitelistRules).where(eq(whitelistRules.id, id));
       return true;
@@ -546,6 +667,16 @@ export const whitelistRuleDb = {
 
   getStats: async () => {
     try {
+      if (isDemoMode()) {
+        const rules = demoDataStore.getAllWhitelistRules();
+        return {
+          totalRules: rules.length,
+          activeRules: rules.filter((r) => r.status === 'active').length,
+          inactiveRules: rules.filter((r) => r.status === 'inactive').length,
+          highPriorityRules: rules.filter((r) => r.priority >= 5).length,
+        };
+      }
+
       const [totalRulesResult, activeRulesResult, inactiveRulesResult, highPriorityRulesResult] =
         await Promise.all([
           db.select({ count: count() }).from(whitelistRules),
@@ -582,6 +713,9 @@ export const whitelistRuleDb = {
 export const userDb = {
   // 根据邮箱查找用户
   getByEmail: async (email: string): Promise<User | null> => {
+    if (isDemoMode()) {
+      return demoDataStore.getUserByEmail(email);
+    }
     try {
       const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
       return result[0] || null;
@@ -593,6 +727,9 @@ export const userDb = {
 
   // 根据ID查找用户
   getById: async (id: string): Promise<User | null> => {
+    if (isDemoMode()) {
+      return demoDataStore.getUserById(id);
+    }
     try {
       const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
       return result[0] || null;
@@ -604,6 +741,9 @@ export const userDb = {
 
   // 获取所有管理员用户
   getAdmins: async (): Promise<User[]> => {
+    if (isDemoMode()) {
+      return demoDataStore.getAdmins();
+    }
     try {
       return await db
         .select()
@@ -618,6 +758,9 @@ export const userDb = {
 
   // 获取所有用户
   getAll: async (): Promise<User[]> => {
+    if (isDemoMode()) {
+      return demoDataStore.getAllUsers();
+    }
     try {
       return await db.select().from(users).orderBy(desc(users.createdAt));
     } catch (error) {
@@ -628,6 +771,9 @@ export const userDb = {
 
   // 创建用户
   create: async (userData: NewUser): Promise<User> => {
+    if (isDemoMode()) {
+      return demoDataStore.createUser(userData);
+    }
     try {
       const [user] = await db.insert(users).values(userData).returning();
       return user;
@@ -639,6 +785,9 @@ export const userDb = {
 
   // 更新用户
   update: async (id: string, userData: Partial<NewUser>): Promise<User | null> => {
+    if (isDemoMode()) {
+      return demoDataStore.updateUser(id, userData);
+    }
     try {
       const [user] = await db
         .update(users)
@@ -654,6 +803,9 @@ export const userDb = {
 
   // 更新用户密码
   updatePassword: async (id: string, password: string): Promise<boolean> => {
+    if (isDemoMode()) {
+      return demoDataStore.updateUserPassword(id, password);
+    }
     try {
       const [result] = await db
         .update(users)
@@ -669,6 +821,9 @@ export const userDb = {
 
   // 删除用户
   delete: async (id: string): Promise<boolean> => {
+    if (isDemoMode()) {
+      return demoDataStore.deleteUser(id);
+    }
     try {
       const [result] = await db.delete(users).where(eq(users.id, id)).returning();
       return !!result;
@@ -680,6 +835,9 @@ export const userDb = {
 
   // 删除所有用户
   deleteAll: async (): Promise<{ deletedCount: number }> => {
+    if (isDemoMode()) {
+      return demoDataStore.deleteAllUsers();
+    }
     try {
       const result = await db.delete(users).returning();
       return { deletedCount: result.length };

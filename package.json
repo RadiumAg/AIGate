@@ -5,7 +5,9 @@
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "dev": "next dev",
+    "dev:demo": "DEMO_MODE=true NEXT_PUBLIC_DEMO_MODE=true next dev",
     "build": "next build",
+    "build:demo": "DEMO_MODE=true NEXT_PUBLIC_DEMO_MODE=true next build",
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",

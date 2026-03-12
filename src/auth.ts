@@ -2,6 +2,7 @@ import NextAuth, { getServerSession as nextAuthGetServerSession } from 'next-aut
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { logError, logInfo } from './lib/logger';
 import { userDb } from './lib/database';
+import { isDemoMode, demoConfig } from './lib/demo-config';
 
 export const authOptions = {
   providers: [
@@ -14,6 +15,41 @@ export const authOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           logError('认证失败 - 缺少凭证');
+          return null;
+        }
+
+        // 演示模式：使用演示账号登录
+        if (isDemoMode()) {
+          if (
+            credentials.email === demoConfig.demoCredentials.email &&
+            credentials.password === demoConfig.demoCredentials.password
+          ) {
+            logInfo('演示模式认证成功', {
+              id: demoConfig.defaultUser.id,
+              email: demoConfig.defaultUser.email,
+              name: demoConfig.defaultUser.name,
+              role: demoConfig.defaultUser.role,
+            });
+            return {
+              id: demoConfig.defaultUser.id,
+              email: demoConfig.defaultUser.email,
+              name: demoConfig.defaultUser.name,
+              role: demoConfig.defaultUser.role,
+              status: demoConfig.defaultUser.status,
+            };
+          }
+          // 演示模式下也支持从 mock 数据登录
+          const user = await userDb.getByEmail(credentials.email);
+          if (user && user.password === credentials.password && user.status === 'ACTIVE') {
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+              status: user.status,
+            };
+          }
+          logError('演示模式认证失败 - 凭证不匹配');
           return null;
         }
 
