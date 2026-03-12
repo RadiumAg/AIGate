@@ -356,9 +356,9 @@ curl -X POST '${baseUrl}/api/ai/chat/completions' \\
 
       <CodeModal
         isOpen={showCodeModal}
-        onClose={() => setShowCodeModal(false)}
         generatedCode={generatedCode}
         onCopyToClipboard={copyToClipboard}
+        onClose={() => setShowCodeModal(false)}
       />
 
       {/* 配额调试 */}
