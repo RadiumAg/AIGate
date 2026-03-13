@@ -1,27 +1,11 @@
 {
-  "version": 2,
-  "public": true,
-  "builds": [
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/next",
-      "config": {
-        "includeFiles": [".next/**", "public/**", "src/**"]
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "env": {
     "NEXT_PUBLIC_DEMO_MODE": "true"
-  },
-  "build": {
-    "env": {
-      "NEXT_PUBLIC_DEMO_MODE": "true"
-    }
   }
 }
