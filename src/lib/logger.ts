@@ -17,6 +17,9 @@ const level = () => {
   return env === 'development' ? 'debug' : 'info';
 };
 
+// Demo 模式下禁用所有日志
+const isDemoMode = process.env.DEMO_MODE === 'true' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+
 // 自定义日志颜色
 const colors = {
   error: 'red',
@@ -45,49 +48,54 @@ const fileFormat = winston.format.combine(
 const logDir = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
 
 // 创建日志目录的 transports
-const transports: winston.transport[] = [
+const transports: winston.transport[] = [];
+
+// Demo 模式下不添加任何 transport，禁用所有日志
+if (!isDemoMode) {
   // 控制台输出
-  new winston.transports.Console({
-    format: consoleFormat,
-  }),
-];
-
-// 生产环境添加文件日志
-if (process.env.NODE_ENV === 'production') {
-  // 错误日志（单独文件）
   transports.push(
-    new DailyRotateFile({
-      filename: path.join(logDir, 'error-%DATE%.log'),
-      datePattern: 'YYYY-MM-DD',
-      level: 'error',
-      maxSize: '20m',
-      maxFiles: '30d',
-      format: fileFormat,
+    new winston.transports.Console({
+      format: consoleFormat,
     })
   );
 
-  // 所有日志（按日期轮转）
-  transports.push(
-    new DailyRotateFile({
-      filename: path.join(logDir, 'combined-%DATE%.log'),
-      datePattern: 'YYYY-MM-DD',
-      maxSize: '50m',
-      maxFiles: '30d',
-      format: fileFormat,
-    })
-  );
+  // 生产环境添加文件日志
+  if (process.env.NODE_ENV === 'production') {
+    // 错误日志（单独文件）
+    transports.push(
+      new DailyRotateFile({
+        filename: path.join(logDir, 'error-%DATE%.log'),
+        datePattern: 'YYYY-MM-DD',
+        level: 'error',
+        maxSize: '20m',
+        maxFiles: '30d',
+        format: fileFormat,
+      })
+    );
 
-  // HTTP 请求日志（单独文件）
-  transports.push(
-    new DailyRotateFile({
-      filename: path.join(logDir, 'http-%DATE%.log'),
-      datePattern: 'YYYY-MM-DD',
-      level: 'http',
-      maxSize: '50m',
-      maxFiles: '14d',
-      format: fileFormat,
-    })
-  );
+    // 所有日志（按日期轮转）
+    transports.push(
+      new DailyRotateFile({
+        filename: path.join(logDir, 'combined-%DATE%.log'),
+        datePattern: 'YYYY-MM-DD',
+        maxSize: '50m',
+        maxFiles: '30d',
+        format: fileFormat,
+      })
+    );
+
+    // HTTP 请求日志（单独文件）
+    transports.push(
+      new DailyRotateFile({
+        filename: path.join(logDir, 'http-%DATE%.log'),
+        datePattern: 'YYYY-MM-DD',
+        level: 'http',
+        maxSize: '50m',
+        maxFiles: '14d',
+        format: fileFormat,
+      })
+    );
+  }
 }
 
 // 创建 logger 实例

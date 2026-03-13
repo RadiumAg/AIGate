@@ -44,9 +44,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Install dependencies and Vercel CLI
+      - name: Install Vercel CLI
         run: |
-          pnpm install --frozen-lockfile
           pnpm add -g vercel
 
       - name: Deploy to Vercel
