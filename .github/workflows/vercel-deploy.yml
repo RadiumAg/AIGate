@@ -61,8 +61,7 @@ jobs:
             --env DEMO_MODE=true \
             --env DATABASE_URL="${{ secrets.DATABASE_URL }}" \
             --env REDIS_URL="${{ secrets.REDIS_URL }}" \
-            --yes \
-            --prod)
+            --yes)
 
           echo "Deployment URL: $DEPLOY_OUTPUT"
           echo "deployment_url=$DEPLOY_OUTPUT" >> $GITHUB_OUTPUT
