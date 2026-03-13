@@ -154,7 +154,7 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
             {(keyData ? t('ApiKey.editKey') : t('ApiKey.createKey')) as string}
           </DialogTitle>
           <DialogDescription>
-            {keyData ? t('ApiKey.editKeyDesc') : t('ApiKey.createKeyDesc')}
+            {keyData ? (t('ApiKey.editKeyDesc') as string) : (t('ApiKey.createKeyDesc') as string)}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -258,7 +258,7 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
               {t('ApiKey.cancel') as string}
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? t('ApiKey.saving') : t('ApiKey.save')}
+              {isLoading ? (t('ApiKey.saving') as string) : (t('ApiKey.save') as string)}
             </Button>
           </DialogFooter>
         </form>

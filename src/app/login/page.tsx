@@ -120,7 +120,7 @@ const LoginPage: React.FC = () => {
               disabled={loading || isLoading}
               className="w-full py-3 rounded-xl text-sm font-medium text-white bg-primary hover:bg-primary/90 shadow-[0_4px_16px_rgba(0,0,0,0.12)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)] transition-all duration-300"
             >
-              {loading ? t('Auth.loggingIn') : t('Auth.signIn')}
+              {loading ? (t('Auth.loggingIn') as string) : (t('Auth.signIn') as string)}
             </Button>
           </form>
         </div>
