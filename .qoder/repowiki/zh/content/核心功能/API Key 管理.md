@@ -12,6 +12,9 @@
 - [src/components/ui/alert-dialog.tsx](file://src/components/ui/alert-dialog.tsx)
 - [src/components/ui/sonner.tsx](file://src/components/ui/sonner.tsx)
 - [src/app/layout.tsx](file://src/app/layout.tsx)
+- [src/i18n/client.tsx](file://src/i18n/client.tsx)
+- [src/messages/en.json](file://src/messages/en.json)
+- [src/messages/zh.json](file://src/messages/zh.json)
 - [src/lib/database.ts](file://src/lib/database.ts)
 - [src/lib/redis.ts](file://src/lib/redis.ts)
 - [src/lib/types.ts](file://src/lib/types.ts)
@@ -26,12 +29,11 @@
 
 ## 更新摘要
 **变更内容**
-- API Key 字段命名标准化：将 `originId` 和 `originKey` 替换为 `id` 和 `key`，提升字段命名的一致性和语义清晰度
-- API Key 表格显示逻辑更新：表格组件现在直接使用标准字段 `id` 和 `key` 进行显示和操作
-- API Key 表单状态管理优化：表单组件使用标准化的字段命名，确保编辑和新增操作的准确性
-- 服务器端 API 路由器数据转换：后端路由层已适配新的字段命名，保持前后端数据格式一致
-- 数据库模式保持不变：数据库层面的字段仍为 `id` 和 `key`，与前端标准化保持一致
-- 确认对话框系统升级：从 DeleteConfirmModal 组件迁移到基于 confirm() 函数的液体玻璃样式确认系统
+- 国际化增强：系统现已完整支持多语言，所有用户界面文本均可根据用户语言偏好自动切换
+- 翻译资源完善：新增完整的 API Key 管理相关翻译键值，包括表单标签、按钮文本、确认对话框内容等
+- 国际化集成：通过 I18nProvider 全局集成，支持中英文双语切换，提供一致的用户体验
+- 组件本地化：API Key 页面、对话框、表格等核心组件均已完成国际化改造
+- 语言切换功能：支持实时语言切换，数据持久化存储在本地存储中
 
 ## 目录
 1. [简介](#简介)
@@ -39,22 +41,29 @@
 3. [核心组件](#核心组件)
 4. [架构总览](#架构总览)
 5. [详细组件分析](#详细组件分析)
-6. [依赖关系分析](#依赖关系分析)
-7. [性能考虑](#性能考虑)
-8. [故障排除指南](#故障排除指南)
-9. [结论](#结论)
-10. [附录](#附录)
+6. [国际化系统](#国际化系统)
+7. [依赖关系分析](#依赖关系分析)
+8. [性能考虑](#性能考虑)
+9. [故障排除指南](#故障排除指南)
+10. [结论](#结论)
+11. [附录](#附录)
 
 ## 简介
 本文件面向管理员与开发者，系统性阐述 API Key 管理系统的实现与使用。内容涵盖密钥的生成、验证、状态管理与生命周期控制；密钥绑定策略（白名单规则）、提供商关联、权限控制与使用统计；密钥轮换机制、安全策略配置、批量管理操作与审计日志记录。同时提供具体 API 调用示例与管理界面使用指南，帮助管理员高效、安全地管理 API Key。
 
-**更新** 系统已完成 API Key 字段命名标准化，将 `originId` 和 `originKey` 统一为 `id` 和 `key`，提升了代码的一致性和可维护性。这一变更已全面适配前端表格显示逻辑、表单状态管理和服务器端 API 路由器的数据转换。同时，确认对话框系统已升级为基于 confirm() 函数的液体玻璃样式系统，提供更统一的用户交互体验。
+**更新** 系统已完成全面的国际化增强，所有用户界面文本现已支持多语言切换，包括 API Key 表单、确认对话框、表格列头等组件的完整翻译支持。新增的 I18nProvider 提供了统一的语言切换机制，支持中英文双语环境下的无缝切换。
 
 ## 项目结构
-API Key 管理涉及三层：前端页面与对话框、后端 tRPC 路由层、数据库与缓存层。前端负责展示与交互，tRPC 路由负责业务编排与参数校验，数据库与缓存负责持久化与高性能读取。新的液体玻璃样式确认对话框系统通过 ConfirmProvider 全局集成，为所有页面提供统一的确认操作体验。
+API Key 管理涉及三层：前端页面与对话框、后端 tRPC 路由层、数据库与缓存层。前端负责展示与交互，tRPC 路由负责业务编排与参数校验，数据库与缓存负责持久化与高性能读取。新增的国际化系统通过 I18nProvider 全局集成，为所有页面提供统一的多语言支持。液体玻璃样式确认对话框系统通过 ConfirmProvider 全局集成，为所有页面提供统一的确认操作体验。
 
 ```mermaid
 graph TB
+subgraph "国际化系统"
+I18nProvider["I18nProvider<br/>国际化提供者"]
+MessagesEN["en.json<br/>英文翻译资源"]
+MessagesZH["zh.json<br/>中文翻译资源"]
+useTranslation["useTranslation Hook<br/>翻译钩子函数"]
+end
 subgraph "前端"
 KeysPage["KeysPage<br/>密钥列表页"]
 AddDialog["AddApiKeyDialog<br/>新增/编辑对话框"]
@@ -72,6 +81,16 @@ subgraph "数据与缓存"
 DB["数据库<br/>apiKeys 表"]
 Redis["Redis 缓存<br/>API Key 与配额策略"]
 end
+I18nProvider --> MessagesEN
+I18nProvider --> MessagesZH
+KeysPage --> useTranslation
+AddDialog --> useTranslation
+ApiKeyTable --> useTranslation
+DeleteModal --> useTranslation
+useTranslation --> KeysPage
+useTranslation --> AddDialog
+useTranslation --> ApiKeyTable
+useTranslation --> DeleteModal
 KeysPage --> ApiKeyTable
 KeysPage --> AddDialog
 KeysPage --> DeleteModal
@@ -88,48 +107,54 @@ QuotaRouter --> DB
 ```
 
 **图表来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L141)
-- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L174)
-- [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
-- [src/components/ui/dialog.tsx:30-56](file://src/components/ui/dialog.tsx#L30-L56)
-- [src/components/ui/alert-dialog.tsx:30-50](file://src/components/ui/alert-dialog.tsx#L30-L50)
+- [src/i18n/client.tsx:53-86](file://src/i18n/client.tsx#L53-L86)
+- [src/messages/en.json:59-110](file://src/messages/en.json#L59-L110)
+- [src/messages/zh.json:59-110](file://src/messages/zh.json#L59-L110)
+- [src/app/(dashboard)/keys/page.tsx:15-16](file://src/app/(dashboard)/keys/page.tsx#L15-L16)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:34-36](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L34-L36)
+- [src/app/(dashboard)/keys/components/api-key-table.tsx:22-24](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L22-L24)
+- [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx:17-19](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L17-L19)
 
 **章节来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L141)
+- [src/i18n/client.tsx:53-86](file://src/i18n/client.tsx#L53-L86)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L145)
 - [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
 
 ## 核心组件
 - **API Key 路由层**：提供获取、创建、更新、删除、切换状态与使用统计等接口，统一进行输入校验与状态转换。
 - **数据库层**：提供 API Key 的增删改查与按提供商筛选，以及用量记录与白名单规则的读写。
 - **缓存层**：Redis 缓存 API Key 与配额策略，提升读取性能并支持快速轮换。
-- **前端页面**：提供密钥列表、新增/编辑、删除确认与状态切换的可视化操作，集成液体玻璃样式确认对话框系统和 Toast 通知系统。
+- **前端页面**：提供密钥列表、新增/编辑、删除确认与状态切换的可视化操作，集成液体玻璃样式确认对话框系统和 Toast 通知系统，支持多语言界面。
+- **国际化系统**：通过 I18nProvider 提供统一的多语言支持，支持中英文双语切换，翻译资源完整覆盖 API Key 管理相关界面元素。
 - **配额与审计**：基于 Redis 的配额检查与记录，结合日志系统实现审计追踪。
 - **液体玻璃确认系统**：基于 ConfirmProvider 和 confirm 函数的现代化确认对话框系统，提供统一的用户反馈层。
 - **Toast 通知系统**：基于 Sonner 库的现代化通知组件，提供成功、错误、警告等多类型反馈。
 
-**更新** API Key 字段命名已完成标准化，统一使用 `id` 和 `key` 字段，提升了代码的一致性和可维护性。前端表格组件、表单组件和后端路由层均已适配新的字段命名规范。确认对话框系统已升级为基于 confirm() 函数的液体玻璃样式系统，提供更统一的用户交互体验。
+**更新** 新增国际化系统作为核心组件之一，提供完整的多语言支持。所有前端组件均已完成国际化改造，包括 API Key 页面、对话框、表格等核心界面元素。I18nProvider 通过 useTranslation 钩子函数为组件提供翻译功能，支持实时语言切换。
 
 **章节来源**
 - [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
 - [src/lib/database.ts:19-81](file://src/lib/database.ts#L19-L81)
 - [src/lib/redis.ts:18-43](file://src/lib/redis.ts#L18-L43)
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L141)
-- [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
-- [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
+- [src/i18n/client.tsx:53-86](file://src/i18n/client.tsx#L53-L86)
+- [src/messages/en.json:59-110](file://src/messages/en.json#L59-L110)
+- [src/messages/zh.json:59-110](file://src/messages/zh.json#L59-L110)
 
 ## 架构总览
-系统采用 tRPC 作为前后端通信桥梁，前端通过 tRPC 客户端调用后端路由，后端路由访问数据库与缓存完成业务处理。白名单规则与配额策略贯穿请求链路，确保密钥绑定与权限控制。液体玻璃样式确认对话框系统作为统一的用户交互层，提供沉浸式的确认操作体验。Toast 通知系统作为统一的用户反馈层，提供即时的操作结果反馈。
+系统采用 tRPC 作为前后端通信桥梁，前端通过 tRPC 客户端调用后端路由，后端路由访问数据库与缓存完成业务处理。白名单规则与配额策略贯穿请求链路，确保密钥绑定与权限控制。新增的国际化系统通过 I18nProvider 全局集成，为所有页面提供统一的多语言支持。液体玻璃样式确认对话框系统作为统一的用户交互层，提供沉浸式的确认操作体验。Toast 通知系统作为统一的用户反馈层，提供即时的操作结果反馈。
 
 ```mermaid
 sequenceDiagram
 participant Admin as "管理员"
+participant I18n as "国际化系统"
 participant UI as "前端页面"
 participant Confirm as "液体玻璃确认系统"
 participant Toast as "Toast 通知系统"
 participant API as "apiKeyRouter"
 participant DB as "数据库"
 participant Cache as "Redis"
-Admin->>UI : 打开密钥管理页
+Admin->>I18n : 切换语言
+I18n->>UI : 更新翻译资源
 UI->>API : 查询所有 API Key
 API->>DB : 读取 apiKeys
 DB-->>API : 返回密钥列表
@@ -144,10 +169,11 @@ API->>DB : 删除数据库记录
 API->>Cache : 清理Redis缓存
 API-->>UI : 返回删除结果
 UI->>Toast : 显示成功/错误通知
-Note over Confirm,Toast : 液体玻璃样式确认对话框 + 基于 Sonner 的 Toast 通知
+Note over I18n,Toast : 国际化系统 + 液体玻璃样式确认对话框 + 基于 Sonner 的 Toast 通知
 ```
 
 **图表来源**
+- [src/i18n/client.tsx:73-80](file://src/i18n/client.tsx#L73-L80)
 - [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
 - [src/lib/database.ts:19-81](file://src/lib/database.ts#L19-L81)
 - [src/lib/redis.ts:18-43](file://src/lib/redis.ts#L18-L43)
@@ -187,18 +213,19 @@ Stats --> End
 - [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
 
 ### 前端页面与交互
-- **KeysPage**：集中管理 tRPC 查询与变更，处理加载状态，集成液体玻璃样式确认对话框系统和 Toast 通知系统，触发刷新。
-- **AddApiKeyDialog**：表单校验（名称、API Key 必填），动态占位符与提供商提示，支持新增与编辑。
-- **ApiKeyTable**：展示密钥列表，支持复制、启用/禁用、编辑、删除与测试按钮，使用 Toast 进行即时反馈。**更新**：已适配标准化的字段命名，使用 `id` 和 `key` 字段进行操作。
-- **DeleteConfirmModal**：基于液体玻璃样式的二次确认删除对话框，提供毛玻璃背景和阴影效果，防止误操作。**更新**：该组件已被新的 confirm() 函数系统替代。
+- **KeysPage**：集中管理 tRPC 查询与变更，处理加载状态，集成液体玻璃样式确认对话框系统和 Toast 通知系统，触发刷新。**更新**：已集成国际化系统，支持多语言界面显示。
+- **AddApiKeyDialog**：表单校验（名称、API Key 必填），动态占位符与提供商提示，支持新增与编辑。**更新**：所有表单标签、占位符、按钮文本均支持多语言切换。
+- **ApiKeyTable**：展示密钥列表，支持复制、启用/禁用、编辑、删除与测试按钮，使用 Toast 进行即时反馈。**更新**：表格列头、操作按钮、状态显示均支持多语言。
+- **DeleteConfirmModal**：基于液体玻璃样式的二次确认删除对话框，提供毛玻璃背景和阴影效果，防止误操作。**更新**：确认对话框内容支持多语言切换。
 - **液体玻璃确认系统**：基于 ConfirmProvider 和 confirm 函数的现代化确认对话框系统，提供统一的用户交互体验。
 - **Toast 通知系统**：基于 Sonner 的现代化通知组件，提供成功、错误、警告等多类型反馈。
 
-**更新** KeysPage 组件已完全迁移到基于液体玻璃样式确认对话框系统，移除了传统的 DeleteConfirmModal 组件。API Key 表格组件已适配标准化的字段命名，使用 `key.id` 和 `key.key` 进行状态切换和操作。液体玻璃样式确认对话框系统提供毛玻璃效果、阴影和动画过渡，增强用户体验。
+**更新** 所有前端组件均已集成国际化系统，通过 useTranslation 钩子函数获取翻译资源。API Key 页面、对话框、表格等核心界面元素均已完成多语言改造，支持中英文双语显示。
 
 ```mermaid
 sequenceDiagram
 participant Admin as "管理员"
+participant I18n as "国际化系统"
 participant Page as "KeysPage"
 participant Table as "ApiKeyTable"
 participant Dialog as "AddApiKeyDialog"
@@ -206,7 +233,8 @@ participant Modal as "DeleteConfirmModal"
 participant Confirm as "液体玻璃确认系统"
 participant Toast as "Toast 系统"
 participant API as "apiKeyRouter"
-Admin->>Page : 打开页面
+Admin->>I18n : 切换语言
+I18n->>Page : 更新翻译
 Page->>API : 查询所有 API Key
 API-->>Page : 返回密钥列表
 Page->>Table : 渲染表格
@@ -226,18 +254,17 @@ Page->>Table : 刷新数据
 ```
 
 **图表来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L141)
-- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L263)
-- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L174)
-- [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L1-L54)
-- [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
-- [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
+- [src/i18n/client.tsx:73-80](file://src/i18n/client.tsx#L73-L80)
+- [src/app/(dashboard)/keys/page.tsx:15-16](file://src/app/(dashboard)/keys/page.tsx#L15-L16)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:34-36](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L34-L36)
+- [src/app/(dashboard)/keys/components/api-key-table.tsx:22-24](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L22-L24)
+- [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx:17-19](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L17-L19)
 
 **章节来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L141)
-- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L263)
-- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L174)
-- [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L1-L54)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L145)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L271)
+- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L183)
+- [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L1-L56)
 - [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
 
@@ -417,16 +444,98 @@ Note over API,Log : 生产环境输出到按日期轮转的日志文件
 - [src/components/ui/dialog.tsx:30-56](file://src/components/ui/dialog.tsx#L30-L56)
 - [src/components/ui/alert-dialog.tsx:30-50](file://src/components/ui/alert-dialog.tsx#L30-L50)
 
+## 国际化系统
+
+### I18nProvider 国际化提供者
+- **全局集成**：在应用根布局中通过 I18nProvider 包装整个应用，确保所有页面都能使用国际化功能。
+- **语言切换**：支持中英文双语切换，语言偏好存储在本地存储中，实现持久化记忆。
+- **翻译资源**：内置完整的中英文翻译资源，覆盖导航、通用、认证、仪表板、API Key、配额、用户等模块。
+- **嵌套键值**：支持嵌套的对象结构，如 ApiKey.title、Common.save 等层级化翻译键。
+- **回退机制**：当翻译键不存在时，自动回退到原始键值，并在控制台发出警告。
+
+**更新** 新增完整的国际化系统，通过 I18nProvider 提供统一的多语言支持。系统支持中英文双语切换，翻译资源完整覆盖 API Key 管理相关界面元素。
+
+```mermaid
+flowchart TD
+Start(["应用启动"]) --> Provider["I18nProvider 初始化"]
+Provider --> LoadLang["加载语言偏好"]
+LoadLang --> SetLocale["设置当前语言"]
+SetLocale --> InitMessages["初始化翻译资源"]
+InitMessages --> Ready["国际化系统就绪"]
+Ready --> Components["组件使用 useTranslation 钩子"]
+Components --> Translate["获取翻译文本"]
+Translate --> Display["渲染多语言界面"]
+Display --> Switch["用户切换语言"]
+Switch --> Save["保存语言偏好到本地存储"]
+Save --> Reload["重新加载翻译资源"]
+Reload --> Display
+```
+
+**图表来源**
+- [src/i18n/client.tsx:53-86](file://src/i18n/client.tsx#L53-L86)
+- [src/app/layout.tsx:48-53](file://src/app/layout.tsx#L48-L53)
+
+**章节来源**
+- [src/i18n/client.tsx:53-86](file://src/i18n/client.tsx#L53-L86)
+- [src/app/layout.tsx:48-53](file://src/app/layout.tsx#L48-L53)
+
+### 翻译资源结构
+- **导航模块**：包含仪表板、调试、配额管理、API 密钥、用户策略管理等导航项的多语言翻译。
+- **通用模块**：提供首页、设置、退出登录、个人资料、保存、取消、删除、编辑、创建、搜索、筛选、重置、加载中、无数据、确认、关闭、语言、配额限制等通用词汇的翻译。
+- **认证模块**：包含登录、登录标题、登录副标题、邮箱、密码、记住我、忘记密码、登录、登出、登录失败、登录错误、登录中等认证相关文本的翻译。
+- **仪表板模块**：提供仪表板标题、副标题、总用户数、请求数、Token 消耗、活跃用户、最近活动、近期请求趋势、请求地区分布、模型使用分布、最近 IP 请求记录、数据更新时间等界面元素的翻译。
+- **API Key 模块**：完整覆盖 API Key 管理的所有界面元素，包括标题、添加密钥、名称、提供商、API Key、基础 URL、状态、创建时间、最后使用、操作、启用、禁用、编辑、删除、复制到剪贴板、创建 API Key、编辑 API Key、删除 API Key、删除确认标题、删除确认、删除警告、删除中、创建成功、更新成功、删除成功、状态切换成功、创建失败、更新失败、删除失败、状态切换失败、无 API 密钥、添加第一个 API 密钥、保存、取消、保存中、API Key 描述、基础 URL 描述等。
+- **配额模块**：提供配额管理相关的策略名称、描述、限制类型、Token 限制、请求次数限制、每日限制、每月限制、RPM 限制、令牌单位、请求单位、创建时间、操作、无配额策略、添加第一个配额策略、最大上下文长度、查看详情等翻译。
+- **用户模块**：包含用户策略管理的标题、添加规则、编辑白名单规则、创建白名单规则、删除确认、规则创建成功、规则更新成功、规则删除成功、规则状态切换成功、创建失败、更新失败、删除失败、状态切换失败、用户名、邮箱、角色、状态、管理员、普通用户、激活、未激活等翻译。
+
+**更新** 新增完整的 API Key 模块翻译资源，覆盖所有界面元素。翻译资源采用层级化结构，便于维护和扩展。
+
+**章节来源**
+- [src/messages/en.json:1-180](file://src/messages/en.json#L1-L180)
+- [src/messages/zh.json:1-180](file://src/messages/zh.json#L1-L180)
+
+### 组件国际化集成
+- **useTranslation 钩子**：提供 t 函数用于获取翻译文本，支持字符串和对象类型的翻译键。
+- **API Key 页面**：标题、添加按钮、加载状态、删除确认等全部支持多语言。
+- **新增/编辑对话框**：表单标签、占位符、按钮文本、描述信息等完整国际化。
+- **API Key 表格**：列头、状态显示、操作按钮、空状态消息等均支持多语言。
+- **删除确认模态框**：确认标题、警告信息、按钮文本等支持多语言切换。
+- **侧边栏底部**：语言切换按钮、主题切换、用户菜单等界面元素支持多语言。
+
+**更新** 所有核心组件均已集成国际化功能，通过 useTranslation 钩子函数获取翻译资源。API Key 页面、对话框、表格等关键界面元素均已完成多语言改造。
+
+**章节来源**
+- [src/app/(dashboard)/keys/page.tsx:15-16](file://src/app/(dashboard)/keys/page.tsx#L15-L16)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:34-36](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L34-L36)
+- [src/app/(dashboard)/keys/components/api-key-table.tsx:22-24](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L22-L24)
+- [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx:17-19](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L17-L19)
+- [src/components/dashboard-layout/sidebar-footer.tsx:123-124](file://src/components/dashboard-layout/sidebar-footer.tsx#L123-L124)
+
+### 语言切换功能
+- **实时切换**：用户可以在侧边栏底部的语言切换区域实时切换中英文界面。
+- **持久化存储**：语言偏好自动保存到本地存储，刷新页面后保持上次选择的语言。
+- **HTML 属性更新**：切换语言时自动更新 HTML 元素的 lang 属性，支持屏幕阅读器等辅助技术。
+- **组件响应**：所有使用 useTranslation 钩子的组件会自动响应语言变化，重新渲染多语言界面。
+- **主题适配**：语言切换不影响明暗主题设置，两者独立控制。
+
+**更新** 新增完整的语言切换功能，支持实时中英文切换，数据持久化存储，组件自动响应语言变化。
+
+**章节来源**
+- [src/i18n/client.tsx:73-80](file://src/i18n/client.tsx#L73-L80)
+- [src/components/dashboard-layout/sidebar-footer.tsx:140-161](file://src/components/dashboard-layout/sidebar-footer.tsx#L140-L161)
+
 ## 依赖关系分析
 - **路由依赖**：API Key 路由依赖数据库与 Redis；配额路由依赖 Redis 与数据库；AI 请求路由依赖白名单规则与配额模块。
 - **数据一致性**：状态切换与删除会同步清理 Redis 缓存，避免脏读。
 - **前后端耦合**：前端通过 tRPC 调用后端，参数与返回值由 Zod Schema 与类型定义约束，降低耦合风险。
 - **确认系统集成**：液体玻璃确认系统通过 ConfirmProvider 全局集成，为所有页面提供统一的确认操作体验。
 - **通知系统集成**：Toast 通知系统通过全局布局集成，为所有页面提供统一的反馈机制。
+- **国际化系统集成**：I18nProvider 通过全局布局集成，为所有页面提供统一的多语言支持。
 
 ```mermaid
 graph LR
-UI["前端组件"] --> TPR["apiKeyRouter"]
+I18n["I18nProvider"] --> UI["前端组件"]
+UI --> TPR["apiKeyRouter"]
 UI --> QR["quotaRouter"]
 TPR --> DB["数据库"]
 TPR --> RC["Redis"]
@@ -446,6 +555,7 @@ Toast --> QR
 ```
 
 **图表来源**
+- [src/i18n/client.tsx:53-86](file://src/i18n/client.tsx#L53-L86)
 - [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
 - [src/server/api/routers/quota.ts:39-221](file://src/server/api/routers/quota.ts#L39-L221)
 - [src/lib/database.ts:19-81](file://src/lib/database.ts#L19-L81)
@@ -455,6 +565,7 @@ Toast --> QR
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
 
 **章节来源**
+- [src/i18n/client.tsx:53-86](file://src/i18n/client.tsx#L53-L86)
 - [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
 - [src/server/api/routers/quota.ts:39-221](file://src/server/api/routers/quota.ts#L39-L221)
 - [src/lib/database.ts:19-81](file://src/lib/database.ts#L19-L81)
@@ -470,8 +581,10 @@ Toast --> QR
 - **批量操作**：建议通过配额路由统一重置策略或用户配额，减少重复扫描与删除。
 - **Toast 性能**：Toast 通知系统采用轻量级实现，不会对页面性能造成显著影响。
 - **确认系统性能**：液体玻璃确认系统采用 React 状态管理，Promise 异步处理，性能开销最小化。
+- **国际化性能**：I18nProvider 采用本地存储缓存语言偏好，避免频繁的网络请求；翻译资源按需加载，支持懒加载优化。
+- **组件优化**：useTranslation 钩子函数使用 useCallback 优化，避免不必要的组件重渲染。
 
-**更新** API Key 字段命名标准化提升了代码的可维护性，但对性能影响微乎其微。Toast 通知系统和液体玻璃确认系统均采用轻量级实现，确保不影响页面性能。确认系统通过 ConfirmProvider 单例模式管理状态，避免重复实例化。
+**更新** 新增国际化系统的性能考虑，包括本地存储缓存、懒加载优化、组件重渲染优化等。国际化系统通过本地存储避免频繁网络请求，翻译资源按需加载支持性能优化。
 
 ## 故障排除指南
 - **API Key 无法使用**
@@ -494,10 +607,15 @@ Toast --> QR
   - **更新** 确保使用标准化的 `id` 和 `key` 字段进行操作，而非旧的 `originId` 和 `originKey`。
 - **状态切换错误**
   - **更新** 确保使用正确的 `key.id` 字段进行状态切换，而非其他字段。
+- **国际化问题**
+  - **更新** 检查 I18nProvider 是否正确集成到应用根布局中。
+  - 确认翻译键是否存在，检查 messages 文件中的键值对。
+  - 检查浏览器语言设置，确认语言切换功能正常工作。
+  - 确认本地存储中的语言偏好设置是否正确。
 - **日志定位**
   - 查看日志模块输出的配额检查与 AI 请求记录，定位异常原因。
 
-**更新** 新增 API Key 字段命名标准化相关的故障排除指南，包括 `id` 和 `key` 字段的正确使用方法。新增字段命名错误的故障排除指导，确保开发者正确使用标准化的字段命名。
+**更新** 新增国际化相关的故障排除指南，包括 I18nProvider 集成检查、翻译键验证、语言切换功能测试、本地存储设置验证等。新增字段命名错误的故障排除指导，确保开发者正确使用标准化的字段命名。
 
 **章节来源**
 - [src/server/api/routers/api-key.ts:272-322](file://src/server/api/routers/api-key.ts#L272-L322)
@@ -507,11 +625,12 @@ Toast --> QR
 - [src/lib/logger.ts:125-183](file://src/lib/logger.ts#L125-L183)
 - [src/components/ui/confirm.tsx:113-127](file://src/components/ui/confirm.tsx#L113-L127)
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
+- [src/i18n/client.tsx:113-127](file://src/i18n/client.tsx#L113-L127)
 
 ## 结论
-本系统通过 tRPC、数据库与 Redis 的协同，实现了 API Key 的全生命周期管理与严格的权限控制。白名单规则与配额策略解耦设计，既保证灵活性又兼顾性能。配合完善的审计日志、现代化的 Toast 通知系统和液体玻璃样式确认对话框系统，管理员可以高效、安全地管理密钥并保障系统稳定运行。
+本系统通过 tRPC、数据库与 Redis 的协同，实现了 API Key 的全生命周期管理与严格的权限控制。白名单规则与配额策略解耦设计，既保证灵活性又兼顾性能。配合完善的审计日志、现代化的 Toast 通知系统、液体玻璃样式确认对话框系统和全新的国际化系统，管理员可以高效、安全地管理密钥并保障系统稳定运行。
 
-**更新** 新的液体玻璃样式确认对话框系统提供了更直观、一致的用户反馈体验，进一步提升了系统的易用性和专业性。Toast 通知系统和液体玻璃确认系统均采用现代化设计，提供沉浸式的用户体验。API Key 字段命名标准化提升了代码的一致性和可维护性，确保了操作的准确性和可靠性。
+**更新** 新增的国际化系统提供了完整的多语言支持，所有用户界面文本均可根据用户语言偏好自动切换。I18nProvider 通过 useTranslation 钩子函数为组件提供翻译功能，支持中英文双语环境下的无缝切换。液体玻璃确认对话框系统提供了更直观、一致的用户反馈体验，进一步提升了系统的易用性和专业性。
 
 ## 附录
 
@@ -543,6 +662,7 @@ Toast --> QR
 - 所有操作都会通过 Toast 通知系统提供即时反馈，包括成功、错误或警告信息。
 - **更新** 删除操作会弹出液体玻璃样式确认对话框，提供毛玻璃背景和阴影效果，确保操作安全性。
 - **更新** 状态切换操作使用标准化的 `key.id` 字段，确保操作的准确性和一致性。
+- **更新** 支持实时语言切换，在侧边栏底部的语言切换区域可选择中英文界面。
 
 ### API Key 字段命名标准化指南
 **更新** 新增 API Key 字段命名标准化使用指南，帮助开发者正确使用新的字段命名规范。
@@ -577,9 +697,9 @@ Toast --> QR
 **更新** 新增液体玻璃确认对话框系统配置说明和使用指南。系统提供完整的样式定制和动画配置选项。
 
 **章节来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L141)
-- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L263)
-- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L174)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L145)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L271)
+- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L183)
 - [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
 - [src/app/layout.tsx:1-58](file://src/app/layout.tsx#L1-L58)
 
@@ -639,3 +759,36 @@ Toast --> QR
 - [src/lib/schema.ts:42-52](file://src/lib/schema.ts#L42-L52)
 - [src/server/api/routers/api-key.ts:75-85](file://src/server/api/routers/api-key.ts#L75-L85)
 - [src/types/api-key.ts:2-12](file://src/types/api-key.ts#L2-L12)
+
+### 国际化系统配置指南
+**更新** 新增国际化系统配置指南，帮助开发者理解和使用多语言功能。
+
+- **I18nProvider 集成**：在应用根布局中通过 I18nProvider 包装整个应用，确保所有页面都能使用国际化功能。
+- **翻译资源**：messages 目录包含完整的中英文翻译资源，覆盖所有界面元素。
+- **useTranslation 钩子**：组件通过 useTranslation 钩子函数获取翻译文本，支持字符串和对象类型的翻译键。
+- **语言切换**：通过 setLocale 函数实现实时语言切换，支持中英文双语环境。
+- **本地存储**：语言偏好自动保存到本地存储，刷新页面后保持上次选择的语言。
+- **HTML 属性**：切换语言时自动更新 HTML 元素的 lang 属性，支持辅助技术。
+
+**章节来源**
+- [src/i18n/client.tsx:53-86](file://src/i18n/client.tsx#L53-L86)
+- [src/messages/en.json:59-110](file://src/messages/en.json#L59-L110)
+- [src/messages/zh.json:59-110](file://src/messages/zh.json#L59-L110)
+- [src/app/layout.tsx:48-53](file://src/app/layout.tsx#L48-L53)
+
+### API Key 翻译资源使用指南
+**更新** 新增 API Key 翻译资源使用指南，帮助开发者正确使用多语言功能。
+
+- **翻译键结构**：Api Key 模块包含完整的翻译键值，如 ApiKey.title、ApiKey.addKey、ApiKey.name 等。
+- **动态内容**：支持占位符替换，如 ApiKey.apiKeyDesc 中的 {provider} 占位符。
+- **组件集成**：所有 API Key 相关组件均通过 useTranslation 钩子函数获取翻译资源。
+- **语言回退**：当翻译键不存在时，自动回退到原始键值，并在控制台发出警告。
+- **最佳实践**：建议在组件中统一使用 t 函数获取翻译，避免硬编码文本。
+
+**章节来源**
+- [src/messages/en.json:59-110](file://src/messages/en.json#L59-L110)
+- [src/messages/zh.json:59-110](file://src/messages/zh.json#L59-L110)
+- [src/app/(dashboard)/keys/page.tsx:15-16](file://src/app/(dashboard)/keys/page.tsx#L15-L16)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:34-36](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L34-L36)
+- [src/app/(dashboard)/keys/components/api-key-table.tsx:22-24](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L22-L24)
+- [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx:17-19](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L17-L19)
