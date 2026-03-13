@@ -40,6 +40,7 @@
 - [src/app/settings/page.tsx](file://src/app/settings/page.tsx)
 - [src/app/login/page.tsx](file://src/app/login/page.tsx)
 - [public/100000_full.json](file://public/100000_full.json)
+- [readme/ui-rule.md](file://readme/ui-rule.md)
 </cite>
 
 ## 更新摘要
@@ -187,23 +188,23 @@ GLASS --> DRP
 ```
 
 **图表来源**
-- [src/components/ui/button.tsx](file://src/components/ui/button.tsx#L1-L77)
-- [src/components/ui/input.tsx](file://src/components/ui/input.tsx#L1-L26)
-- [src/components/ui/textarea.tsx](file://src/components/ui/textarea.tsx#L1-L38)
-- [src/components/ui/dialog.tsx](file://src/components/ui/dialog.tsx#L1-L121)
-- [src/components/ui/table.tsx](file://src/components/ui/table.tsx#L1-L95)
-- [src/components/ui/data-table.tsx](file://src/components/ui/data-table.tsx#L1-L191)
-- [src/components/ui/pagination.tsx](file://src/components/ui/pagination.tsx#L1-L118)
-- [src/components/ui/select.tsx](file://src/components/ui/select.tsx#L1-L152)
-- [src/components/ui/checkbox.tsx](file://src/components/ui/checkbox.tsx#L1-L31)
-- [src/components/ui/label.tsx](file://src/components/ui/label.tsx#L1-L25)
-- [src/components/ui/slider.tsx](file://src/components/ui/slider.tsx#L1-L29)
-- [src/components/ui/tabs.tsx](file://src/components/ui/tabs.tsx#L1-L56)
-- [src/components/ui/sonner.tsx](file://src/components/ui/sonner.tsx#L1-L46)
-- [src/components/ui/popover.tsx](file://src/components/ui/popover.tsx#L1-L32)
-- [src/components/ui/calendar.tsx](file://src/components/ui/calendar.tsx#L1-L223)
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L1-L92)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L1-L100)
+- [src/components/ui/button.tsx:1-77](file://src/components/ui/button.tsx#L1-L77)
+- [src/components/ui/input.tsx:1-26](file://src/components/ui/input.tsx#L1-L26)
+- [src/components/ui/textarea.tsx:1-38](file://src/components/ui/textarea.tsx#L1-L38)
+- [src/components/ui/dialog.tsx:1-121](file://src/components/ui/dialog.tsx#L1-L121)
+- [src/components/ui/table.tsx:1-95](file://src/components/ui/table.tsx#L1-L95)
+- [src/components/ui/data-table.tsx:1-191](file://src/components/ui/data-table.tsx#L1-L191)
+- [src/components/ui/pagination.tsx:1-118](file://src/components/ui/pagination.tsx#L1-L118)
+- [src/components/ui/select.tsx:1-152](file://src/components/ui/select.tsx#L1-L152)
+- [src/components/ui/checkbox.tsx:1-31](file://src/components/ui/checkbox.tsx#L1-L31)
+- [src/components/ui/label.tsx:1-25](file://src/components/ui/label.tsx#L1-L25)
+- [src/components/ui/slider.tsx:1-29](file://src/components/ui/slider.tsx#L1-L29)
+- [src/components/ui/tabs.tsx:1-56](file://src/components/ui/tabs.tsx#L1-L56)
+- [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
+- [src/components/ui/popover.tsx:1-32](file://src/components/ui/popover.tsx#L1-L32)
+- [src/components/ui/calendar.tsx:1-223](file://src/components/ui/calendar.tsx#L1-L223)
+- [src/components/date-picker-with-range.tsx:1-92](file://src/components/date-picker-with-range.tsx#L1-L92)
+- [src/components/date-range-picker.tsx:1-100](file://src/components/date-range-picker.tsx#L1-L100)
 - [src/app/(dashboard)/users/components/whitelist-rule-form.tsx](file://src/app/(dashboard)/users/components/whitelist-rule-form.tsx#L1-L531)
 - [src/app/(dashboard)/users/components/whitelist-rule-table.tsx](file://src/app/(dashboard)/users/components/whitelist-rule-table.tsx#L1-L164)
 - [src/app/(dashboard)/components/usage-trend-chart.tsx](file://src/app/(dashboard)/components/usage-trend-chart.tsx#L1-L300)
@@ -213,32 +214,33 @@ GLASS --> DRP
 - [src/app/(dashboard)/components/region-heatmap-chart.tsx](file://src/app/(dashboard)/components/region-heatmap-chart.tsx#L1-L175)
 - [src/app/(dashboard)/components/stat-card.tsx](file://src/app/(dashboard)/components/stat-card.tsx#L1-L76)
 - [src/app/(dashboard)/page.tsx](file://src/app/(dashboard)/page.tsx#L1-L230)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L1-L7)
-- [src/lib/date.ts](file://src/lib/date.ts#L1-L13)
-- [tailwind.config.js](file://tailwind.config.js#L1-L78)
-- [src/app/globals.css](file://src/app/globals.css#L1-L136)
-- [src/app/settings/page.tsx](file://src/app/settings/page.tsx#L102-L119)
-- [src/app/login/page.tsx](file://src/app/login/page.tsx#L78-L97)
-- [public/100000_full.json](file://public/100000_full.json#L1-L2)
+- [src/lib/utils.ts:1-7](file://src/lib/utils.ts#L1-L7)
+- [src/lib/date.ts:1-13](file://src/lib/date.ts#L1-L13)
+- [tailwind.config.js:1-78](file://tailwind.config.js#L1-L78)
+- [src/app/globals.css:1-136](file://src/app/globals.css#L1-L136)
+- [src/app/settings/page.tsx:102-119](file://src/app/settings/page.tsx#L102-L119)
+- [src/app/login/page.tsx:78-97](file://src/app/login/page.tsx#L78-L97)
+- [public/100000_full.json:1-2](file://public/100000_full.json#L1-L2)
+- [readme/ui-rule.md:1-99](file://readme/ui-rule.md#L1-L99)
 
 **章节来源**
-- [src/components/ui/button.tsx](file://src/components/ui/button.tsx#L1-L77)
-- [src/components/ui/input.tsx](file://src/components/ui/input.tsx#L1-L26)
-- [src/components/ui/textarea.tsx](file://src/components/ui/textarea.tsx#L1-L38)
-- [src/components/ui/dialog.tsx](file://src/components/ui/dialog.tsx#L1-L121)
-- [src/components/ui/table.tsx](file://src/components/ui/table.tsx#L1-L95)
-- [src/components/ui/data-table.tsx](file://src/components/ui/data-table.tsx#L1-L191)
-- [src/components/ui/pagination.tsx](file://src/components/ui/pagination.tsx#L1-L118)
-- [src/components/ui/select.tsx](file://src/components/ui/select.tsx#L1-L152)
-- [src/components/ui/checkbox.tsx](file://src/components/ui/checkbox.tsx#L1-L31)
-- [src/components/ui/label.tsx](file://src/components/ui/label.tsx#L1-L25)
-- [src/components/ui/slider.tsx](file://src/components/ui/slider.tsx#L1-L29)
-- [src/components/ui/tabs.tsx](file://src/components/ui/tabs.tsx#L1-L56)
-- [src/components/ui/sonner.tsx](file://src/components/ui/sonner.tsx#L1-L46)
-- [src/components/ui/popover.tsx](file://src/components/ui/popover.tsx#L1-L32)
-- [src/components/ui/calendar.tsx](file://src/components/ui/calendar.tsx#L1-L223)
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L1-L92)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L1-L100)
+- [src/components/ui/button.tsx:1-77](file://src/components/ui/button.tsx#L1-L77)
+- [src/components/ui/input.tsx:1-26](file://src/components/ui/input.tsx#L1-L26)
+- [src/components/ui/textarea.tsx:1-38](file://src/components/ui/textarea.tsx#L1-L38)
+- [src/components/ui/dialog.tsx:1-121](file://src/components/ui/dialog.tsx#L1-L121)
+- [src/components/ui/table.tsx:1-95](file://src/components/ui/table.tsx#L1-L95)
+- [src/components/ui/data-table.tsx:1-191](file://src/components/ui/data-table.tsx#L1-L191)
+- [src/components/ui/pagination.tsx:1-118](file://src/components/ui/pagination.tsx#L1-L118)
+- [src/components/ui/select.tsx:1-152](file://src/components/ui/select.tsx#L1-L152)
+- [src/components/ui/checkbox.tsx:1-31](file://src/components/ui/checkbox.tsx#L1-L31)
+- [src/components/ui/label.tsx:1-25](file://src/components/ui/label.tsx#L1-L25)
+- [src/components/ui/slider.tsx:1-29](file://src/components/ui/slider.tsx#L1-L29)
+- [src/components/ui/tabs.tsx:1-56](file://src/components/ui/tabs.tsx#L1-L56)
+- [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
+- [src/components/ui/popover.tsx:1-32](file://src/components/ui/popover.tsx#L1-L32)
+- [src/components/ui/calendar.tsx:1-223](file://src/components/ui/calendar.tsx#L1-L223)
+- [src/components/date-picker-with-range.tsx:1-92](file://src/components/date-picker-with-range.tsx#L1-L92)
+- [src/components/date-range-picker.tsx:1-100](file://src/components/date-range-picker.tsx#L1-L100)
 - [src/app/(dashboard)/users/components/whitelist-rule-form.tsx](file://src/app/(dashboard)/users/components/whitelist-rule-form.tsx#L1-L531)
 - [src/app/(dashboard)/users/components/whitelist-rule-table.tsx](file://src/app/(dashboard)/users/components/whitelist-rule-table.tsx#L1-L164)
 - [src/app/(dashboard)/components/usage-trend-chart.tsx](file://src/app/(dashboard)/components/usage-trend-chart.tsx#L1-L300)
@@ -248,10 +250,11 @@ GLASS --> DRP
 - [src/app/(dashboard)/components/region-heatmap-chart.tsx](file://src/app/(dashboard)/components/region-heatmap-chart.tsx#L1-L175)
 - [src/app/(dashboard)/components/stat-card.tsx](file://src/app/(dashboard)/components/stat-card.tsx#L1-L76)
 - [src/app/(dashboard)/page.tsx](file://src/app/(dashboard)/page.tsx#L1-L230)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L1-L7)
-- [src/lib/date.ts](file://src/lib/date.ts#L1-L13)
-- [tailwind.config.js](file://tailwind.config.js#L1-L78)
-- [src/app/globals.css](file://src/app/globals.css#L1-L136)
+- [src/lib/utils.ts:1-7](file://src/lib/utils.ts#L1-L7)
+- [src/lib/date.ts:1-13](file://src/lib/date.ts#L1-L13)
+- [tailwind.config.js:1-78](file://tailwind.config.js#L1-L78)
+- [src/app/globals.css:1-136](file://src/app/globals.css#L1-L136)
+- [readme/ui-rule.md:1-99](file://readme/ui-rule.md#L1-L99)
 
 ## 核心组件
 - Button：基于 class-variance-authority 的变体系统，支持多种外观与尺寸，新增 glass 变体提供液体玻璃效果，内置悬停、激活缩放与阴影动效，适配 CSS 变量主题。
@@ -278,27 +281,28 @@ GLASS --> DRP
 **更新** 所有组件现已全面支持深色模式，包括液体玻璃效果、半透明背景和优化的 hover 状态。新增的 glass 变体为 Button 组件提供了更丰富的视觉层次。
 
 **章节来源**
-- [src/components/ui/button.tsx](file://src/components/ui/button.tsx#L36-L77)
-- [src/components/ui/input.tsx](file://src/components/ui/input.tsx#L5-L26)
-- [src/components/ui/textarea.tsx](file://src/components/ui/textarea.tsx#L1-L38)
-- [src/components/ui/dialog.tsx](file://src/components/ui/dialog.tsx#L7-L121)
-- [src/components/ui/table.tsx](file://src/components/ui/table.tsx#L4-L95)
-- [src/components/ui/data-table.tsx](file://src/components/ui/data-table.tsx#L27-L191)
-- [src/components/ui/pagination.tsx](file://src/components/ui/pagination.tsx#L7-L118)
-- [src/components/ui/select.tsx](file://src/components/ui/select.tsx#L7-L152)
-- [src/components/ui/checkbox.tsx](file://src/components/ui/checkbox.tsx#L9-L31)
-- [src/components/ui/label.tsx](file://src/components/ui/label.tsx#L7-L25)
-- [src/components/ui/slider.tsx](file://src/components/ui/slider.tsx#L8-L29)
-- [src/components/ui/tabs.tsx](file://src/components/ui/tabs.tsx#L8-L56)
-- [src/components/ui/sonner.tsx](file://src/components/ui/sonner.tsx#L15-L46)
-- [src/components/ui/popover.tsx](file://src/components/ui/popover.tsx#L8-L31)
-- [src/components/ui/calendar.tsx](file://src/components/ui/calendar.tsx#L15-L223)
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L14-L92)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L9-L100)
-- [src/app/settings/page.tsx](file://src/app/settings/page.tsx#L102-L119)
-- [src/app/login/page.tsx](file://src/app/login/page.tsx#L78-L97)
+- [src/components/ui/button.tsx:36-77](file://src/components/ui/button.tsx#L36-L77)
+- [src/components/ui/input.tsx:5-26](file://src/components/ui/input.tsx#L5-L26)
+- [src/components/ui/textarea.tsx:1-38](file://src/components/ui/textarea.tsx#L1-L38)
+- [src/components/ui/dialog.tsx:7-121](file://src/components/ui/dialog.tsx#L7-L121)
+- [src/components/ui/table.tsx:4-95](file://src/components/ui/table.tsx#L4-L95)
+- [src/components/ui/data-table.tsx:27-191](file://src/components/ui/data-table.tsx#L27-L191)
+- [src/components/ui/pagination.tsx:7-118](file://src/components/ui/pagination.tsx#L7-L118)
+- [src/components/ui/select.tsx:7-152](file://src/components/ui/select.tsx#L7-L152)
+- [src/components/ui/checkbox.tsx:9-31](file://src/components/ui/checkbox.tsx#L9-L31)
+- [src/components/ui/label.tsx:7-25](file://src/components/ui/label.tsx#L7-L25)
+- [src/components/ui/slider.tsx:8-29](file://src/components/ui/slider.tsx#L8-L29)
+- [src/components/ui/tabs.tsx:8-56](file://src/components/ui/tabs.tsx#L8-L56)
+- [src/components/ui/sonner.tsx:15-46](file://src/components/ui/sonner.tsx#L15-L46)
+- [src/components/ui/popover.tsx:8-31](file://src/components/ui/popover.tsx#L8-L31)
+- [src/components/ui/calendar.tsx:15-223](file://src/components/ui/calendar.tsx#L15-L223)
+- [src/components/date-picker-with-range.tsx:14-92](file://src/components/date-picker-with-range.tsx#L14-L92)
+- [src/components/date-range-picker.tsx:9-100](file://src/components/date-range-picker.tsx#L9-L100)
+- [src/app/settings/page.tsx:102-119](file://src/app/settings/page.tsx#L102-L119)
+- [src/app/login/page.tsx:78-97](file://src/app/login/page.tsx#L78-L97)
 - [src/app/(dashboard)/components/region-heatmap-chart.tsx](file://src/app/(dashboard)/components/region-heatmap-chart.tsx#L7-L7)
-- [src/app/globals.css](file://src/app/globals.css#L5-L136)
+- [src/app/globals.css:5-136](file://src/app/globals.css#L5-L136)
+- [readme/ui-rule.md:1-99](file://readme/ui-rule.md#L1-L99)
 
 ## 架构总览
 组件间协作以"组合优先"为原则：DataTable 复用 Table 基元与 Pagination；Dialog 内部组合 Overlay、Content、Close 等子组件；Button 支持 asChild 透传到 Slot，便于与 Link 或自定义元素组合。新增的 Tabs 组件提供标签页导航功能，Sonner 通知系统独立于其他组件，专注于消息提示，Popover 组件提供弹出式内容展示。Textarea 组件作为 Input 的补充，专门处理多行文本输入场景。**新增** Calendar 和 DatePickerWithRange 组件基于 react-day-picker 构建，提供现代化的日期选择体验，集成到仪表板首页的日期筛选区域。**新增** 液体玻璃样式系统为所有组件提供统一的视觉设计语言，包括背景模糊、半透明和阴影效果。**新增** 密码可见性切换按钮作为 Input 组件的增强功能，提供更好的用户体验。**新增** 本地数据源支持，区域热力图组件现在使用本地 GeoJSON 文件，提高系统可靠性。样式系统通过 Tailwind v4 的 CSS 变量映射到主题变量，实现明暗两套风格与液体玻璃质感。
@@ -379,23 +383,23 @@ GLASS --> DRP
 ```
 
 **图表来源**
-- [src/components/ui/data-table.tsx](file://src/components/ui/data-table.tsx#L1-L191)
-- [src/components/ui/table.tsx](file://src/components/ui/table.tsx#L1-L95)
-- [src/components/ui/pagination.tsx](file://src/components/ui/pagination.tsx#L1-L118)
-- [src/components/ui/dialog.tsx](file://src/components/ui/dialog.tsx#L1-L121)
-- [src/components/ui/button.tsx](file://src/components/ui/button.tsx#L1-L77)
-- [src/components/ui/slider.tsx](file://src/components/ui/slider.tsx#L1-L29)
-- [src/components/ui/tabs.tsx](file://src/components/ui/tabs.tsx#L1-L56)
-- [src/components/ui/sonner.tsx](file://src/components/ui/sonner.tsx#L1-L46)
-- [src/components/ui/popover.tsx](file://src/components/ui/popover.tsx#L1-L32)
-- [src/components/ui/calendar.tsx](file://src/components/ui/calendar.tsx#L1-L223)
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L1-L92)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L1-L100)
-- [src/components/ui/textarea.tsx](file://src/components/ui/textarea.tsx#L1-L38)
+- [src/components/ui/data-table.tsx:1-191](file://src/components/ui/data-table.tsx#L1-L191)
+- [src/components/ui/table.tsx:1-95](file://src/components/ui/table.tsx#L1-L95)
+- [src/components/ui/pagination.tsx:1-118](file://src/components/ui/pagination.tsx#L1-L118)
+- [src/components/ui/dialog.tsx:1-121](file://src/components/ui/dialog.tsx#L1-L121)
+- [src/components/ui/button.tsx:1-77](file://src/components/ui/button.tsx#L1-L77)
+- [src/components/ui/slider.tsx:1-29](file://src/components/ui/slider.tsx#L1-L29)
+- [src/components/ui/tabs.tsx:1-56](file://src/components/ui/tabs.tsx#L1-L56)
+- [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
+- [src/components/ui/popover.tsx:1-32](file://src/components/ui/popover.tsx#L1-L32)
+- [src/components/ui/calendar.tsx:1-223](file://src/components/ui/calendar.tsx#L1-L223)
+- [src/components/date-picker-with-range.tsx:1-92](file://src/components/date-picker-with-range.tsx#L1-L92)
+- [src/components/date-range-picker.tsx:1-100](file://src/components/date-range-picker.tsx#L1-L100)
+- [src/components/ui/textarea.tsx:1-38](file://src/components/ui/textarea.tsx#L1-L38)
 - [src/app/(dashboard)/users/components/whitelist-rule-form.tsx](file://src/app/(dashboard)/users/components/whitelist-rule-form.tsx#L1-L531)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L1-L7)
-- [tailwind.config.js](file://tailwind.config.js#L1-L78)
-- [src/app/globals.css](file://src/app/globals.css#L1-L136)
+- [src/lib/utils.ts:1-7](file://src/lib/utils.ts#L1-L7)
+- [tailwind.config.js:1-78](file://tailwind.config.js#L1-L78)
+- [src/app/globals.css:1-136](file://src/app/globals.css#L1-L136)
 - [src/app/(dashboard)/components/usage-trend-chart.tsx](file://src/app/(dashboard)/components/usage-trend-chart.tsx#L20-L31)
 - [src/app/(dashboard)/components/activity-item.tsx](file://src/app/(dashboard)/components/activity-item.tsx#L40-L50)
 - [src/app/(dashboard)/components/recent-ip-requests.tsx](file://src/app/(dashboard)/components/recent-ip-requests.tsx#L84-L96)
@@ -403,9 +407,10 @@ GLASS --> DRP
 - [src/app/(dashboard)/components/region-heatmap-chart.tsx](file://src/app/(dashboard)/components/region-heatmap-chart.tsx#L7-L7)
 - [src/app/(dashboard)/components/stat-card.tsx](file://src/app/(dashboard)/components/stat-card.tsx#L40-L52)
 - [src/app/(dashboard)/page.tsx](file://src/app/(dashboard)/page.tsx#L107-L139)
-- [src/lib/date.ts](file://src/lib/date.ts#L1-L13)
-- [src/app/settings/page.tsx](file://src/app/settings/page.tsx#L102-L119)
-- [src/app/login/page.tsx](file://src/app/login/page.tsx#L78-L97)
+- [src/lib/date.ts:1-13](file://src/lib/date.ts#L1-L13)
+- [src/app/settings/page.tsx:102-119](file://src/app/settings/page.tsx#L102-L119)
+- [src/app/login/page.tsx:78-97](file://src/app/login/page.tsx#L78-L97)
+- [readme/ui-rule.md:1-99](file://readme/ui-rule.md#L1-L99)
 
 ## 组件详解
 
@@ -458,13 +463,13 @@ Button --> Variants : "使用"
 ```
 
 **图表来源**
-- [src/components/ui/button.tsx](file://src/components/ui/button.tsx#L7-L54)
+- [src/components/ui/button.tsx:7-54](file://src/components/ui/button.tsx#L7-L54)
 
 **章节来源**
-- [src/components/ui/button.tsx](file://src/components/ui/button.tsx#L36-L77)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L19-L54)
-- [src/app/globals.css](file://src/app/globals.css#L5-L51)
+- [src/components/ui/button.tsx:36-77](file://src/components/ui/button.tsx#L36-L77)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:19-54](file://tailwind.config.js#L19-L54)
+- [src/app/globals.css:5-51](file://src/app/globals.css#L5-L51)
 
 ### Input（输入框）
 - 设计理念
@@ -491,10 +496,10 @@ Button --> Variants : "使用"
 - 悬停效果：`hover:bg-white/20 dark:hover:bg-black/25`
 
 **章节来源**
-- [src/components/ui/input.tsx](file://src/components/ui/input.tsx#L5-L26)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L20-L54)
-- [src/app/globals.css](file://src/app/globals.css#L53-L75)
+- [src/components/ui/input.tsx:5-26](file://src/components/ui/input.tsx#L5-L26)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:20-54](file://tailwind.config.js#L20-L54)
+- [src/app/globals.css:53-75](file://src/app/globals.css#L53-L75)
 
 ### Textarea（文本域）
 - 设计理念
@@ -560,13 +565,13 @@ Textarea --> TextareaBase : "继承"
 ```
 
 **图表来源**
-- [src/components/ui/textarea.tsx](file://src/components/ui/textarea.tsx#L5-L38)
+- [src/components/ui/textarea.tsx:5-38](file://src/components/ui/textarea.tsx#L5-L38)
 
 **章节来源**
-- [src/components/ui/textarea.tsx](file://src/components/ui/textarea.tsx#L1-L38)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L20-L54)
-- [src/app/globals.css](file://src/app/globals.css#L53-L75)
+- [src/components/ui/textarea.tsx:1-38](file://src/components/ui/textarea.tsx#L1-L38)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:20-54](file://tailwind.config.js#L20-L54)
+- [src/app/globals.css:53-75](file://src/app/globals.css#L53-L75)
 
 ### Dialog（对话框）
 - 设计理念
@@ -608,13 +613,13 @@ X-->>P : 关闭
 ```
 
 **图表来源**
-- [src/components/ui/dialog.tsx](file://src/components/ui/dialog.tsx#L7-L52)
+- [src/components/ui/dialog.tsx:7-52](file://src/components/ui/dialog.tsx#L7-L52)
 
 **章节来源**
-- [src/components/ui/dialog.tsx](file://src/components/ui/dialog.tsx#L1-L121)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L46-L53)
-- [src/app/globals.css](file://src/app/globals.css#L16-L20)
+- [src/components/ui/dialog.tsx:1-121](file://src/components/ui/dialog.tsx#L1-L121)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:46-53](file://tailwind.config.js#L46-L53)
+- [src/app/globals.css:16-20](file://src/app/globals.css#L16-L20)
 
 ### Table 与 DataTable（表格）
 - Table 基元
@@ -661,16 +666,16 @@ ShowPager --> End
 ```
 
 **图表来源**
-- [src/components/ui/data-table.tsx](file://src/components/ui/data-table.tsx#L36-L183)
-- [src/components/ui/table.tsx](file://src/components/ui/table.tsx#L4-L95)
-- [src/components/ui/pagination.tsx](file://src/components/ui/pagination.tsx#L7-L118)
+- [src/components/ui/data-table.tsx:36-183](file://src/components/ui/data-table.tsx#L36-L183)
+- [src/components/ui/table.tsx:4-95](file://src/components/ui/table.tsx#L4-L95)
+- [src/components/ui/pagination.tsx:7-118](file://src/components/ui/pagination.tsx#L7-L118)
 
 **章节来源**
-- [src/components/ui/table.tsx](file://src/components/ui/table.tsx#L1-L95)
-- [src/components/ui/data-table.tsx](file://src/components/ui/data-table.tsx#L27-L191)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L38-L53)
-- [src/app/globals.css](file://src/app/globals.css#L77-L118)
+- [src/components/ui/table.tsx:1-95](file://src/components/ui/table.tsx#L1-L95)
+- [src/components/ui/data-table.tsx:27-191](file://src/components/ui/data-table.tsx#L27-L191)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:38-53](file://tailwind.config.js#L38-L53)
+- [src/app/globals.css:77-118](file://src/app/globals.css#L77-L118)
 
 ### Pagination（分页）
 - 设计理念
@@ -685,9 +690,9 @@ ShowPager --> End
   - 主题变量：--accent、--ring
 
 **章节来源**
-- [src/components/ui/pagination.tsx](file://src/components/ui/pagination.tsx#L7-L118)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L42-L44)
+- [src/components/ui/pagination.tsx:7-118](file://src/components/ui/pagination.tsx#L7-L118)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:42-44](file://tailwind.config.js#L42-L44)
 
 ### Select（选择器）
 - 设计理念
@@ -703,9 +708,9 @@ ShowPager --> End
   - 主题变量：--popover、--accent
 
 **章节来源**
-- [src/components/ui/select.tsx](file://src/components/ui/select.tsx#L13-L152)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L46-L53)
+- [src/components/ui/select.tsx:13-152](file://src/components/ui/select.tsx#L13-L152)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:46-53](file://tailwind.config.js#L46-L53)
 
 ### Checkbox（复选框）
 - 设计理念
@@ -719,9 +724,9 @@ ShowPager --> End
   - 主题变量：--primary、--accent
 
 **章节来源**
-- [src/components/ui/checkbox.tsx](file://src/components/ui/checkbox.tsx#L9-L31)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L26-L33)
+- [src/components/ui/checkbox.tsx:9-31](file://src/components/ui/checkbox.tsx#L9-L31)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:26-33](file://tailwind.config.js#L26-L33)
 
 ### Label（标签）
 - 设计理念
@@ -735,9 +740,9 @@ ShowPager --> End
   - 主题变量：--muted-foreground
 
 **章节来源**
-- [src/components/ui/label.tsx](file://src/components/ui/label.tsx#L7-L25)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L38-L41)
+- [src/components/ui/label.tsx:7-25](file://src/components/ui/label.tsx#L7-L25)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:38-41](file://tailwind.config.js#L38-L41)
 
 ### Slider（滑块）
 - 设计理念
@@ -793,13 +798,13 @@ Slider --> SliderPrimitive : "使用"
 ```
 
 **图表来源**
-- [src/components/ui/slider.tsx](file://src/components/ui/slider.tsx#L8-L29)
+- [src/components/ui/slider.tsx:8-29](file://src/components/ui/slider.tsx#L8-L29)
 
 **章节来源**
-- [src/components/ui/slider.tsx](file://src/components/ui/slider.tsx#L1-L29)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L26-L33)
-- [src/app/globals.css](file://src/app/globals.css#L53-L75)
+- [src/components/ui/slider.tsx:1-29](file://src/components/ui/slider.tsx#L1-L29)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:26-33](file://tailwind.config.js#L26-L33)
+- [src/app/globals.css:53-75](file://src/app/globals.css#L53-L75)
 
 ### Tabs（标签页）
 - 设计理念
@@ -861,13 +866,13 @@ Tabs --> TabsContent : "包含"
 ```
 
 **图表来源**
-- [src/components/ui/tabs.tsx](file://src/components/ui/tabs.tsx#L8-L56)
+- [src/components/ui/tabs.tsx:8-56](file://src/components/ui/tabs.tsx#L8-L56)
 
 **章节来源**
-- [src/components/ui/tabs.tsx](file://src/components/ui/tabs.tsx#L1-L56)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L26-L33)
-- [src/app/globals.css](file://src/app/globals.css#L53-L75)
+- [src/components/ui/tabs.tsx:1-56](file://src/components/ui/tabs.tsx#L1-L56)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:26-33](file://tailwind.config.js#L26-L33)
+- [src/app/globals.css:53-75](file://src/app/globals.css#L53-L75)
 
 ### Sonner（通知系统）
 - 设计理念
@@ -929,13 +934,13 @@ Toaster --> Notification : "显示"
 ```
 
 **图表来源**
-- [src/components/ui/sonner.tsx](file://src/components/ui/sonner.tsx#L15-L46)
+- [src/components/ui/sonner.tsx:15-46](file://src/components/ui/sonner.tsx#L15-L46)
 
 **章节来源**
-- [src/components/ui/sonner.tsx](file://src/components/ui/sonner.tsx#L1-L46)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L26-L33)
-- [src/app/globals.css](file://src/app/globals.css#L53-L75)
+- [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:26-33](file://tailwind.config.js#L26-L33)
+- [src/app/globals.css:53-75](file://src/app/globals.css#L53-L75)
 
 ### Popover（弹出框）
 - 设计理念
@@ -990,13 +995,13 @@ Popover --> PopoverContent : "包含"
 ```
 
 **图表来源**
-- [src/components/ui/popover.tsx](file://src/components/ui/popover.tsx#L8-L31)
+- [src/components/ui/popover.tsx:8-31](file://src/components/ui/popover.tsx#L8-L31)
 
 **章节来源**
-- [src/components/ui/popover.tsx](file://src/components/ui/popover.tsx#L1-L32)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L46-L53)
-- [src/app/globals.css](file://src/app/globals.css#L53-L75)
+- [src/components/ui/popover.tsx:1-32](file://src/components/ui/popover.tsx#L1-L32)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:46-53](file://tailwind.config.js#L46-L53)
+- [src/app/globals.css:53-75](file://src/app/globals.css#L53-L75)
 
 ### Calendar（日历）
 - 设计理念
@@ -1072,13 +1077,13 @@ Calendar --> CalendarDayButton : "使用"
 ```
 
 **图表来源**
-- [src/components/ui/calendar.tsx](file://src/components/ui/calendar.tsx#L15-L223)
+- [src/components/ui/calendar.tsx:15-223](file://src/components/ui/calendar.tsx#L15-L223)
 
 **章节来源**
-- [src/components/ui/calendar.tsx](file://src/components/ui/calendar.tsx#L1-L223)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L26-L33)
-- [src/app/globals.css](file://src/app/globals.css#L53-L75)
+- [src/components/ui/calendar.tsx:1-223](file://src/components/ui/calendar.tsx#L1-L223)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:26-33](file://tailwind.config.js#L26-L33)
+- [src/app/globals.css:53-75](file://src/app/globals.css#L53-L75)
 
 ### DatePickerWithRange（日期范围选择器）
 - 设计理念
@@ -1149,13 +1154,13 @@ DatePickerWithRange --> Button : "触发器"
 ```
 
 **图表来源**
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L14-L92)
+- [src/components/date-picker-with-range.tsx:14-92](file://src/components/date-picker-with-range.tsx#L14-L92)
 
 **章节来源**
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L1-L92)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L46-L53)
-- [src/app/globals.css](file://src/app/globals.css#L53-L75)
+- [src/components/date-picker-with-range.tsx:1-92](file://src/components/date-picker-with-range.tsx#L1-L92)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:46-53](file://tailwind.config.js#L46-L53)
+- [src/app/globals.css:53-75](file://src/app/globals.css#L53-L75)
 
 ### DateRangePicker（日期范围选择器）
 - 设计理念
@@ -1219,15 +1224,15 @@ DateRangePicker --> Button : "触发器"
 ```
 
 **图表来源**
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L9-L13)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L22-L28)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L52-L100)
+- [src/components/date-range-picker.tsx:9-13](file://src/components/date-range-picker.tsx#L9-L13)
+- [src/components/date-range-picker.tsx:22-28](file://src/components/date-range-picker.tsx#L22-L28)
+- [src/components/date-range-picker.tsx:52-100](file://src/components/date-range-picker.tsx#L52-L100)
 
 **章节来源**
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L1-L100)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L46-L53)
-- [src/app/globals.css](file://src/app/globals.css#L53-L75)
+- [src/components/date-range-picker.tsx:1-100](file://src/components/date-range-picker.tsx#L1-L100)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:46-53](file://tailwind.config.js#L46-L53)
+- [src/app/globals.css:53-75](file://src/app/globals.css#L53-L75)
 
 ### 白名单规则表单（WhitelistRuleForm）
 - 设计理念
@@ -1280,12 +1285,12 @@ Toggle --> Input
 
 **章节来源**
 - [src/app/(dashboard)/users/components/whitelist-rule-form.tsx](file://src/app/(dashboard)/users/components/whitelist-rule-form.tsx#L1-L531)
-- [src/components/ui/input.tsx](file://src/components/ui/input.tsx#L1-L26)
-- [src/components/ui/textarea.tsx](file://src/components/ui/textarea.tsx#L1-L38)
-- [src/components/ui/select.tsx](file://src/components/ui/select.tsx#L1-L152)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L20-L54)
-- [src/app/globals.css](file://src/app/globals.css#L53-L75)
+- [src/components/ui/input.tsx:1-26](file://src/components/ui/input.tsx#L1-L26)
+- [src/components/ui/textarea.tsx:1-38](file://src/components/ui/textarea.tsx#L1-L38)
+- [src/components/ui/select.tsx:1-152](file://src/components/ui/select.tsx#L1-L152)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:20-54](file://tailwind.config.js#L20-L54)
+- [src/app/globals.css:53-75](file://src/app/globals.css#L53-L75)
 
 ### 区域热力图（RegionHeatmapChart）
 - 设计理念
@@ -1338,10 +1343,10 @@ Responsive --> Cleanup["组件卸载时清理资源"]
 
 **章节来源**
 - [src/app/(dashboard)/components/region-heatmap-chart.tsx](file://src/app/(dashboard)/components/region-heatmap-chart.tsx#L1-L175)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L20-L54)
-- [src/app/globals.css](file://src/app/globals.css#L53-L75)
-- [public/100000_full.json](file://public/100000_full.json#L1-L2)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:20-54](file://tailwind.config.js#L20-L54)
+- [src/app/globals.css:53-75](file://src/app/globals.css#L53-L75)
+- [public/100000_full.json:1-2](file://public/100000_full.json#L1-L2)
 
 ### 仪表板首页（HomePage）
 - 设计理念
@@ -1388,9 +1393,9 @@ Query --> Charts["图表组件<br/>UsageTrendChart/ModelDistributionChart/Region
 
 **章节来源**
 - [src/app/(dashboard)/page.tsx](file://src/app/(dashboard)/page.tsx#L1-L230)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L20-L54)
-- [src/app/globals.css](file://src/app/globals.css#L53-L75)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:20-54](file://tailwind.config.js#L20-L54)
+- [src/app/globals.css:53-75](file://src/app/globals.css#L53-L75)
 
 ## 液体玻璃样式系统
 
@@ -1439,15 +1444,15 @@ Query --> Charts["图表组件<br/>UsageTrendChart/ModelDistributionChart/Region
 - **DateRangePicker**：日期范围选择器的液体玻璃样式
 
 **章节来源**
-- [src/app/globals.css](file://src/app/globals.css#L5-L136)
-- [src/components/ui/button.tsx](file://src/components/ui/button.tsx#L36-L77)
-- [src/components/ui/dialog.tsx](file://src/components/ui/dialog.tsx#L1-L121)
-- [src/components/ui/table.tsx](file://src/components/ui/table.tsx#L1-L95)
-- [src/components/ui/sonner.tsx](file://src/components/ui/sonner.tsx#L1-L46)
-- [src/components/ui/popover.tsx](file://src/components/ui/popover.tsx#L1-L32)
-- [src/components/ui/calendar.tsx](file://src/components/ui/calendar.tsx#L1-L223)
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L1-L92)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L1-L100)
+- [src/app/globals.css:5-136](file://src/app/globals.css#L5-L136)
+- [src/components/ui/button.tsx:36-77](file://src/components/ui/button.tsx#L36-L77)
+- [src/components/ui/dialog.tsx:1-121](file://src/components/ui/dialog.tsx#L1-L121)
+- [src/components/ui/table.tsx:1-95](file://src/components/ui/table.tsx#L1-L95)
+- [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
+- [src/components/ui/popover.tsx:1-32](file://src/components/ui/popover.tsx#L1-L32)
+- [src/components/ui/calendar.tsx:1-223](file://src/components/ui/calendar.tsx#L1-L223)
+- [src/components/date-picker-with-range.tsx:1-92](file://src/components/date-picker-with-range.tsx#L1-L92)
+- [src/components/date-range-picker.tsx:1-100](file://src/components/date-range-picker.tsx#L1-L100)
 
 ## 深色模式主题检测机制
 
@@ -1511,11 +1516,11 @@ AIGate 采用现代化的深色模式检测机制，通过监听系统主题偏�
 - [src/app/(dashboard)/components/model-distribution-chart.tsx](file://src/app/(dashboard)/components/model-distribution-chart.tsx#L113-L116)
 - [src/app/(dashboard)/components/region-heatmap-chart.tsx](file://src/app/(dashboard)/components/region-heatmap-chart.tsx#L154-L167)
 - [src/app/(dashboard)/components/stat-card.tsx](file://src/app/(dashboard)/components/stat-card.tsx#L40-L52)
-- [src/components/dashboard-layout.tsx](file://src/components/dashboard-layout.tsx#L98-L132)
-- [src/components/ui/calendar.tsx](file://src/components/ui/calendar.tsx#L34-L38)
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L46-L49)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L58-L61)
-- [src/components/ui/popover.tsx](file://src/components/ui/popover.tsx#L21-L27)
+- [src/components/dashboard-layout.tsx:98-132](file://src/components/dashboard-layout.tsx#L98-L132)
+- [src/components/ui/calendar.tsx:34-38](file://src/components/ui/calendar.tsx#L34-L38)
+- [src/components/date-picker-with-range.tsx:46-49](file://src/components/date-picker-with-range.tsx#L46-L49)
+- [src/components/date-range-picker.tsx:58-61](file://src/components/date-range-picker.tsx#L58-L61)
+- [src/components/ui/popover.tsx:21-27](file://src/components/ui/popover.tsx#L21-L27)
 
 ## 样式标准化与迁移
 
@@ -1642,20 +1647,20 @@ AIGate UI 组件系统已完成从传统的 CSS 变量系统向标准 Tailwind �
 - 样式切换更加流畅和一致
 
 **章节来源**
-- [src/components/ui/button.tsx](file://src/components/ui/button.tsx#L8-L21)
-- [src/components/ui/dialog.tsx](file://src/components/ui/dialog.tsx#L22-L41)
-- [src/components/ui/table.tsx](file://src/components/ui/table.tsx#L50-L68)
-- [src/components/ui/data-table.tsx](file://src/components/ui/data-table.tsx#L94-L115)
-- [src/components/ui/textarea.tsx](file://src/components/ui/textarea.tsx#L10-L18)
-- [src/components/ui/slider.tsx](file://src/components/ui/slider.tsx#L14-L24)
-- [src/components/ui/tabs.tsx](file://src/components/ui/tabs.tsx#L16-L37)
-- [src/components/ui/sonner.tsx](file://src/components/ui/sonner.tsx#L30-L39)
-- [src/components/ui/popover.tsx](file://src/components/ui/popover.tsx#L21-L29)
-- [src/components/ui/calendar.tsx](file://src/components/ui/calendar.tsx#L34-L38)
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L46-L49)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L58-L61)
-- [tailwind.config.js](file://tailwind.config.js#L20-L54)
-- [src/app/globals.css](file://src/app/globals.css#L53-L118)
+- [src/components/ui/button.tsx:8-21](file://src/components/ui/button.tsx#L8-L21)
+- [src/components/ui/dialog.tsx:22-41](file://src/components/ui/dialog.tsx#L22-L41)
+- [src/components/ui/table.tsx:50-68](file://src/components/ui/table.tsx#L50-L68)
+- [src/components/ui/data-table.tsx:94-115](file://src/components/ui/data-table.tsx#L94-L115)
+- [src/components/ui/textarea.tsx:10-18](file://src/components/ui/textarea.tsx#L10-L18)
+- [src/components/ui/slider.tsx:14-24](file://src/components/ui/slider.tsx#L14-L24)
+- [src/components/ui/tabs.tsx:16-37](file://src/components/ui/tabs.tsx#L16-L37)
+- [src/components/ui/sonner.tsx:30-39](file://src/components/ui/sonner.tsx#L30-L39)
+- [src/components/ui/popover.tsx:21-29](file://src/components/ui/popover.tsx#L21-L29)
+- [src/components/ui/calendar.tsx:34-38](file://src/components/ui/calendar.tsx#L34-L38)
+- [src/components/date-picker-with-range.tsx:46-49](file://src/components/date-picker-with-range.tsx#L46-L49)
+- [src/components/date-range-picker.tsx:58-61](file://src/components/date-range-picker.tsx#L58-L61)
+- [tailwind.config.js:20-54](file://tailwind.config.js#L20-L54)
+- [src/app/globals.css:53-118](file://src/app/globals.css#L53-L118)
 
 ## 密码可见性切换按钮实现
 
@@ -1740,16 +1745,16 @@ Effect --> User["用户体验<br/>更好的输入体验"]
 ```
 
 **图表来源**
-- [src/app/login/page.tsx](file://src/app/login/page.tsx#L78-L97)
-- [src/app/settings/page.tsx](file://src/app/settings/page.tsx#L102-L119)
+- [src/app/login/page.tsx:78-97](file://src/app/login/page.tsx#L78-L97)
+- [src/app/settings/page.tsx:102-119](file://src/app/settings/page.tsx#L102-L119)
 
 **章节来源**
-- [src/app/login/page.tsx](file://src/app/login/page.tsx#L78-L97)
-- [src/app/settings/page.tsx](file://src/app/settings/page.tsx#L102-L119)
-- [src/components/ui/input.tsx](file://src/components/ui/input.tsx#L1-L26)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L20-L54)
-- [src/app/globals.css](file://src/app/globals.css#L53-L75)
+- [src/app/login/page.tsx:78-97](file://src/app/login/page.tsx#L78-L97)
+- [src/app/settings/page.tsx:102-119](file://src/app/settings/page.tsx#L102-L119)
+- [src/components/ui/input.tsx:1-26](file://src/components/ui/input.tsx#L1-L26)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:20-54](file://tailwind.config.js#L20-L54)
+- [src/app/globals.css:53-75](file://src/app/globals.css#L53-L75)
 
 ## 日期选择器组件集成
 
@@ -1813,16 +1818,16 @@ CalcRange --> Query["trpc 查询<br/>更新图表数据"]
 
 **图表来源**
 - [src/app/(dashboard)/page.tsx](file://src/app/(dashboard)/page.tsx#L15-L59)
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L27-L37)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L20-L50)
+- [src/components/date-picker-with-range.tsx:27-37](file://src/components/date-picker-with-range.tsx#L27-L37)
+- [src/components/date-range-picker.tsx:20-50](file://src/components/date-range-picker.tsx#L20-L50)
 
 **章节来源**
 - [src/app/(dashboard)/page.tsx](file://src/app/(dashboard)/page.tsx#L124-L139)
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L1-L92)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L1-L100)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
-- [tailwind.config.js](file://tailwind.config.js#L46-L53)
-- [src/app/globals.css](file://src/app/globals.css#L53-L75)
+- [src/components/date-picker-with-range.tsx:1-92](file://src/components/date-picker-with-range.tsx#L1-L92)
+- [src/components/date-range-picker.tsx:1-100](file://src/components/date-range-picker.tsx#L1-L100)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
+- [tailwind.config.js:46-53](file://tailwind.config.js#L46-L53)
+- [src/app/globals.css:53-75](file://src/app/globals.css#L53-L75)
 
 ## 区域热力图数据源优化
 
@@ -1863,7 +1868,7 @@ CalcRange --> Query["trpc 查询<br/>更新图表数据"]
 - [src/app/(dashboard)/components/region-heatmap-chart.tsx](file://src/app/(dashboard)/components/region-heatmap-chart.tsx#L7-L7)
 - [src/app/(dashboard)/components/region-heatmap-chart.tsx](file://src/app/(dashboard)/components/region-heatmap-chart.tsx#L36-L51)
 - [src/app/(dashboard)/components/region-heatmap-chart.tsx](file://src/app/(dashboard)/components/region-heatmap-chart.tsx#L154-L167)
-- [public/100000_full.json](file://public/100000_full.json#L1-L2)
+- [public/100000_full.json:1-2](file://public/100000_full.json#L1-L2)
 
 ## 依赖关系分析
 - 组件依赖
@@ -1936,27 +1941,27 @@ DARK --> ECHARTS
 ```
 
 **图表来源**
-- [package.json](file://package.json#L18-L68)
-- [src/components/ui/button.tsx](file://src/components/ui/button.tsx#L1-L5)
-- [src/components/ui/dialog.tsx](file://src/components/ui/dialog.tsx#L1-L5)
-- [src/components/ui/select.tsx](file://src/components/ui/select.tsx#L1-L5)
-- [src/components/ui/slider.tsx](file://src/components/ui/slider.tsx#L1-L5)
-- [src/components/ui/tabs.tsx](file://src/components/ui/tabs.tsx#L1-L5)
-- [src/components/ui/popover.tsx](file://src/components/ui/popover.tsx#L1-L5)
-- [src/components/ui/calendar.tsx](file://src/components/ui/calendar.tsx#L1-L13)
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L1-L12)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L1-L7)
-- [src/components/ui/data-table.tsx](file://src/components/ui/data-table.tsx#L4-L14)
-- [src/components/ui/pagination.tsx](file://src/components/ui/pagination.tsx#L1-L5)
-- [src/components/ui/sonner.tsx](file://src/components/ui/sonner.tsx#L1-L11)
-- [src/components/ui/textarea.tsx](file://src/components/ui/textarea.tsx#L1-L5)
+- [package.json:18-68](file://package.json#L18-L68)
+- [src/components/ui/button.tsx:1-5](file://src/components/ui/button.tsx#L1-L5)
+- [src/components/ui/dialog.tsx:1-5](file://src/components/ui/dialog.tsx#L1-L5)
+- [src/components/ui/select.tsx:1-5](file://src/components/ui/select.tsx#L1-L5)
+- [src/components/ui/slider.tsx:1-5](file://src/components/ui/slider.tsx#L1-L5)
+- [src/components/ui/tabs.tsx:1-5](file://src/components/ui/tabs.tsx#L1-L5)
+- [src/components/ui/popover.tsx:1-5](file://src/components/ui/popover.tsx#L1-L5)
+- [src/components/ui/calendar.tsx:1-13](file://src/components/ui/calendar.tsx#L1-L13)
+- [src/components/date-picker-with-range.tsx:1-12](file://src/components/date-picker-with-range.tsx#L1-L12)
+- [src/components/date-range-picker.tsx:1-7](file://src/components/date-range-picker.tsx#L1-L7)
+- [src/components/ui/data-table.tsx:4-14](file://src/components/ui/data-table.tsx#L4-L14)
+- [src/components/ui/pagination.tsx:1-5](file://src/components/ui/pagination.tsx#L1-L5)
+- [src/components/ui/sonner.tsx:1-11](file://src/components/ui/sonner.tsx#L1-L11)
+- [src/components/ui/textarea.tsx:1-5](file://src/components/ui/textarea.tsx#L1-L5)
 - [src/app/(dashboard)/users/components/whitelist-rule-form.tsx](file://src/app/(dashboard)/users/components/whitelist-rule-form.tsx#L4-L14)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L1-L6)
-- [tailwind.config.js](file://tailwind.config.js#L1-L78)
+- [src/lib/utils.ts:1-6](file://src/lib/utils.ts#L1-L6)
+- [tailwind.config.js:1-78](file://tailwind.config.js#L1-L78)
 
 **章节来源**
-- [package.json](file://package.json#L18-L68)
-- [components.json](file://components.json#L1-L18)
+- [package.json:18-68](file://package.json#L18-L68)
+- [components.json:1-18](file://components.json#L1-L18)
 
 ## 性能与可访问性
 - 性能
@@ -1994,20 +1999,20 @@ DARK --> ECHARTS
   - **新增** 液体玻璃样式系统：所有组件均支持 CSS 自定义属性，确保在深色模式下的可访问性。
 
 **章节来源**
-- [src/components/ui/dialog.tsx](file://src/components/ui/dialog.tsx#L45-L48)
-- [src/components/ui/pagination.tsx](file://src/components/ui/pagination.tsx#L49-L58)
-- [src/components/ui/select.tsx](file://src/components/ui/select.tsx#L64-L88)
-- [src/components/ui/label.tsx](file://src/components/ui/label.tsx#L15-L21)
-- [src/components/ui/calendar.tsx](file://src/components/ui/calendar.tsx#L183-L220)
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L32-L37)
-- [src/components/ui/slider.tsx](file://src/components/ui/slider.tsx#L20-L24)
-- [src/components/ui/tabs.tsx](file://src/components/ui/tabs.tsx#L25-L53)
-- [src/components/ui/sonner.tsx](file://src/components/ui/sonner.tsx#L15-L46)
-- [src/components/ui/popover.tsx](file://src/components/ui/popover.tsx#L15-L29)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L70-L78)
-- [src/components/ui/textarea.tsx](file://src/components/ui/textarea.tsx#L10-L18)
-- [src/app/login/page.tsx](file://src/app/login/page.tsx#L90-L96)
-- [src/app/settings/page.tsx](file://src/app/settings/page.tsx#L112-L118)
+- [src/components/ui/dialog.tsx:45-48](file://src/components/ui/dialog.tsx#L45-L48)
+- [src/components/ui/pagination.tsx:49-58](file://src/components/ui/pagination.tsx#L49-L58)
+- [src/components/ui/select.tsx:64-88](file://src/components/ui/select.tsx#L64-L88)
+- [src/components/ui/label.tsx:15-21](file://src/components/ui/label.tsx#L15-L21)
+- [src/components/ui/calendar.tsx:183-220](file://src/components/ui/calendar.tsx#L183-L220)
+- [src/components/date-picker-with-range.tsx:32-37](file://src/components/date-picker-with-range.tsx#L32-L37)
+- [src/components/ui/slider.tsx:20-24](file://src/components/ui/slider.tsx#L20-L24)
+- [src/components/ui/tabs.tsx:25-53](file://src/components/ui/tabs.tsx#L25-L53)
+- [src/components/ui/sonner.tsx:15-46](file://src/components/ui/sonner.tsx#L15-L46)
+- [src/components/ui/popover.tsx:15-29](file://src/components/ui/popover.tsx#L15-L29)
+- [src/components/date-range-picker.tsx:70-78](file://src/components/date-range-picker.tsx#L70-L78)
+- [src/components/ui/textarea.tsx:10-18](file://src/components/ui/textarea.tsx#L10-L18)
+- [src/app/login/page.tsx:90-96](file://src/app/login/page.tsx#L90-L96)
+- [src/app/settings/page.tsx:112-118](file://src/app/settings/page.tsx#L112-L118)
 - [src/app/(dashboard)/components/region-heatmap-chart.tsx](file://src/app/(dashboard)/components/region-heatmap-chart.tsx#L154-L167)
 
 ## 样式系统与主题定制
@@ -2036,14 +2041,14 @@ GLASS --> CMP
 ```
 
 **图表来源**
-- [src/app/globals.css](file://src/app/globals.css#L5-L136)
-- [tailwind.config.js](file://tailwind.config.js#L19-L74)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L4-L6)
+- [src/app/globals.css:5-136](file://src/app/globals.css#L5-L136)
+- [tailwind.config.js:19-74](file://tailwind.config.js#L19-L74)
+- [src/lib/utils.ts:4-6](file://src/lib/utils.ts#L4-L6)
 
 **章节来源**
-- [tailwind.config.js](file://tailwind.config.js#L1-L78)
-- [src/app/globals.css](file://src/app/globals.css#L1-L136)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L1-L7)
+- [tailwind.config.js:1-78](file://tailwind.config.js#L1-L78)
+- [src/app/globals.css:1-136](file://src/app/globals.css#L1-L136)
+- [src/lib/utils.ts:1-7](file://src/lib/utils.ts#L1-L7)
 
 ## 测试策略与文档生成
 - 单元测试
@@ -2148,24 +2153,24 @@ GLASS --> CMP
   - **样式标准化集成**：确保第三方组件也遵循新的样式使用模式。
 
 **章节来源**
-- [src/components/ui/button.tsx](file://src/components/ui/button.tsx#L36-L77)
-- [src/components/ui/input.tsx](file://src/components/ui/input.tsx#L5-L26)
-- [src/components/ui/textarea.tsx](file://src/components/ui/textarea.tsx#L1-L38)
-- [src/components/ui/dialog.tsx](file://src/components/ui/dialog.tsx#L1-L121)
-- [src/components/ui/data-table.tsx](file://src/components/ui/data-table.tsx#L1-L191)
-- [src/components/ui/slider.tsx](file://src/components/ui/slider.tsx#L1-L29)
-- [src/components/ui/tabs.tsx](file://src/components/ui/tabs.tsx#L1-L56)
-- [src/components/ui/sonner.tsx](file://src/components/ui/sonner.tsx#L1-L46)
-- [src/components/ui/popover.tsx](file://src/components/ui/popover.tsx#L1-L32)
-- [src/components/ui/calendar.tsx](file://src/components/ui/calendar.tsx#L1-L223)
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L1-L92)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L1-L100)
+- [src/components/ui/button.tsx:36-77](file://src/components/ui/button.tsx#L36-L77)
+- [src/components/ui/input.tsx:5-26](file://src/components/ui/input.tsx#L5-L26)
+- [src/components/ui/textarea.tsx:1-38](file://src/components/ui/textarea.tsx#L1-L38)
+- [src/components/ui/dialog.tsx:1-121](file://src/components/ui/dialog.tsx#L1-L121)
+- [src/components/ui/data-table.tsx:1-191](file://src/components/ui/data-table.tsx#L1-L191)
+- [src/components/ui/slider.tsx:1-29](file://src/components/ui/slider.tsx#L1-L29)
+- [src/components/ui/tabs.tsx:1-56](file://src/components/ui/tabs.tsx#L1-L56)
+- [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
+- [src/components/ui/popover.tsx:1-32](file://src/components/ui/popover.tsx#L1-L32)
+- [src/components/ui/calendar.tsx:1-223](file://src/components/ui/calendar.tsx#L1-L223)
+- [src/components/date-picker-with-range.tsx:1-92](file://src/components/date-picker-with-range.tsx#L1-L92)
+- [src/components/date-range-picker.tsx:1-100](file://src/components/date-range-picker.tsx#L1-L100)
 - [src/app/(dashboard)/users/components/whitelist-rule-form.tsx](file://src/app/(dashboard)/users/components/whitelist-rule-form.tsx#L1-L531)
 - [src/app/(dashboard)/components/region-heatmap-chart.tsx](file://src/app/(dashboard)/components/region-heatmap-chart.tsx#L1-L175)
 - [src/app/(dashboard)/page.tsx](file://src/app/(dashboard)/page.tsx#L1-L230)
-- [src/app/login/page.tsx](file://src/app/login/page.tsx#L78-L97)
-- [src/app/settings/page.tsx](file://src/app/settings/page.tsx#L102-L119)
-- [src/lib/utils.ts](file://src/lib/utils.ts#L1-L7)
+- [src/app/login/page.tsx:78-97](file://src/app/login/page.tsx#L78-L97)
+- [src/app/settings/page.tsx:102-119](file://src/app/settings/page.tsx#L102-L119)
+- [src/lib/utils.ts:1-7](file://src/lib/utils.ts#L1-L7)
 
 ## 故障排查
 - 样式未生效
@@ -2284,26 +2289,26 @@ GLASS --> CMP
   - **新增** 液体玻璃样式问题**：检查液体玻璃效果的类名拼接是否正确
 
 **章节来源**
-- [tailwind.config.js](file://tailwind.config.js#L4-L9)
-- [postcss.config.mjs](file://postcss.config.mjs#L1-L8)
-- [src/app/globals.css](file://src/app/globals.css#L3-L3)
-- [src/components/ui/dialog.tsx](file://src/components/ui/dialog.tsx#L34-L50)
-- [src/components/ui/pagination.tsx](file://src/components/ui/pagination.tsx#L49-L58)
-- [src/components/ui/slider.tsx](file://src/components/ui/slider.tsx#L14-L24)
-- [src/components/ui/tabs.tsx](file://src/components/ui/tabs.tsx#L16-L53)
-- [src/components/ui/sonner.tsx](file://src/components/ui/sonner.tsx#L15-L46)
-- [src/components/ui/popover.tsx](file://src/components/ui/popover.tsx#L15-L29)
-- [src/components/ui/calendar.tsx](file://src/components/ui/calendar.tsx#L46-L135)
-- [src/components/date-picker-with-range.tsx](file://src/components/date-picker-with-range.tsx#L66-L77)
-- [src/components/date-range-picker.tsx](file://src/components/date-range-picker.tsx#L68-L81)
-- [src/components/ui/textarea.tsx](file://src/components/ui/textarea.tsx#L10-L18)
+- [tailwind.config.js:4-9](file://tailwind.config.js#L4-L9)
+- [postcss.config.mjs:1-8](file://postcss.config.mjs#L1-L8)
+- [src/app/globals.css:3-3](file://src/app/globals.css#L3-L3)
+- [src/components/ui/dialog.tsx:34-50](file://src/components/ui/dialog.tsx#L34-L50)
+- [src/components/ui/pagination.tsx:49-58](file://src/components/ui/pagination.tsx#L49-L58)
+- [src/components/ui/slider.tsx:14-24](file://src/components/ui/slider.tsx#L14-L24)
+- [src/components/ui/tabs.tsx:16-53](file://src/components/ui/tabs.tsx#L16-L53)
+- [src/components/ui/sonner.tsx:15-46](file://src/components/ui/sonner.tsx#L15-L46)
+- [src/components/ui/popover.tsx:15-29](file://src/components/ui/popover.tsx#L15-L29)
+- [src/components/ui/calendar.tsx:46-135](file://src/components/ui/calendar.tsx#L46-L135)
+- [src/components/date-picker-with-range.tsx:66-77](file://src/components/date-picker-with-range.tsx#L66-L77)
+- [src/components/date-range-picker.tsx:68-81](file://src/components/date-range-picker.tsx#L68-L81)
+- [src/components/ui/textarea.tsx:10-18](file://src/components/ui/textarea.tsx#L10-L18)
 - [src/app/(dashboard)/users/components/whitelist-rule-form.tsx](file://src/app/(dashboard)/users/components/whitelist-rule-form.tsx#L123-L531)
 - [src/app/(dashboard)/components/region-heatmap-chart.tsx](file://src/app/(dashboard)/components/region-heatmap-chart.tsx#L7-L7)
 - [src/app/(dashboard)/components/region-heatmap-chart.tsx](file://src/app/(dashboard)/components/region-heatmap-chart.tsx#L36-L51)
 - [src/app/(dashboard)/components/region-heatmap-chart.tsx](file://src/app/(dashboard)/components/region-heatmap-chart.tsx#L154-L167)
 - [src/app/(dashboard)/page.tsx](file://src/app/(dashboard)/page.tsx#L124-L139)
-- [src/app/login/page.tsx](file://src/app/login/page.tsx#L78-L97)
-- [src/app/settings/page.tsx](file://src/app/settings/page.tsx#L102-L119)
+- [src/app/login/page.tsx:78-97](file://src/app/login/page.tsx#L78-L97)
+- [src/app/settings/page.tsx:102-119](file://src/app/settings/page.tsx#L102-L119)
 
 ## 结论
 AIGate 的 UI 组件系统以 Tailwind v4 与 CSS 变量为核心，结合 class-variance-authority 与 Radix UI，实现了高可定制、强可访问性的组件生态。通过 DataTable 与 Pagination 的组合，满足复杂数据场景；通过 Dialog/Select 等复合组件，提供一致的交互体验。

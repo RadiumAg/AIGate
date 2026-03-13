@@ -14,7 +14,17 @@
 - [auth.ts](file://src/auth.ts)
 - [page.tsx](file://src/app/(dashboard)/debug/page.tsx)
 - [index.tsx](file://src/app/(dashboard)/debug/components/quota-debug/index.tsx)
+- [logger.ts](file://src/lib/logger.ts)
+- [instrumentation.ts](file://src/instrumentation.ts)
+- [logger-middleware.ts](file://src/lib/logger-middleware.ts)
 </cite>
+
+## 更新摘要
+**变更内容**
+- 增强了演示模式配置功能，包括更灵活的 `isDemoMode` 函数
+- 实现了演示模式下的日志禁用机制
+- 添加了演示环境的条件初始化流程
+- 更新了权限控制系统和统计系统的演示模式支持
 
 ## 目录
 1. [简介](#简介)
@@ -37,6 +47,8 @@
 - 实现配额管理和白名单验证
 - 提供统计数据计算和可视化支持
 - 确保与真实数据库操作的兼容性
+- 实现演示模式下的日志禁用机制
+- 支持条件化的环境初始化流程
 
 ## 项目结构
 
@@ -53,10 +65,13 @@ F[quota.ts] --> B
 G[dashboard.ts] --> C
 H[auth.ts] --> A
 I[init-admin.ts] --> E
+J[logger.ts] --> A
+K[instrumentation.ts] --> A
+L[logger-middleware.ts] --> J
 end
 subgraph "前端集成"
-J[page.tsx] --> K[quota-debug/index.tsx]
-K --> F
+M[page.tsx] --> N[quota-debug/index.tsx]
+N --> F
 end
 ```
 
@@ -74,12 +89,14 @@ end
 
 ### 演示模式配置系统
 
-演示模式配置系统通过环境变量控制整个系统的运行模式，提供了灵活的配置选项：
+演示模式配置系统通过增强的 `isDemoMode` 函数控制整个系统的运行模式，提供了灵活的配置选项：
 
-- **模式切换**：通过 `DEMO_MODE` 和 `NEXT_PUBLIC_DEMO_MODE` 环境变量控制
+- **双重环境变量支持**：通过 `DEMO_MODE` 和 `NEXT_PUBLIC_DEMO_MODE` 环境变量控制，确保前后端都能正确识别演示模式
 - **权限管理**：支持只读模式和读写模式的切换
 - **数据重置**：可配置自动重置间隔时间
 - **默认凭据**：提供演示用的默认管理员账户
+
+**更新** 新增了更灵活的 `isDemoMode` 函数，同时检查客户端和服务器端的演示模式标志。
 
 ### 内存数据存储层
 
@@ -99,10 +116,28 @@ DemoDataStore 类实现了完整的内存数据管理功能：
 - **区域分析**：按地区统计请求分布
 - **IP 追踪**：监控最近的 IP 请求记录
 
+### 日志管理系统
+
+**新增** 演示模式下的日志禁用机制：
+
+- **条件日志输出**：在演示模式下完全禁用日志输出
+- **生产环境日志**：仅在非演示模式下启用完整的日志记录
+- **性能优化**：避免演示模式下的日志开销
+
+### 条件初始化系统
+
+**新增** 演示环境的条件初始化流程：
+
+- **服务端初始化**：仅在 Node.js 运行时且非演示模式下执行
+- **管理员同步**：在应用启动时同步管理员用户
+- **资源优化**：避免演示模式下的不必要的初始化操作
+
 **章节来源**
-- [demo-config.ts:11-56](file://src/lib/demo-config.ts#L11-L56)
+- [demo-config.ts:7-56](file://src/lib/demo-config.ts#L7-L56)
 - [demo-data.ts:20-431](file://src/lib/demo-data.ts#L20-L431)
 - [demo-stats.ts:19-110](file://src/lib/demo-stats.ts#L19-L110)
+- [logger.ts:20-100](file://src/lib/logger.ts#L20-L100)
+- [instrumentation.ts:4-10](file://src/instrumentation.ts#L4-L10)
 
 ## 架构概览
 
@@ -141,14 +176,31 @@ class DemoStats {
 +getRegionDistribution(startDate, endDate) Array
 +getRecentIpRequests(limit) Array
 }
+class Logger {
++logInfo(message, meta)
++logError(message, meta)
++logWarn(message, meta)
++logDebug(message, meta)
++logHttp(message, meta)
++logQuotaOperation(operation, userId, apiKeyId, metadata)
++logAIRequest(userId, model, provider, tokens, metadata)
++logAuth(action, userId, metadata)
+}
+class Instrumentation {
++register()
+}
 DemoDataStore --> DemoConfig : uses
 DemoStats --> DemoDataStore : depends on
+Logger --> DemoConfig : checks
+Instrumentation --> DemoConfig : uses
 ```
 
 **图表来源**
 - [demo-data.ts:20-431](file://src/lib/demo-data.ts#L20-L431)
 - [demo-config.ts:12-56](file://src/lib/demo-config.ts#L12-L56)
 - [demo-stats.ts:19-110](file://src/lib/demo-stats.ts#L19-L110)
+- [logger.ts:102-192](file://src/lib/logger.ts#L102-L192)
+- [instrumentation.ts:1-11](file://src/instrumentation.ts#L1-L11)
 
 ## 详细组件分析
 
@@ -248,6 +300,8 @@ H --> J
 C --> J
 ```
 
+**更新** 权限控制系统现在更加严格，演示模式下默认只允许读取操作，除非明确配置允许修改。
+
 **图表来源**
 - [demo-config.ts:39-56](file://src/lib/demo-config.ts#L39-L56)
 
@@ -305,11 +359,63 @@ H --> J
 I --> J
 ```
 
+**更新** 统计系统现在支持演示模式和生产模式的双路径处理，演示模式使用内存数据进行统计。
+
 **图表来源**
 - [demo-stats.ts:21-110](file://src/lib/demo-stats.ts#L21-L110)
 
 **章节来源**
 - [demo-stats.ts:19-110](file://src/lib/demo-stats.ts#L19-L110)
+
+### 日志系统集成
+
+**新增** 演示模式下的日志禁用机制：
+
+```mermaid
+flowchart TD
+A[日志请求] --> B{检查演示模式}
+B --> |否| C[创建日志传输器]
+B --> |是| D[禁用日志输出]
+C --> E[添加控制台传输器]
+C --> F[添加文件传输器]
+E --> G[输出日志]
+F --> G
+D --> H[跳过日志记录]
+```
+
+**更新** 日志系统现在在演示模式下完全禁用，避免产生不必要的日志输出。
+
+**图表来源**
+- [logger.ts:50-100](file://src/lib/logger.ts#L50-L100)
+
+**章节来源**
+- [logger.ts:1-192](file://src/lib/logger.ts#L1-L192)
+
+### 条件初始化流程
+
+**新增** 演示环境的条件初始化流程：
+
+```mermaid
+flowchart TD
+A[应用启动] --> B{检查运行时环境}
+B --> |Node.js| C{检查演示模式}
+B --> |浏览器| D[直接初始化]
+C --> |否| E[执行初始化流程]
+C --> |是| F[跳过初始化]
+E --> G[同步管理员用户]
+G --> H[完成初始化]
+F --> I[结束]
+D --> I
+```
+
+**更新** 初始化系统现在支持条件执行，仅在非演示模式下执行必要的初始化操作。
+
+**图表来源**
+- [instrumentation.ts:4-10](file://src/instrumentation.ts#L4-L10)
+
+**章节来源**
+- [instrumentation.ts:1-11](file://src/instrumentation.ts#L1-L11)
+- [init-admin.ts:9-71](file://src/lib/init-admin.ts#L9-L71)
 
 ## 依赖关系分析
 
@@ -323,19 +429,25 @@ A --> C[schema.ts]
 D[database.ts] --> A
 E[quota.ts] --> A
 F[demo-stats.ts] --> A
+G[logger.ts] --> B
+H[instrumentation.ts] --> B
+I[logger-middleware.ts] --> G
 end
 subgraph "外部依赖"
-G[Redis] --> E
-H[PostgreSQL] --> D
-I[NextAuth] --> J[auth.ts]
-K[Drizzle ORM] --> D
+J[Redis] --> E
+K[PostgreSQL] --> D
+L[NextAuth] --> M[auth.ts]
+N[Drizzle ORM] --> D
 end
 subgraph "前端依赖"
-L[dashboard.ts] --> F
-M[page.tsx] --> N[quota-debug组件]
-N --> E
+O[dashboard.ts] --> F
+P[page.tsx] --> Q[quota-debug组件]
+Q --> E
+R[auth.ts] --> B
 end
 ```
+
+**更新** 新增了日志系统和初始化系统的依赖关系。
 
 **图表来源**
 - [database.ts:1-20](file://src/lib/database.ts#L1-L20)
@@ -364,6 +476,13 @@ end
 - **锁机制**：关键操作使用适当的锁保护
 - **异步处理**：长时间操作使用异步执行避免阻塞
 
+### 演示模式优化
+**新增** 演示模式下的性能优化：
+
+- **日志禁用**：避免演示模式下的日志开销
+- **条件初始化**：仅在必要时执行初始化操作
+- **内存优化**：使用内存存储替代数据库操作
+
 ## 故障排除指南
 
 ### 常见问题及解决方案
@@ -388,9 +507,21 @@ end
 - 验证数据过滤逻辑
 - 确认统计计算方法
 
+**日志输出异常**
+- 检查演示模式配置
+- 验证日志级别设置
+- 确认日志传输器配置
+
+**初始化流程问题**
+- 检查运行时环境变量
+- 验证演示模式检测逻辑
+- 确认初始化条件判断
+
 **章节来源**
 - [demo-config.ts:7-56](file://src/lib/demo-config.ts#L7-L56)
 - [demo-data.ts:213-221](file://src/lib/demo-data.ts#L213-L221)
+- [logger.ts:20-100](file://src/lib/logger.ts#L20-L100)
+- [instrumentation.ts:4-10](file://src/instrumentation.ts#L4-L10)
 
 ## 结论
 
@@ -401,5 +532,7 @@ end
 3. **高性能**：基于内存存储和缓存优化确保快速响应
 4. **易于维护**：清晰的代码结构和完善的错误处理机制
 5. **扩展性强**：模块化设计便于功能扩展和定制
+6. **性能优化**：演示模式下的日志禁用和条件初始化减少资源消耗
+7. **安全可靠**：严格的权限控制和演示模式隔离
 
-该系统不仅满足了演示需求，还为开发和测试提供了强大的支持，是 AIGate 项目中不可或缺的重要组成部分。
+该系统不仅满足了演示需求，还为开发和测试提供了强大的支持，是 AIGate 项目中不可或缺的重要组成部分。通过增强的演示模式配置、日志禁用机制和条件初始化流程，系统在保持功能完整性的同时，进一步提升了性能和用户体验。

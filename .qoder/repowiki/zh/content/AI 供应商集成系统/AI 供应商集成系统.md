@@ -84,30 +84,30 @@ DB --> Schema
 ```
 
 **图表来源**
-- [src/pages/api/ai/chat/stream.ts](file://src/pages/api/ai/chat/stream.ts#L1-L172)
-- [src/server/api/routers/ai.ts](file://src/server/api/routers/ai.ts#L1-L271)
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L1-L759)
-- [src/lib/quota.ts](file://src/lib/quota.ts#L1-L334)
-- [src/lib/database.ts](file://src/lib/database.ts#L1-L524)
-- [src/lib/redis.ts](file://src/lib/redis.ts#L1-L49)
-- [src/lib/ip-region.ts](file://src/lib/ip-region.ts#L1-L101)
-- [src/server/api/root.ts](file://src/server/api/root.ts#L1-L23)
-- [src/lib/schema.ts](file://src/lib/schema.ts#L1-L159)
-- [src/utils/api.ts](file://src/utils/api.ts#L1-L17)
-- [next.config.ts](file://next.config.ts#L1-L9)
+- [src/pages/api/ai/chat/stream.ts:1-124](file://src/pages/api/ai/chat/stream.ts#L1-L124)
+- [src/server/api/routers/ai.ts:1-301](file://src/server/api/routers/ai.ts#L1-L301)
+- [src/lib/ai-providers.ts:1-759](file://src/lib/ai-providers.ts#L1-L759)
+- [src/lib/quota.ts:1-327](file://src/lib/quota.ts#L1-L327)
+- [src/lib/database.ts:1-850](file://src/lib/database.ts#L1-L850)
+- [src/lib/redis.ts:1-43](file://src/lib/redis.ts#L1-L43)
+- [src/lib/ip-region.ts:1-101](file://src/lib/ip-region.ts#L1-L101)
+- [src/server/api/root.ts:1-23](file://src/server/api/root.ts#L1-L23)
+- [src/lib/schema.ts:1-159](file://src/lib/schema.ts#L1-L159)
+- [src/utils/api.ts:1-17](file://src/utils/api.ts#L1-L17)
+- [next.config.ts:1-9](file://next.config.ts#L1-L9)
 
 **章节来源**
-- [src/pages/api/ai/chat/stream.ts](file://src/pages/api/ai/chat/stream.ts#L1-L172)
-- [src/server/api/routers/ai.ts](file://src/server/api/routers/ai.ts#L1-L271)
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L1-L759)
-- [src/lib/quota.ts](file://src/lib/quota.ts#L1-L334)
-- [src/lib/database.ts](file://src/lib/database.ts#L1-L524)
-- [src/lib/redis.ts](file://src/lib/redis.ts#L1-L49)
-- [src/lib/ip-region.ts](file://src/lib/ip-region.ts#L1-L101)
-- [src/server/api/root.ts](file://src/server/api/root.ts#L1-L23)
-- [src/lib/schema.ts](file://src/lib/schema.ts#L1-L159)
-- [src/utils/api.ts](file://src/utils/api.ts#L1-L17)
-- [next.config.ts](file://next.config.ts#L1-L9)
+- [src/pages/api/ai/chat/stream.ts:1-124](file://src/pages/api/ai/chat/stream.ts#L1-L124)
+- [src/server/api/routers/ai.ts:1-301](file://src/server/api/routers/ai.ts#L1-L301)
+- [src/lib/ai-providers.ts:1-759](file://src/lib/ai-providers.ts#L1-L759)
+- [src/lib/quota.ts:1-327](file://src/lib/quota.ts#L1-L327)
+- [src/lib/database.ts:1-850](file://src/lib/database.ts#L1-L850)
+- [src/lib/redis.ts:1-43](file://src/lib/redis.ts#L1-L43)
+- [src/lib/ip-region.ts:1-101](file://src/lib/ip-region.ts#L1-L101)
+- [src/server/api/root.ts:1-23](file://src/server/api/root.ts#L1-L23)
+- [src/lib/schema.ts:1-159](file://src/lib/schema.ts#L1-L159)
+- [src/utils/api.ts:1-17](file://src/utils/api.ts#L1-L17)
+- [next.config.ts:1-9](file://next.config.ts#L1-L9)
 
 ## 核心组件
 - AI 供应商抽象层：统一定义 AIProvider 接口，包含 makeRequest、makeStreamRequest、estimateTokens 三个核心方法；内置 OpenAI、Anthropic、Google Gemini、DeepSeek、Moonshot、Spark 六家供应商适配器
@@ -118,11 +118,11 @@ DB --> Schema
 - 类型系统：Zod 定义请求/响应/策略/用量等类型，确保前后端一致性
 
 **章节来源**
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L12-L27)
-- [src/pages/api/ai/chat/stream.ts](file://src/pages/api/ai/chat/stream.ts#L78-L129)
-- [src/server/api/routers/ai.ts](file://src/server/api/routers/ai.ts#L32-L83)
-- [src/lib/quota.ts](file://src/lib/quota.ts#L74-L190)
-- [src/lib/types.ts](file://src/lib/types.ts#L4-L117)
+- [src/lib/ai-providers.ts:12-27](file://src/lib/ai-providers.ts#L12-L27)
+- [src/pages/api/ai/chat/stream.ts:67-123](file://src/pages/api/ai/chat/stream.ts#L67-L123)
+- [src/server/api/routers/ai.ts:34-86](file://src/server/api/routers/ai.ts#L34-L86)
+- [src/lib/quota.ts:78-200](file://src/lib/quota.ts#L78-L200)
+- [src/lib/types.ts:4-118](file://src/lib/types.ts#L4-L118)
 
 ## 架构总览
 系统采用"抽象 + 适配 + 缓存 + 数据库"的分层设计，核心流程如下：
@@ -150,16 +150,16 @@ API-->>Client : SSE 数据流
 ```
 
 **图表来源**
-- [src/pages/api/ai/chat/stream.ts](file://src/pages/api/ai/chat/stream.ts#L26-L153)
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L58-L95)
-- [src/lib/redis.ts](file://src/lib/redis.ts#L19-L37)
-- [src/lib/database.ts](file://src/lib/database.ts#L29-L306)
+- [src/pages/api/ai/chat/stream.ts:22-123](file://src/pages/api/ai/chat/stream.ts#L22-L123)
+- [src/lib/ai-providers.ts:58-95](file://src/lib/ai-providers.ts#L58-L95)
+- [src/lib/redis.ts:18-42](file://src/lib/redis.ts#L18-L42)
+- [src/lib/database.ts:35-100](file://src/lib/database.ts#L35-L100)
 
 **章节来源**
-- [src/pages/api/ai/chat/stream.ts](file://src/pages/api/ai/chat/stream.ts#L1-L172)
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L1-L759)
-- [src/lib/redis.ts](file://src/lib/redis.ts#L1-L49)
-- [src/lib/database.ts](file://src/lib/database.ts#L1-L524)
+- [src/pages/api/ai/chat/stream.ts:1-124](file://src/pages/api/ai/chat/stream.ts#L1-L124)
+- [src/lib/ai-providers.ts:1-759](file://src/lib/ai-providers.ts#L1-L759)
+- [src/lib/redis.ts:1-43](file://src/lib/redis.ts#L1-L43)
+- [src/lib/database.ts:1-850](file://src/lib/database.ts#L1-L850)
 
 ## 详细组件分析
 
@@ -196,14 +196,14 @@ AIProvider <|.. SparkProvider
 ```
 
 **图表来源**
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L13-L27)
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L34-L100)
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L102-L282)
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L284-L469)
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L471-L685)
+- [src/lib/ai-providers.ts:12-27](file://src/lib/ai-providers.ts#L12-L27)
+- [src/lib/ai-providers.ts:34-100](file://src/lib/ai-providers.ts#L34-L100)
+- [src/lib/ai-providers.ts:102-282](file://src/lib/ai-providers.ts#L102-L282)
+- [src/lib/ai-providers.ts:284-469](file://src/lib/ai-providers.ts#L284-L469)
+- [src/lib/ai-providers.ts:471-685](file://src/lib/ai-providers.ts#L471-L685)
 
 **章节来源**
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L1-L759)
+- [src/lib/ai-providers.ts:1-759](file://src/lib/ai-providers.ts#L1-L759)
 
 ### 流式响应处理（SSE）
 - Next.js API 路由负责：
@@ -235,13 +235,13 @@ Route-->>Client : 结束连接
 ```
 
 **图表来源**
-- [src/pages/api/ai/chat/stream.ts](file://src/pages/api/ai/chat/stream.ts#L78-L153)
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L58-L95)
-- [src/lib/redis.ts](file://src/lib/redis.ts#L19-L37)
-- [src/lib/database.ts](file://src/lib/database.ts#L29-L306)
+- [src/pages/api/ai/chat/stream.ts:67-123](file://src/pages/api/ai/chat/stream.ts#L67-L123)
+- [src/lib/ai-providers.ts:58-95](file://src/lib/ai-providers.ts#L58-L95)
+- [src/lib/redis.ts:18-42](file://src/lib/redis.ts#L18-L42)
+- [src/lib/database.ts:35-100](file://src/lib/database.ts#L35-L100)
 
 **章节来源**
-- [src/pages/api/ai/chat/stream.ts](file://src/pages/api/ai/chat/stream.ts#L1-L172)
+- [src/pages/api/ai/chat/stream.ts:1-124](file://src/pages/api/ai/chat/stream.ts#L1-L124)
 
 ### 非流式响应处理（tRPC）
 - tRPC 路由负责：
@@ -265,11 +265,11 @@ TRPC-->>Client : 带元数据的响应
 ```
 
 **图表来源**
-- [src/server/api/routers/ai.ts](file://src/server/api/routers/ai.ts#L32-L83)
-- [src/server/api/routers/ai.ts](file://src/server/api/routers/ai.ts#L159-L179)
+- [src/server/api/routers/ai.ts:34-86](file://src/server/api/routers/ai.ts#L34-L86)
+- [src/server/api/routers/ai.ts:179-200](file://src/server/api/routers/ai.ts#L179-L200)
 
 **章节来源**
-- [src/server/api/routers/ai.ts](file://src/server/api/routers/ai.ts#L1-L271)
+- [src/server/api/routers/ai.ts:1-301](file://src/server/api/routers/ai.ts#L1-L301)
 
 ### 配额与用量控制
 - 配额策略：支持按 Token 或请求次数两种模式，含每日/每月限额与 RPM 限制
@@ -297,11 +297,11 @@ Record --> End
 ```
 
 **图表来源**
-- [src/lib/quota.ts](file://src/lib/quota.ts#L74-L190)
-- [src/lib/quota.ts](file://src/lib/quota.ts#L192-L255)
+- [src/lib/quota.ts:78-200](file://src/lib/quota.ts#L78-L200)
+- [src/lib/quota.ts:202-260](file://src/lib/quota.ts#L202-L260)
 
 **章节来源**
-- [src/lib/quota.ts](file://src/lib/quota.ts#L1-L334)
+- [src/lib/quota.ts:1-327](file://src/lib/quota.ts#L1-L327)
 
 ### 白名单与用户策略匹配
 - 白名单规则：支持正则匹配与优先级排序，未启用校验规则的规则视为匹配所有用户
@@ -321,10 +321,10 @@ G --> H["返回策略对象"]
 ```
 
 **图表来源**
-- [src/lib/database.ts](file://src/lib/database.ts#L400-L489)
+- [src/lib/database.ts:1-200](file://src/lib/database.ts#L1-L200)
 
 **章节来源**
-- [src/lib/database.ts](file://src/lib/database.ts#L308-L524)
+- [src/lib/database.ts:1-850](file://src/lib/database.ts#L1-L850)
 
 ### IP 归属地与地域追踪
 - 客户端 IP 提取：优先从代理头 x-forwarded-for、x-real-ip，回退到 socket 远端地址
@@ -332,15 +332,15 @@ G --> H["返回策略对象"]
 - 追踪字段：在用量记录中附加 region 与 clientIp 字段
 
 **章节来源**
-- [src/lib/ip-region.ts](file://src/lib/ip-region.ts#L24-L78)
+- [src/lib/ip-region.ts:24-78](file://src/lib/ip-region.ts#L24-L78)
 
 ### 类型系统与输入校验
 - Zod 类型：定义 ChatCompletionRequest、ChatCompletionResponse、UsageRecord、QuotaPolicy 等
 - tRPC 输入校验：在路由层进行严格参数校验，保证数据一致性
 
 **章节来源**
-- [src/lib/types.ts](file://src/lib/types.ts#L4-L117)
-- [src/server/api/routers/ai.ts](file://src/server/api/routers/ai.ts#L8-L94)
+- [src/lib/types.ts:4-118](file://src/lib/types.ts#L4-L118)
+- [src/server/api/routers/ai.ts:8-94](file://src/server/api/routers/ai.ts#L8-L94)
 
 ## 依赖关系分析
 - 外部依赖：openai、@anthropic-ai/sdk、@google/generative-ai、redis、drizzle-orm、postgres、next-auth 等
@@ -366,10 +366,10 @@ Pkg --> NextAuth
 ```
 
 **图表来源**
-- [package.json](file://package.json#L18-L56)
+- [package.json:20-71](file://package.json#L20-L71)
 
 **章节来源**
-- [package.json](file://package.json#L1-L75)
+- [package.json:1-94](file://package.json#L1-L94)
 
 ## 性能考虑
 - 缓存策略：API Key 与配额策略缓存于 Redis，降低数据库压力
@@ -386,10 +386,10 @@ Pkg --> NextAuth
 - IP 归属地为空：确认代理头设置与 ip2region 数据库可用性
 
 **章节来源**
-- [src/pages/api/ai/chat/stream.ts](file://src/pages/api/ai/chat/stream.ts#L154-L158)
-- [src/lib/quota.ts](file://src/lib/quota.ts#L183-L189)
-- [src/lib/database.ts](file://src/lib/database.ts#L400-L489)
-- [src/lib/ip-region.ts](file://src/lib/ip-region.ts#L51-L78)
+- [src/pages/api/ai/chat/stream.ts:111-123](file://src/pages/api/ai/chat/stream.ts#L111-L123)
+- [src/lib/quota.ts:138-156](file://src/lib/quota.ts#L138-L156)
+- [src/lib/database.ts:1-200](file://src/lib/database.ts#L1-L200)
+- [src/lib/ip-region.ts:51-78](file://src/lib/ip-region.ts#L51-L78)
 
 ## 结论
 该系统通过统一抽象层实现了多供应商无缝集成，配合 Redis 缓存与 PostgreSQL 数据持久化，提供了完善的配额控制、用量统计与安全校验能力。流式响应与增量 Token 统计提升了用户体验与可观测性。未来可进一步引入供应商健康检查、故障转移与熔断降级策略，以及更精细的成本核算与可视化报表。
@@ -408,10 +408,10 @@ Pkg --> NextAuth
 #### 支持的AI提供商和模型
 - **OpenAI**: `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo`
 - **Anthropic**: `claude-3-opus`, `claude-3-sonnet`, `claude-3-haiku`
-- **Google**: `gemini-pro`, `gemini-ultra`
+- **Google**: `gemini-pro`, `gemini-pro-vision`
 - **DeepSeek**: `deepseek-chat`, `deepseek-coder`
-- **Moonshot**: `moonshot-v1-8k`, `moonshot-v1-32k`
-- **Spark**: `spark-v3.5`
+- **Moonshot**: `moonshot-v1-8k`, `moonshot-v1-32k`, `moonshot-v1-128k`
+- **Spark**: `spark-3.5`, `spark-3.0`, `spark-2.0`, `spark-lite`
 
 #### 配额管理
 系统支持两种配额限制模式：
@@ -427,9 +427,9 @@ Pkg --> NextAuth
 - **500 INTERNAL_SERVER_ERROR**: 服务器内部错误
 
 **章节来源**
-- [docs/ai-api.md](file://docs/ai-api.md#L1-L825)
-- [src/server/api/routers/ai.ts](file://src/server/api/routers/ai.ts#L87-L193)
-- [src/pages/api/ai/chat/stream.ts](file://src/pages/api/ai/chat/stream.ts#L9-L172)
+- [docs/ai-api.md:1-825](file://docs/ai-api.md#L1-L825)
+- [src/server/api/routers/ai.ts:87-213](file://src/server/api/routers/ai.ts#L87-L213)
+- [src/pages/api/ai/chat/stream.ts:1-124](file://src/pages/api/ai/chat/stream.ts#L1-L124)
 
 ### 供应商选择与参数映射
 - 供应商选择：根据 model 前缀自动匹配（如 gpt- 开头走 OpenAI，claude- 开头走 Anthropic 等）
@@ -437,11 +437,11 @@ Pkg --> NextAuth
 - 流式支持：部分供应商（OpenAI、Anthropic、Google Gemini、DeepSeek、Moonshot、Spark）支持流式输出
 
 **章节来源**
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L697-L707)
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L34-L100)
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L102-L282)
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L284-L469)
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L471-L685)
+- [src/lib/ai-providers.ts:697-707](file://src/lib/ai-providers.ts#L697-L707)
+- [src/lib/ai-providers.ts:34-100](file://src/lib/ai-providers.ts#L34-L100)
+- [src/lib/ai-providers.ts:102-282](file://src/lib/ai-providers.ts#L102-L282)
+- [src/lib/ai-providers.ts:284-469](file://src/lib/ai-providers.ts#L284-L469)
+- [src/lib/ai-providers.ts:471-685](file://src/lib/ai-providers.ts#L471-L685)
 
 ### 添加新供应商步骤
 - 定义适配器：实现 AIProvider 接口（name、models、makeRequest、makeStreamRequest、estimateTokens）
@@ -451,9 +451,9 @@ Pkg --> NextAuth
 - 单元测试：覆盖参数映射、Token 估算、配额检查与用量记录
 
 **章节来源**
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L12-L27)
-- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts#L688-L707)
-- [src/lib/schema.ts](file://src/lib/schema.ts#L42-L52)
+- [src/lib/ai-providers.ts:12-27](file://src/lib/ai-providers.ts#L12-L27)
+- [src/lib/ai-providers.ts:688-707](file://src/lib/ai-providers.ts#L688-L707)
+- [src/lib/schema.ts:42-52](file://src/lib/schema.ts#L42-L52)
 
 ### 集成示例与最佳实践
 - 非流式调用：通过 tRPC 路由 chatCompletion，传入 userId、apiKeyId 与 request
@@ -462,9 +462,9 @@ Pkg --> NextAuth
 - 监控指标：关注每日 Token 使用量、请求次数、RPM 与供应商响应延迟
 
 **章节来源**
-- [src/server/api/routers/ai.ts](file://src/server/api/routers/ai.ts#L87-L193)
-- [src/pages/api/ai/chat/stream.ts](file://src/pages/api/ai/chat/stream.ts#L9-L172)
-- [src/lib/quota.ts](file://src/lib/quota.ts#L74-L190)
+- [src/server/api/routers/ai.ts:87-213](file://src/server/api/routers/ai.ts#L87-L213)
+- [src/pages/api/ai/chat/stream.ts:1-124](file://src/pages/api/ai/chat/stream.ts#L1-L124)
+- [src/lib/quota.ts:78-200](file://src/lib/quota.ts#L78-L200)
 
 ### API 调用示例
 **更新** 基于新增的AI API文档，提供多种调用方式的示例：
@@ -519,5 +519,5 @@ eventSource.addEventListener('message', (event) => {
 ```
 
 **章节来源**
-- [docs/ai-api.md](file://docs/ai-api.md#L119-L241)
-- [docs/ai-api.md](file://docs/ai-api.md#L289-L379)
+- [docs/ai-api.md:119-241](file://docs/ai-api.md#L119-L241)
+- [docs/ai-api.md:289-379](file://docs/ai-api.md#L289-L379)

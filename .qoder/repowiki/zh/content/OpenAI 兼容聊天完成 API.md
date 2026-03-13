@@ -18,7 +18,20 @@
 - [provider-utils.ts](file://src/lib/provider-utils.ts)
 - [ai-api.md](file://docs/ai-api.md)
 - [project-description.md](file://readme/project-description.md)
+- [trpc.ts](file://src/server/api/trpc.ts)
+- [root.ts](file://src/server/api/root.ts)
+- [ai.ts](file://src/server/api/routers/ai.ts)
+- [quota.ts](file://src/server/api/routers/quota.ts)
+- [trpc-handler.ts](file://src/pages/api/trpc/[trpc].ts)
 </cite>
+
+## 更新摘要
+**变更内容**
+- 新增完整的 tRPC API 调用文档和实现说明
+- 补充流式响应处理的详细实现和最佳实践
+- 完善配额管理系统的架构和使用指南
+- 增加 AI 提供商适配器的详细技术规范
+- 更新架构图以反映新的 tRPC 服务器端架构
 
 ## 目录
 1. [简介](#简介)
@@ -26,10 +39,13 @@
 3. [核心组件](#核心组件)
 4. [架构概览](#架构概览)
 5. [详细组件分析](#详细组件分析)
-6. [依赖关系分析](#依赖关系分析)
-7. [性能考虑](#性能考虑)
-8. [故障排除指南](#故障排除指南)
-9. [结论](#结论)
+6. [tRPC API 调用指南](#trpc-api-调用指南)
+7. [流式响应处理](#流式响应处理)
+8. [配额管理系统](#配额管理系统)
+9. [依赖关系分析](#依赖关系分析)
+10. [性能考虑](#性能考虑)
+11. [故障排除指南](#故障排除指南)
+12. [结论](#结论)
 
 ## 简介
 
@@ -42,10 +58,11 @@ AIGate 是一个基于 Next.js 14 + tRPC + Redis 的智能 AI 网关管理系统
 - **高性能架构**：tRPC 类型安全 API + Redis 缓存，毫秒级响应
 - **安全认证**：NextAuth.js 身份验证，支持管理员账户动态配置
 - **实时监控**：仪表板展示请求趋势、地区分布、IP 记录等关键指标
+- **完整的 tRPC 支持**：提供类型安全的 tRPC API 接口，支持多种调用方式
 
 ### OpenAI 兼容接口
 
-项目提供了完整的 OpenAI 兼容聊天完成 API，支持标准的 `/v1/chat/completions` 端点，完全兼容 OpenAI SDK 和客户端库。
+项目提供了完整的 OpenAI 兼容聊天完成 API，支持标准的 `/v1/chat/completions` 端点，完全兼容 OpenAI SDK 和客户端库。同时新增了基于 tRPC 的类型安全 API 接口，提供更好的开发体验。
 
 ## 项目结构
 
@@ -54,11 +71,13 @@ graph TB
 subgraph "前端层"
 UI[Next.js 应用]
 TRPC[tRPC 客户端]
+OpenAI[OpenAI SDK]
 end
 subgraph "API 层"
 ChatAPI[聊天完成 API]
 StreamAPI[流式聊天 API]
 TRPCServer[tRPC 服务器]
+TRPCAPI[tRPC API 接口]
 end
 subgraph "业务逻辑层"
 Providers[AI 提供商适配器]
@@ -71,9 +90,9 @@ Database[(PostgreSQL)]
 Usage[(用量记录)]
 end
 UI --> TRPC
+UI --> OpenAI
 TRPC --> TRPCServer
-TRPCServer --> ChatAPI
-TRPCServer --> StreamAPI
+TRPCAPI --> TRPCServer
 ChatAPI --> Providers
 StreamAPI --> Providers
 Providers --> Quota
@@ -83,19 +102,21 @@ Database --> Usage
 ```
 
 **图表来源**
-- [completions.ts](file://src/pages/api/ai/chat/completions.ts#L1-L350)
-- [stream.ts](file://src/pages/api/ai/chat/stream.ts#L1-L184)
-- [ai-providers.ts](file://src/lib/ai-providers.ts#L1-L759)
+- [completions.ts:1-350](file://src/pages/api/ai/chat/completions.ts#L1-L350)
+- [stream.ts:1-184](file://src/pages/api/ai/chat/stream.ts#L1-L184)
+- [ai-providers.ts:1-759](file://src/lib/ai-providers.ts#L1-L759)
+- [trpc.ts:1-153](file://src/server/api/trpc.ts#L1-L153)
+- [root.ts:1-25](file://src/server/api/root.ts#L1-L25)
 
 **章节来源**
-- [README.md](file://README.md#L1-L83)
-- [package.json](file://package.json#L1-L91)
+- [README.md:1-83](file://README.md#L1-L83)
+- [package.json:1-91](file://package.json#L1-L91)
 
 ## 核心组件
 
 ### API 网关层
 
-系统实现了两个主要的 API 端点：
+系统实现了三个主要的 API 端点：
 
 1. **聊天完成端点** (`/api/ai/chat/completions`)
    - 支持同步和流式响应
@@ -106,6 +127,11 @@ Database --> Usage
    - 专用的 Server-Sent Events (SSE) 实现
    - 直接转发提供商的流式响应
    - 支持实时内容传输
+
+3. **tRPC API 端点** (`/api/trpc/*`)
+   - 类型安全的 tRPC 接口
+   - 支持 ai.chatCompletion、ai.getSupportedModels 等操作
+   - 提供更好的开发体验和错误处理
 
 ### AI 提供商适配器
 
@@ -130,10 +156,10 @@ Database --> Usage
 - **用户级配额**：基于 `userId + apiKeyId` 组合的独立配额
 
 **章节来源**
-- [completions.ts](file://src/pages/api/ai/chat/completions.ts#L1-L350)
-- [stream.ts](file://src/pages/api/ai/chat/stream.ts#L1-L184)
-- [ai-providers.ts](file://src/lib/ai-providers.ts#L1-L759)
-- [quota.ts](file://src/lib/quota.ts#L1-L327)
+- [completions.ts:1-350](file://src/pages/api/ai/chat/completions.ts#L1-L350)
+- [stream.ts:1-184](file://src/pages/api/ai/chat/stream.ts#L1-L184)
+- [ai-providers.ts:1-759](file://src/lib/ai-providers.ts#L1-L759)
+- [quota.ts:1-327](file://src/lib/quota.ts#L1-L327)
 
 ## 架构概览
 
@@ -141,6 +167,7 @@ Database --> Usage
 sequenceDiagram
 participant Client as 客户端应用
 participant API as API 网关
+participant TRPC as tRPC 服务器
 participant Auth as 认证模块
 participant Quota as 配额检查
 participant Provider as AI 提供商
@@ -165,9 +192,9 @@ end
 ```
 
 **图表来源**
-- [completions.ts](file://src/pages/api/ai/chat/completions.ts#L20-L131)
-- [quota.ts](file://src/lib/quota.ts#L79-L200)
-- [ai-providers.ts](file://src/lib/ai-providers.ts#L34-L100)
+- [completions.ts:20-131](file://src/pages/api/ai/chat/completions.ts#L20-L131)
+- [quota.ts:79-200](file://src/lib/quota.ts#L79-L200)
+- [ai-providers.ts:34-100](file://src/lib/ai-providers.ts#L34-L100)
 
 ## 详细组件分析
 
@@ -200,7 +227,7 @@ Success --> End
 ```
 
 **图表来源**
-- [completions.ts](file://src/pages/api/ai/chat/completions.ts#L20-L131)
+- [completions.ts:20-131](file://src/pages/api/ai/chat/completions.ts#L20-L131)
 
 #### 同步响应处理
 
@@ -236,11 +263,11 @@ Client->>API : 关闭连接
 ```
 
 **图表来源**
-- [stream.ts](file://src/pages/api/ai/chat/stream.ts#L105-L175)
+- [stream.ts:105-175](file://src/pages/api/ai/chat/stream.ts#L105-L175)
 
 **章节来源**
-- [completions.ts](file://src/pages/api/ai/chat/completions.ts#L133-L310)
-- [stream.ts](file://src/pages/api/ai/chat/stream.ts#L88-L183)
+- [completions.ts:133-310](file://src/pages/api/ai/chat/completions.ts#L133-L310)
+- [stream.ts:88-183](file://src/pages/api/ai/chat/stream.ts#L88-L183)
 
 ### AI 提供商适配器组件
 
@@ -276,7 +303,7 @@ AIProvider <|-- GoogleProvider
 ```
 
 **图表来源**
-- [ai-providers.ts](file://src/lib/ai-providers.ts#L12-L27)
+- [ai-providers.ts:12-27](file://src/lib/ai-providers.ts#L12-L27)
 
 #### Token 估算算法
 
@@ -292,10 +319,10 @@ Round --> Output[估算的Token数量]
 ```
 
 **图表来源**
-- [ai-providers.ts](file://src/lib/ai-providers.ts#L29-L32)
+- [ai-providers.ts:29-32](file://src/lib/ai-providers.ts#L29-L32)
 
 **章节来源**
-- [ai-providers.ts](file://src/lib/ai-providers.ts#L34-L759)
+- [ai-providers.ts:34-759](file://src/lib/ai-providers.ts#L34-L759)
 
 ### 配额管理系统组件
 
@@ -318,7 +345,7 @@ Process --> End
 ```
 
 **图表来源**
-- [quota.ts](file://src/lib/quota.ts#L79-L200)
+- [quota.ts:79-200](file://src/lib/quota.ts#L79-L200)
 
 #### Redis 缓存策略
 
@@ -333,8 +360,8 @@ Process --> End
 | 策略缓存 | `policy:apiKey:{apiKeyId}` | 1小时 | 配额策略缓存 |
 
 **章节来源**
-- [quota.ts](file://src/lib/quota.ts#L1-L327)
-- [redis.ts](file://src/lib/redis.ts#L17-L43)
+- [quota.ts:1-327](file://src/lib/quota.ts#L1-L327)
+- [redis.ts:17-43](file://src/lib/redis.ts#L17-L43)
 
 ### 数据库设计组件
 
@@ -395,11 +422,404 @@ QUOTA_POLICIES ||--o{ WHITELIST_RULES : "policy_name"
 ```
 
 **图表来源**
-- [schema.ts](file://src/lib/schema.ts#L28-L98)
+- [schema.ts:28-98](file://src/lib/schema.ts#L28-L98)
 
 **章节来源**
-- [schema.ts](file://src/lib/schema.ts#L1-L162)
-- [database.ts](file://src/lib/database.ts#L1-L692)
+- [schema.ts:1-162](file://src/lib/schema.ts#L1-L162)
+- [database.ts:1-692](file://src/lib/database.ts#L1-L692)
+
+## tRPC API 调用指南
+
+### tRPC 服务器架构
+
+AIGate 提供了完整的 tRPC API 接口，支持类型安全的远程过程调用：
+
+```mermaid
+graph TB
+subgraph "tRPC 服务器层"
+TRPCContext[创建上下文]
+TRPCRouter[路由器配置]
+PublicProc[公共程序]
+ProtectedProc[受保护程序]
+RateLimitedProc[限流程序]
+end
+subgraph "业务路由器"
+AIRouter[AI 路由器]
+QuotaRouter[配额路由器]
+APIKeyRouter[API Key 路由器]
+DashboardRouter[仪表板路由器]
+WhitelistRouter[白名单路由器]
+SettingsRouter[设置路由器]
+end
+TRPCContext --> TRPCRouter
+TRPCRouter --> AIRouter
+TRPCRouter --> QuotaRouter
+TRPCRouter --> APIKeyRouter
+TRPCRouter --> DashboardRouter
+TRPCRouter --> WhitelistRouter
+TRPCRouter --> SettingsRouter
+```
+
+**图表来源**
+- [trpc.ts:84-153](file://src/server/api/trpc.ts#L84-L153)
+- [root.ts:14-21](file://src/server/api/root.ts#L14-L21)
+
+### AI 路由器接口
+
+AI 路由器提供了三个核心接口：
+
+1. **chatCompletion** - 聊天完成接口
+2. **getSupportedModels** - 获取支持的模型列表
+3. **estimateTokens** - 估算 Token 消耗
+4. **getQuotaInfo** - 获取配额信息
+
+#### chatCompletion 接口
+
+```typescript
+// 请求参数
+interface ChatCompletionInput {
+  userId: string;
+  apiKeyId: string;
+  request: ChatCompletionRequest;
+}
+
+// 响应格式
+interface ChatCompletionResponse {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: Choice[];
+  usage?: Usage;
+  aigate_metadata: {
+    requestId: string;
+    provider: string;
+    processingTime: number;
+    quotaRemaining: {
+      tokens?: number;
+      requests?: number;
+    };
+  };
+}
+```
+
+**章节来源**
+- [ai.ts:88-213](file://src/server/api/routers/ai.ts#L88-L213)
+- [types.ts:48-118](file://src/lib/types.ts#L48-L118)
+
+### 配额路由器接口
+
+配额路由器提供了完整的配额管理功能：
+
+```typescript
+// 用户使用情况查询
+getUserUsage: protectedProcedure
+  .input(z.object({ userId: z.string(), apiKeyId: z.string() }))
+  .query(async ({ input }) => {
+    // 实现获取用户今日使用情况
+  });
+
+// 配额重置
+resetQuota: protectedProcedure
+  .input(z.object({ userId: z.string(), apiKeyId: z.string() }))
+  .mutation(async ({ input }) => {
+    // 实现重置用户配额
+  });
+
+// 获取所有配额策略
+getAllPolicies: protectedProcedure.query(async () => {
+  // 实现获取配额策略列表
+});
+```
+
+**章节来源**
+- [quota.ts:39-221](file://src/server/api/routers/quota.ts#L39-L221)
+
+### tRPC 客户端调用示例
+
+#### TypeScript 客户端
+
+```typescript
+// 基础调用
+const response = await trpc.ai.chatCompletion.mutate({
+  userId: 'user@example.com',
+  apiKeyId: 'key-id-abc123',
+  request: {
+    model: 'gpt-4o',
+    messages: [
+      {
+        role: 'system',
+        content: '你是一个有帮助的编程助手',
+      },
+      {
+        role: 'user',
+        content: '用 TypeScript 写一个快速排序函数',
+      },
+    ],
+    temperature: 0.7,
+    max_tokens: 2000,
+  },
+});
+
+// 处理响应
+console.log('AI 回复:', response.choices[0].message.content);
+console.log('消耗 Token:', response.usage?.total_tokens);
+console.log('剩余配额:', response.aigate_metadata.quotaRemaining.tokens);
+console.log('处理耗时:', response.aigate_metadata.processingTime, 'ms');
+```
+
+#### 错误处理
+
+```typescript
+try {
+  const response = await trpc.ai.chatCompletion.mutate({
+    userId: 'user@example.com',
+    apiKeyId: 'key-id-abc123',
+    request: {
+      model: 'gpt-4o',
+      messages: [{ role: 'user', content: '你好' }],
+    },
+  });
+
+  console.log(response.choices[0].message.content);
+} catch (error: any) {
+  switch (error.data?.code) {
+    case 'TOO_MANY_REQUESTS':
+      console.error('❌ 配额已用完:', error.message);
+      // 显示用户升级提示
+      break;
+    case 'FORBIDDEN':
+      console.error('❌ 用户未授权:', error.message);
+      // 重定向到登录或授权页面
+      break;
+    case 'BAD_REQUEST':
+      console.error('❌ 请求参数错误:', error.message);
+      // 检查参数是否正确
+      break;
+    default:
+      console.error('❌ 请求失败:', error.message);
+  }
+}
+```
+
+**章节来源**
+- [ai-api.md:119-182](file://docs/ai-api.md#L119-L182)
+
+## 流式响应处理
+
+### SSE 流式接口
+
+AIGate 提供了专门的流式聊天接口，支持实时内容传输：
+
+```mermaid
+sequenceDiagram
+participant Client as 客户端
+participant StreamAPI as 流式API
+participant Provider as AI 提供商
+participant SSE as Server-Sent Events
+Client->>StreamAPI : POST /api/ai/chat/stream
+StreamAPI->>Provider : 发起流式请求
+Provider-->>StreamAPI : 返回流式数据
+StreamAPI->>SSE : 转换为 SSE 格式
+SSE-->>Client : data : {"choices" : [{"delta" : {"content" : "Hello"}}]}
+Provider-->>StreamAPI : 发送完成信号
+StreamAPI->>SSE : 发送 [DONE] 标记
+SSE-->>Client : data : [DONE]
+Client->>StreamAPI : 关闭连接
+```
+
+**图表来源**
+- [stream.ts:105-175](file://src/pages/api/ai/chat/stream.ts#L105-L175)
+
+### 流式响应格式
+
+SSE 流式数据采用标准格式：
+
+```
+data: {"choices":[{"delta":{"content":"Hello"}}]}
+
+data: {"choices":[{"delta":{"content":" "}}]}
+
+data: {"choices":[{"delta":{"content":"world"}}]}
+
+data: [DONE]
+```
+
+### 流式响应处理示例
+
+#### JavaScript - EventSource API
+
+```javascript
+const eventSource = new EventSource('/api/ai/chat/stream?userId=user@example.com&apiKeyId=key-id');
+
+let fullContent = '';
+
+eventSource.addEventListener('message', (event) => {
+  if (event.data === '[DONE]') {
+    console.log('流式响应完成');
+    eventSource.close();
+    return;
+  }
+
+  try {
+    const data = JSON.parse(event.data);
+    const content = data.choices?.[0]?.delta?.content;
+    if (content) {
+      fullContent += content;
+      // 实时更新 UI
+      document.getElementById('response').textContent = fullContent;
+    }
+  } catch (e) {
+    console.error('解析失败:', e);
+  }
+});
+
+eventSource.addEventListener('error', (event) => {
+  console.error('Stream 错误:', event);
+  eventSource.close();
+});
+```
+
+#### JavaScript - fetch + ReadableStream
+
+```javascript
+async function streamChat() {
+  const response = await fetch('/api/ai/chat/stream', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      userId: 'user@example.com',
+      apiKeyId: 'key-id-abc123',
+      request: {
+        model: 'gpt-4o',
+        messages: [{ role: 'user', content: '讲个故事' }],
+        stream: true,
+      },
+    }),
+  });
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let fullContent = '';
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+          if (data === '[DONE]') {
+            console.log('完成');
+            return;
+          }
+
+          try {
+            const parsed = JSON.parse(data);
+            const content = parsed.choices?.[0]?.delta?.content;
+            if (content) {
+              fullContent += content;
+              console.log('收到:', content);
+            }
+          } catch (e) {
+            // 忽略解析错误
+          }
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+```
+
+**章节来源**
+- [ai-api.md:245-476](file://docs/ai-api.md#L245-L476)
+
+## 配额管理系统
+
+### 配额限制模式
+
+系统支持两种配额限制方式：
+
+#### 1. Token 限制模式
+
+- 根据每日/每月消耗的 Token 数量限制
+- 适用于 Token 消耗不均匀的场景
+
+#### 2. 请求次数限制模式
+
+- 根据每日请求次数限制
+- 适用于需要控制调用频率的场景
+
+### 配额标识逻辑
+
+配额基于 **`userId + apiKeyId`** 的组合计算：
+
+```
+配额标识符 = `${userId}:${apiKeyId}`
+```
+
+**含义**:
+
+- 同一用户使用不同的 API Key，配额分开计算
+- 同一 API Key 被不同用户使用，配额也分开计算
+- 每个组合都有独立的每日配额和 RPM 限制
+
+### 从响应中获取配额信息
+
+```typescript
+const response = await trpc.ai.chatCompletion.mutate({...});
+
+// 在 aigate_metadata 中获取剩余配额
+const { quotaRemaining } = response.aigate_metadata;
+
+if (quotaRemaining.tokens !== undefined) {
+  // Token 限制模式
+  console.log(`剩余 Token: ${quotaRemaining.tokens}`);
+} else if (quotaRemaining.requests !== undefined) {
+  // 请求次数限制模式
+  console.log(`剩余请求次数: ${quotaRemaining.requests}`);
+}
+
+// 配额即将用完时的提醒
+if (quotaRemaining.tokens < 1000) {
+  showWarning('配额即将用完，请联系管理员');
+}
+```
+
+### 配额检查最佳实践
+
+```typescript
+// 发送前先检查配额
+async function quotaAwareCall(params: any) {
+  // 先估算 token
+  const estimate = await trpc.ai.estimateTokens.query(params.request);
+
+  // 从配额接口检查是否有足够配额
+  const quotaInfo = await trpc.quota.getQuotaInfo.query({
+    userId: params.userId,
+    apiKeyId: params.apiKeyId,
+  });
+
+  const remaining = quotaInfo.remaining.daily || quotaInfo.remaining.monthly;
+
+  if (remaining && estimate.estimatedTokens > remaining) {
+    throw new Error('配额不足，无法处理此请求');
+  }
+
+  // 配额充足，发送请求
+  return await trpc.ai.chatCompletion.mutate(params);
+}
+```
+
+**章节来源**
+- [ai-api.md:599-730](file://docs/ai-api.md#L599-L730)
+- [ai.ts:242-299](file://src/server/api/routers/ai.ts#L242-L299)
 
 ## 依赖关系分析
 
@@ -412,7 +832,7 @@ NextJS[Next.js 16.1.6]
 tRPC[tRPC 10.45.2]
 Redis[Redis 4.6.10]
 PostgreSQL[PostgreSQL]
-end
+End
 subgraph "AI 提供商 SDK"
 OpenAI[OpenAI SDK]
 Anthropic[Anthropic SDK]
@@ -439,7 +859,7 @@ NextJS --> UUID
 ```
 
 **图表来源**
-- [package.json](file://package.json#L18-L68)
+- [package.json:18-68](file://package.json#L18-L68)
 
 ### 内部模块依赖
 
@@ -454,14 +874,19 @@ Quota --> Redis
 Quota --> Database
 Auth --> Database
 Auth --> Redis
+TRPC[TRPC 层] --> Routers[业务路由器]
+Routers --> Providers
+Routers --> Quota
+Routers --> Auth
 ```
 
 **图表来源**
-- [completions.ts](file://src/pages/api/ai/chat/completions.ts#L1-L10)
-- [ai-providers.ts](file://src/lib/ai-providers.ts#L1-L5)
+- [completions.ts:1-10](file://src/pages/api/ai/chat/completions.ts#L1-L10)
+- [ai-providers.ts:1-5](file://src/lib/ai-providers.ts#L1-L5)
+- [trpc.ts:1-153](file://src/server/api/trpc.ts#L1-L153)
 
 **章节来源**
-- [package.json](file://package.json#L1-L91)
+- [package.json:1-91](file://package.json#L1-L91)
 
 ## 性能考虑
 
@@ -561,8 +986,8 @@ Auth --> Redis
    ```
 
 **章节来源**
-- [logger.ts](file://src/lib/logger.ts#L1-L184)
-- [quota.ts](file://src/lib/quota.ts#L189-L199)
+- [logger.ts:1-184](file://src/lib/logger.ts#L1-L184)
+- [quota.ts:189-199](file://src/lib/quota.ts#L189-L199)
 
 ## 结论
 
@@ -574,6 +999,8 @@ AIGate 提供了一个完整、高性能的 OpenAI 兼容聊天完成 API 解决
 2. **高性能**：基于 Redis 缓存和流式处理，确保低延迟响应
 3. **可扩展**：模块化设计支持多提供商接入和水平扩展
 4. **安全可靠**：完善的认证、授权和审计机制
+5. **类型安全**：基于 tRPC 的类型安全 API 接口
+6. **实时流式**：完整的流式响应支持，适合实时应用场景
 
 ### 业务价值
 
@@ -581,6 +1008,7 @@ AIGate 提供了一个完整、高性能的 OpenAI 兼容聊天完成 API 解决
 2. **合规保障**：白名单机制确保用户访问的合规性
 3. **监控可视化**：实时仪表板提供全面的使用情况监控
 4. **易于集成**：标准化的 API 接口降低集成复杂度
+5. **开发友好**：tRPC 提供更好的开发体验和错误处理
 
 ### 未来发展
 
@@ -589,4 +1017,4 @@ AIGate 提供了一个完整、高性能的 OpenAI 兼容聊天完成 API 解决
 3. **性能优化**：进一步提升并发处理能力和响应速度
 4. **生态建设**：构建更丰富的插件和集成生态系统
 
-AIGate 为需要在生产环境中安全、可控地使用 AI 模型的企业和个人开发者提供了一个可靠的基础设施解决方案。
+AIGate 为需要在生产环境中安全、可控地使用 AI 模型的企业和个人开发者提供了一个可靠的基础设施解决方案。其完整的 tRPC API 支持、流式响应处理和配额管理功能，使其成为现代 AI 应用开发的理想选择。
