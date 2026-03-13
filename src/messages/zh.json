@@ -22,7 +22,8 @@
     "loading": "加载中...",
     "noData": "暂无数据",
     "confirm": "确认",
-    "close": "关闭"
+    "close": "关闭",
+    "language": "语言"
   },
   "Auth": {
     "login": "登录",

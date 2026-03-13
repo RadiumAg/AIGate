@@ -22,7 +22,8 @@
     "loading": "Loading...",
     "noData": "No data available",
     "confirm": "Confirm",
-    "close": "Close"
+    "close": "Close",
+    "language": "Language"
   },
   "Auth": {
     "login": "Login",
