@@ -1,11 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { providers } from '@/lib/ai-providers';
-import { v4 as uuidv4 } from 'uuid';
-import { getRegionFromRequest, extractClientIp } from '@/lib/ip-region';
-import type { UsageRecord } from '@/lib/types';
 import { corsMiddleware } from '@/lib/cors';
-import { apiKeyDb } from '@/lib/database';
-import { checkQuota, recordUsage } from '@/lib/quota';
+import {
+  validateRequest,
+  checkRequestQuota,
+  recordRequestUsage,
+  estimatePromptTokens,
+  calculateCompletionTokensFromStream,
+  type TokenUsage,
+} from '@/lib/chat-service';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // 处理 CORS
@@ -24,87 +26,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // 提取客户端 IP 并查询归属地省份
-    const clientIp = extractClientIp(req);
-    const region = getRegionFromRequest(req);
-    const requestId = uuidv4();
+    // 提取客户端 IP
+    const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '';
 
-    // 1. 根据 apiKeyId 获取白名单规则
-    const { whitelistRuleDb } = await import('@/lib/database');
-    const whitelistRule = await whitelistRuleDb.getByApiKeyId(apiKeyId);
+    // 1. 验证请求
+    const { context, apiKeyInfo } = await validateRequest(apiKeyId, userId, clientIp);
 
-    if (!whitelistRule || whitelistRule.status !== 'active') {
-      return res.status(403).json({
-        error: '该 API Key 未绑定有效的白名单规则',
-      });
-    }
-
-    // 2. 根据白名单规则校验 userId 格式
-    const validationResult = await whitelistRuleDb.validateUserByApiKey(apiKeyId, userId, clientIp);
-
-    if (!validationResult.valid) {
-      return res.status(403).json({
-        error: validationResult.reason || '用户校验未通过',
-      });
-    }
-
-    const finalUserId = validationResult.generatedUserId;
-
-    // 3. 获取 API Key 和 Provider
-    const apiKey = await apiKeyDb.getById(apiKeyId);
-
-    if (!apiKey || apiKey.status !== 'ACTIVE') {
-      return res.status(400).json({ error: 'API Key 不存在或已禁用' });
-    }
-
-    const providerKey = apiKey.provider.toLowerCase();
-    const foundProvider = providers[providerKey];
-
-    if (!foundProvider) {
-      return res.status(400).json({
-        error: `不支持的提供商: ${apiKey.provider}`,
-      });
-    }
-
-    const provider = foundProvider;
-    const apiKeyInfo = {
-      key: apiKey.key,
-      baseUrl: apiKey.baseUrl || undefined,
-    };
-
-    // 3. 估算 Token 消耗
-    const estimatedTokens = provider.estimateTokens(request);
-
-    const quotaCheck = await checkQuota(
-      { userId: finalUserId || '', apiKey: apiKeyId },
-      estimatedTokens
+    // 2. 检查配额
+    const quotaCheck = await checkRequestQuota(
+      context.userId,
+      context.apiKeyId,
+      request,
+      apiKeyInfo.providerInstance
     );
+
     if (!quotaCheck.allowed) {
       return res.status(429).json({
         error: quotaCheck.reason || '配额已用完',
       });
     }
 
-    // 5. 检查 provider 是否支持 stream
-    if (!provider.makeStreamRequest) {
+    // 3. 检查 provider 是否支持 stream
+    if (!apiKeyInfo.providerInstance.makeStreamRequest) {
       return res.status(501).json({
-        error: `Provider ${provider.name} 暂不支持 stream 模式`,
+        error: `Provider ${apiKeyInfo.provider} 暂不支持 stream 模式`,
       });
     }
 
-    // 6. 设置 SSE 响应头
+    // 4. 设置 SSE 响应头
     res.setHeader('Content-Type', 'text/event-stream;charset=UTF-8');
     res.setHeader('Cache-Control', 'no-cache, no-transform');
     res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no'); // 禁用 nginx 缓冲
+    res.setHeader('X-Accel-Buffering', 'no');
 
-    const promptTokens = Math.round(estimatedTokens * 0.7);
+    const promptTokens = estimatePromptTokens(request, apiKeyInfo.providerInstance);
     let completionTokens = 0;
     let hasRecordedUsage = false;
+    const chunks: string[] = [];
 
     try {
       // 使用 provider 的 makeStreamRequest 方法创建流
-      const sourceStream = await provider.makeStreamRequest(
+      const sourceStream = await apiKeyInfo.providerInstance.makeStreamRequest(
         apiKeyInfo.key,
         request,
         apiKeyInfo.baseUrl
@@ -120,23 +82,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // 解码并转发数据
         const chunk = decoder.decode(value, { stream: true });
         res.write(chunk);
+        chunks.push(chunk);
 
-        // 统计 token 使用量
-        try {
-          const lines = chunk.split('\n');
-          for (const line of lines) {
-            if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-              const data = line.slice(6);
-              const parsed = JSON.parse(data);
-              const content = parsed.choices?.[0]?.delta?.content || '';
-              if (content) {
-                completionTokens += Math.max(1, Math.ceil(content.length / 4));
-              }
-            }
-          }
-        } catch {
-          // 忽略解析错误
-        }
+        // completion tokens 在最后统一计算
       }
 
       reader.releaseLock();
@@ -144,27 +92,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // 发送完成信号
       res.write('data: [DONE]\n\n');
 
+      // 统计 completion tokens
+      completionTokens = calculateCompletionTokensFromStream(chunks);
+
       // 记录使用量
       if (!hasRecordedUsage) {
         hasRecordedUsage = true;
-        const actualUsage: UsageRecord = {
-          id: requestId,
-          userId: finalUserId || '',
-          requestId,
-          model: request.model,
-          provider: provider.name,
+        const usage: TokenUsage = {
           promptTokens,
           completionTokens,
           totalTokens: promptTokens + completionTokens,
-          timestamp: new Date().toISOString(),
-          cost: 0,
-          region,
-          clientIp,
         };
 
-        recordUsage(actualUsage, apiKeyId, finalUserId || '').catch((error) => {
-          console.error('Failed to record usage:', error);
-        });
+        await recordRequestUsage(usage, context, request.model, apiKeyInfo.provider);
       }
 
       res.end();
@@ -173,10 +113,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.write(`data: ${JSON.stringify({ error: 'Stream processing failed' })}\n\n`);
       res.end();
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('API error:', error);
     if (!res.headersSent) {
-      return res.status(500).json({ error: 'Internal server error' });
+      return res.status(500).json({ error: error.message || 'Internal server error' });
     }
     res.end();
   }
