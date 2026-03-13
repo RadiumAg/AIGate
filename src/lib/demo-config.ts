@@ -4,7 +4,7 @@
  */
 
 // 演示模式开关 - 可以通过环境变量控制
-export const isDemoMode = (): boolean => {
+export const isDemoMode = () => {
   return process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || process.env.DEMO_MODE === 'true';
 };
 

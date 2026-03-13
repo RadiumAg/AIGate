@@ -59,6 +59,8 @@ jobs:
             --token=${{ secrets.VERCEL_TOKEN }} \
             --env NEXT_PUBLIC_DEMO_MODE=true \
             --env DEMO_MODE=true \
+            --env DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+            --env REDIS_URL="${{ secrets.REDIS_URL }}" \
             --yes \
             --prod)
 
