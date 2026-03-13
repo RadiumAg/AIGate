@@ -10,45 +10,49 @@ import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { confirm } from '@/components/ui/confirm';
 import { useMemoizedFn } from 'ahooks';
+import { useTranslation } from '@/i18n/client';
 
 const KeysPage: React.FC = () => {
+  const { t } = useTranslation();
   const [showDialog, setShowDialog] = React.useState(false);
   const [editingKey, setEditingKey] = React.useState<ApiKey | null>(null);
   const { data: keys = [], isLoading, refetch } = trpc.apiKey.getAll.useQuery();
   const createMutation = trpc.apiKey.create.useMutation({
     onSuccess: () => {
-      toast.success('API Key 创建成功');
+      toast.success(t('ApiKey.keyCreated') as string);
       refetch();
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : '创建失败');
+      toast.error(error instanceof Error ? error.message : (t('ApiKey.createFailed') as string));
     },
   });
   const updateMutation = trpc.apiKey.update.useMutation({
     onSuccess: () => {
-      toast.success('API Key 更新成功');
+      toast.success(t('ApiKey.keyUpdated') as string);
       refetch();
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : '更新失败');
+      toast.error(error instanceof Error ? error.message : (t('ApiKey.updateFailed') as string));
     },
   });
   const deleteMutation = trpc.apiKey.delete.useMutation({
     onSuccess: () => {
-      toast.success('API Key 删除成功');
+      toast.success(t('ApiKey.keyDeleted') as string);
       refetch();
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : '删除失败');
+      toast.error(error instanceof Error ? error.message : (t('ApiKey.deleteFailed') as string));
     },
   });
   const toggleStatusMutation = trpc.apiKey.toggleStatus.useMutation({
     onSuccess: () => {
-      toast.success('API Key 状态切换成功');
+      toast.success(t('ApiKey.keyStatusToggled') as string);
       refetch();
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : '状态切换失败');
+      toast.error(
+        error instanceof Error ? error.message : (t('ApiKey.statusToggleFailed') as string)
+      );
     },
   });
 
@@ -66,7 +70,7 @@ const KeysPage: React.FC = () => {
     const key = keys.find((k) => k.id === id);
     if (key) {
       confirm({
-        title: '确定要删除这个 API Key 吗？',
+        title: t('ApiKey.deleteConfirmTitle') as string,
         onConfirm: () => {
           deleteMutation.mutate({ id });
         },
@@ -99,9 +103,9 @@ const KeysPage: React.FC = () => {
     <div className="space-y-6">
       {/* Header with Liquid Glass */}
       <div className="flex justify-between items-center rounded-2xl p-6 backdrop-blur-xl bg-white/60 dark:bg-black/30 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)]">
-        <h1 className="text-2xl font-bold text-foreground">API 密钥管理</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t('ApiKey.title') as string}</h1>
         <Button onClick={handleAddKey} disabled={isLoading}>
-          添加密钥
+          {t('ApiKey.addKey') as string}
         </Button>
       </div>
 
@@ -109,7 +113,7 @@ const KeysPage: React.FC = () => {
         <div className="rounded-2xl p-8 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]">
           <div className="flex items-center justify-center">
             <Spinner className="h-8 w-8 text-primary" />
-            <span className="ml-2 text-muted-foreground">加载中...</span>
+            <span className="ml-2 text-muted-foreground">{t('Common.loading') as string}</span>
           </div>
         </div>
       ) : (

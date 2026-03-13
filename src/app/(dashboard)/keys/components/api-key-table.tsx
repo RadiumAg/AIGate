@@ -7,6 +7,8 @@ import type { ApiKey } from '@/types/api-key';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useTranslation } from '@/i18n/client';
+import { useMemoizedFn } from 'ahooks';
 
 interface ApiKeyTableProps {
   keys: ApiKey[];
@@ -19,27 +21,28 @@ interface ApiKeyTableProps {
 
 const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
   const { keys, onEdit, onDelete, onToggleStatus } = props;
+  const { t } = useTranslation();
 
-  const handleCopyToClipboard = (text: string) => {
+  const handleCopyToClipboard = useMemoizedFn((text: string) => {
     navigator.clipboard.writeText(text);
-    toast('已复制到剪贴板');
-  };
+    toast(t('ApiKey.copied') as string);
+  });
 
   const columns: ColumnDef<ApiKey>[] = React.useMemo(
     () => [
       {
         accessorKey: 'name',
-        header: '名称',
+        header: t('ApiKey.name') as string,
         cell: ({ row }) => <span className="font-medium text-foreground">{row.original.name}</span>,
       },
       {
         accessorKey: 'provider',
-        header: '服务商',
+        header: t('ApiKey.provider') as string,
         cell: ({ row }) => <span className="text-muted-foreground">{row.original.provider}</span>,
       },
       {
         accessorKey: 'apiKeyId',
-        header: 'API Key Id',
+        header: 'API Key ID',
         cell: ({ row }) => (
           <div className="flex items-center text-muted-foreground">
             <span className="mr-2">{row.original.maskId}</span>
@@ -56,7 +59,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
       },
       {
         accessorKey: 'key',
-        header: 'API Key',
+        header: t('ApiKey.apiKey') as string,
         cell: ({ row }) => (
           <div className="flex items-center text-gray-500 dark:text-white">
             <span className="mr-2">{row.original.maskKey}</span>
@@ -73,7 +76,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
       },
       {
         accessorKey: 'baseUrl',
-        header: 'Base URL',
+        header: t('ApiKey.baseUrl') as string,
         cell: ({ row }) => (
           <div className="text-muted-foreground max-w-xs">
             {row.original.baseUrl ? (
@@ -81,26 +84,28 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                 {row.original.baseUrl}
               </span>
             ) : (
-              <span className="text-muted-foreground/60 italic">默认</span>
+              <span className="text-muted-foreground/60 italic">
+                {t('ApiKey.default') as string}
+              </span>
             )}
           </div>
         ),
       },
       {
         accessorKey: 'createdAt',
-        header: '创建时间',
+        header: t('ApiKey.createdAt') as string,
         cell: ({ row }) => <span className="text-muted-foreground">{row.original.createdAt}</span>,
       },
       {
         accessorKey: 'lastUsed',
-        header: '最后使用',
+        header: t('ApiKey.lastUsed') as string,
         cell: ({ row }) => (
           <span className="text-muted-foreground/80">{row.original.lastUsed || '-'}</span>
         ),
       },
       {
         accessorKey: 'status',
-        header: '状态',
+        header: t('ApiKey.status') as string,
         cell: ({ row }) => (
           <span
             className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-lg backdrop-blur-sm ${
@@ -109,13 +114,17 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                 : 'bg-red-500/15 text-red-700 dark:text-red-300 border border-red-500/30'
             }`}
           >
-            {row.original.status === 'active' ? '活跃' : '禁用'}
+            {
+              (row.original.status === 'active'
+                ? t('ApiKey.activeStatus')
+                : t('ApiKey.disabledStatus')) as string
+            }
           </span>
         ),
       },
       {
         id: 'actions',
-        header: () => <div className="text-right">操作</div>,
+        header: () => <div className="text-right">{t('ApiKey.actions') as string}</div>,
         cell: ({ row }) => {
           const key = row.original;
 
@@ -127,7 +136,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                 onClick={() => onToggleStatus(key.id)}
                 className="text-primary hover:text-primary/80 hover:bg-primary/10"
               >
-                {key.status === 'active' ? '禁用' : '启用'}
+                {(key.status === 'active' ? t('ApiKey.disable') : t('ApiKey.enable')) as string}
               </Button>
               <Button
                 variant="ghost"
@@ -135,7 +144,7 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                 onClick={() => onEdit(key)}
                 className="text-indigo-500 hover:text-indigo-600 hover:bg-indigo-500/10"
               >
-                编辑
+                {t('ApiKey.edit') as string}
               </Button>
               <Button
                 variant="ghost"
@@ -143,14 +152,14 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
                 onClick={() => onDelete(key.id)}
                 className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
               >
-                删除
+                {t('ApiKey.delete') as string}
               </Button>
             </div>
           );
         },
       },
     ],
-    [onDelete, onEdit, onToggleStatus]
+    [onDelete, onEdit, onToggleStatus, t, handleCopyToClipboard]
   );
 
   const emptyIcon = (
@@ -163,8 +172,8 @@ const ApiKeyTable: React.FC<ApiKeyTableProps> = (props) => {
     <DataTable
       columns={columns}
       data={keys}
-      emptyMessage="暂无 API 密钥"
-      emptyDescription="开始添加您的第一个 API 密钥"
+      emptyMessage={t('ApiKey.noKeys') as string}
+      emptyDescription={t('ApiKey.addFirstKey') as string}
       emptyIcon={emptyIcon}
     />
   );

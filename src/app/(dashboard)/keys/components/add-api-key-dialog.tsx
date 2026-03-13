@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { ApiKey, ApiKeyFormData } from '@/types/api-key';
+import { useTranslation } from '@/i18n/client';
 
 interface AddApiKeyDialogProps {
   open: boolean;
@@ -32,6 +33,7 @@ interface AddApiKeyDialogProps {
 
 const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
   const { open, onOpenChange, keyData, onSave, isLoading } = props;
+  const { t } = useTranslation();
 
   const [formData, setFormData] = React.useState<ApiKeyFormData>({
     name: keyData?.name || '',
@@ -49,11 +51,11 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = '名称不能为空';
+      newErrors.name = t('ApiKey.nameRequired') as string;
     }
 
     if (!formData.key.trim()) {
-      newErrors.key = 'API Key 不能为空';
+      newErrors.key = t('ApiKey.apiKeyRequired') as string;
     }
 
     setErrors(newErrors);
@@ -76,19 +78,19 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
   };
 
   const getProviderDisplayName = (provider: string) => {
-    const names = {
+    const names: Record<string, string> = {
       openai: 'OpenAI',
       anthropic: 'Anthropic',
       google: 'Google',
       deepseek: 'DeepSeek',
       moonshot: 'Moonshot',
-      spark: '星火大模型',
+      spark: 'Spark',
     };
-    return names[provider as keyof typeof names] || provider;
+    return names[provider] || provider;
   };
 
   const getKeyPlaceholder = (provider: string) => {
-    const placeholders = {
+    const placeholders: Record<string, string> = {
       openai: 'sk-************************************************',
       anthropic: 'sk-ant-*************************************',
       google: 'AI************************************',
@@ -96,11 +98,11 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
       moonshot: 'sk-************************************************',
       spark: 'sk-************************************************',
     };
-    return placeholders[provider as keyof typeof placeholders] || 'API Key';
+    return placeholders[provider] || (t('ApiKey.apiKeyPlaceholder') as string);
   };
 
   const getBaseUrlPlaceholder = (provider: string) => {
-    const placeholders = {
+    const placeholders: Record<string, string> = {
       openai: 'https://api.openai.com/v1',
       anthropic: 'https://api.anthropic.com',
       google: 'https://generativelanguage.googleapis.com/v1beta',
@@ -108,7 +110,7 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
       moonshot: 'https://api.moonshot.cn/v1',
       spark: 'https://spark-api.xf-yun.com/v1',
     };
-    return placeholders[provider as keyof typeof placeholders] || 'https://api.example.com/v1';
+    return placeholders[provider] || (t('ApiKey.baseUrlPlaceholder') as string);
   };
 
   // 当 keyData 变化时更新表单数据
@@ -148,22 +150,24 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
-          <DialogTitle>{keyData ? '编辑 API 密钥' : '添加 API 密钥'}</DialogTitle>
+          <DialogTitle>
+            {(keyData ? t('ApiKey.editKey') : t('ApiKey.createKey')) as string}
+          </DialogTitle>
           <DialogDescription>
-            {keyData ? '修改现有的 API 密钥信息' : '添加新的 AI 服务商 API 密钥'}
+            {keyData ? t('ApiKey.editKeyDesc') : t('ApiKey.createKeyDesc')}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
           <FieldGroup>
             <Field data-invalid={!!errors.name}>
               <FieldLabel htmlFor="name">
-                名称 <span className="text-red-500">*</span>
+                {t('ApiKey.name') as string} <span className="text-red-500">*</span>
               </FieldLabel>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder="例如：OpenAI Production"
+                placeholder="e.g. OpenAI Production"
                 aria-invalid={!!errors.name}
               />
               {errors.name && <FieldError>{errors.name}</FieldError>}
@@ -171,14 +175,14 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
 
             <Field>
               <FieldLabel htmlFor="provider">
-                服务商 <span className="text-red-500">*</span>
+                {t('ApiKey.provider') as string} <span className="text-red-500">*</span>
               </FieldLabel>
               <Select
                 value={formData.provider}
                 onValueChange={(value: string) => handleInputChange('provider', value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="选择服务商" />
+                  <SelectValue placeholder={t('ApiKey.providerPlaceholder') as string} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="openai">OpenAI</SelectItem>
@@ -193,7 +197,7 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
 
             <Field data-invalid={!!errors.key}>
               <FieldLabel htmlFor="key">
-                API Key <span className="text-red-500">*</span>
+                {t('ApiKey.apiKey') as string} <span className="text-red-500">*</span>
               </FieldLabel>
               <div className="relative">
                 <Input
@@ -217,13 +221,15 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
               </div>
               {errors.key && <FieldError>{errors.key}</FieldError>}
               <FieldDescription>
-                请确保 API Key 格式正确，{getProviderDisplayName(formData.provider)} 的 API Key
-                通常以特定前缀开头
+                {(t('ApiKey.apiKeyDesc') as string).replace(
+                  '{provider}',
+                  getProviderDisplayName(formData.provider)
+                )}
               </FieldDescription>
             </Field>
 
             <Field data-invalid={!!errors.baseUrl}>
-              <FieldLabel htmlFor="baseUrl">自定义 API 基础 URL（可选）</FieldLabel>
+              <FieldLabel htmlFor="baseUrl">{t('ApiKey.baseUrlOptional') as string}</FieldLabel>
               <Input
                 id="baseUrl"
                 type="url"
@@ -234,8 +240,10 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
               />
               {errors.baseUrl && <FieldError>{errors.baseUrl}</FieldError>}
               <FieldDescription>
-                留空将使用默认的 {getProviderDisplayName(formData.provider)} API 地址。自定义 URL
-                可用于代理服务或私有部署
+                {(t('ApiKey.baseUrlDesc') as string).replace(
+                  '{provider}',
+                  getProviderDisplayName(formData.provider)
+                )}
               </FieldDescription>
             </Field>
           </FieldGroup>
@@ -247,10 +255,10 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
             >
-              取消
+              {t('ApiKey.cancel') as string}
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? '保存中...' : '保存'}
+              {isLoading ? t('ApiKey.saving') : t('ApiKey.save')}
             </Button>
           </DialogFooter>
         </form>

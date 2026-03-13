@@ -4,6 +4,7 @@ import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/i18n/client';
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface DeleteConfirmModalProps {
 
 const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = (props) => {
   const { isOpen, keyName, onConfirm, onCancel, isDeleting } = props;
+  const { t } = useTranslation();
 
   if (!isOpen) return null;
 
@@ -25,23 +27,23 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = (props) => {
           <div className="p-2 rounded-xl bg-red-500/20 backdrop-blur-sm mr-3">
             <AlertTriangle className="w-6 h-6 text-red-500" />
           </div>
-          <h3 className="text-lg font-semibold text-foreground">确认删除</h3>
+          <h3 className="text-lg font-semibold text-foreground">{t('Common.delete') as string}</h3>
         </div>
         <p className="text-muted-foreground mb-6">
-          确定要删除 API Key &quot;{keyName}&quot; 吗？此操作不可撤销。
+          {(t('ApiKey.deleteWarning') as string).replace('{name}', keyName)}
         </p>
         <div className="flex justify-end space-x-3">
           <Button variant="outline" onClick={onCancel} disabled={isDeleting}>
-            取消
+            {t('Common.cancel') as string}
           </Button>
           <Button variant="destructive" onClick={onConfirm} disabled={isDeleting}>
             {isDeleting ? (
               <>
                 <Spinner className="-ml-1 mr-2 h-4 w-4" />
-                删除中...
+                {t('ApiKey.deleting') as string}
               </>
             ) : (
-              '确认删除'
+              t('ApiKey.deleteConfirm') as string
             )}
           </Button>
         </div>
