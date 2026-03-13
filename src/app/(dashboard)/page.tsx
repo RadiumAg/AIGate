@@ -111,7 +111,7 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* 日期筛选器 - Liquid Glass */}
-      <div className="flex justify-between items-center rounded-xl p-4 backdrop-blur-lg bg-white/40 dark:bg-white/5 border border-white/25 dark:border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+      <div className="flex justify-between items-center rounded-2xl p-4 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)]">
         <div className="flex items-center gap-4">
           <DateRangePicker dateRange={dateRange} setDateRange={setDateRange} />
           {dateRange === 'custom' && (

@@ -20,7 +20,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto bg-linear-to-br from-blue-50/80 via-purple-50/60 to-pink-50/80 dark:from-slate-900/90 dark:via-violet-950/80 dark:to-fuchsia-950/90">
         <div className="p-6">{children}</div>
       </main>
     </div>
