@@ -43,7 +43,7 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = (props) => {
                 {t('ApiKey.deleting') as string}
               </>
             ) : (
-              t('ApiKey.deleteConfirm') as string
+              (t('ApiKey.deleteConfirm') as string)
             )}
           </Button>
         </div>
