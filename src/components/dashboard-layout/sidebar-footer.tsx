@@ -58,11 +58,8 @@ function UserMenu() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          className="w-9 h-9 rounded-full bg-linear-to-br from-primary/80 to-violet-500/80 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white shadow-lg p-0 hover:scale-110 hover:shadow-xl transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
-        >
-          <User className="h-4 w-4" />
+        <Button className="px-3 py-1.5 rounded-xl bg-primary/20 dark:bg-primary/10 text-primary hover:bg-primary/30 dark:hover:bg-primary/20 transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] backdrop-blur-sm border border-primary/30 dark:border-primary/20 hover:scale-110 shadow-sm">
+          <User className="h-5 w-5" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -119,47 +116,55 @@ function GithubLink() {
   );
 }
 
-export function SidebarFooter() {
+function LanguageSwitcher() {
   const { locale, setLocale, t } = useTranslation();
 
+  return (
+    <div>
+      <div className="text-sm text-foreground/60 mb-2 font-medium">
+        {t('Common.language') as string}
+      </div>
+      <div className="flex gap-2 p-1 rounded-xl bg-white/30 dark:bg-black/20 backdrop-blur-sm border border-white/20 dark:border-white/5">
+        <button
+          onClick={() => setLocale('zh')}
+          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+            locale === 'zh'
+              ? 'bg-white/60 dark:bg-white/15 text-primary shadow-[0_2px_8px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.5)]'
+              : 'text-foreground/60 hover:text-foreground hover:bg-white/20 dark:hover:bg-white/5'
+          }`}
+        >
+          中
+        </button>
+        <button
+          onClick={() => setLocale('en')}
+          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+            locale === 'en'
+              ? 'bg-white/60 dark:bg-white/15 text-primary shadow-[0_2px_8px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.5)]'
+              : 'text-foreground/60 hover:text-foreground hover:bg-white/20 dark:hover:bg-white/5'
+          }`}
+        >
+          EN
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function SidebarFooter() {
   return (
     <div className="p-4 mt-auto">
       <div className="rounded-2xl p-4 backdrop-blur-xl bg-white/40 dark:bg-white/5 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_1px_1px_0_rgba(255,255,255,0.5)] space-y-4">
         {/* 操作按钮 */}
         <div className="flex items-center justify-between gap-2">
-          <GithubLink />
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <GithubLink />
+            <ThemeToggle />
+          </div>
           <UserMenu />
         </div>
 
         {/* 语言切换 */}
-        <div>
-          <div className="text-sm text-foreground/60 mb-2 font-medium">
-            {t('Common.language') as string}
-          </div>
-          <div className="flex gap-2 p-1 rounded-xl bg-white/30 dark:bg-black/20 backdrop-blur-sm border border-white/20 dark:border-white/5">
-            <button
-              onClick={() => setLocale('zh')}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                locale === 'zh'
-                  ? 'bg-white/60 dark:bg-white/15 text-primary shadow-[0_2px_8px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.5)]'
-                  : 'text-foreground/60 hover:text-foreground hover:bg-white/20 dark:hover:bg-white/5'
-              }`}
-            >
-              中
-            </button>
-            <button
-              onClick={() => setLocale('en')}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                locale === 'en'
-                  ? 'bg-white/60 dark:bg-white/15 text-primary shadow-[0_2px_8px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.5)]'
-                  : 'text-foreground/60 hover:text-foreground hover:bg-white/20 dark:hover:bg-white/5'
-              }`}
-            >
-              EN
-            </button>
-          </div>
-        </div>
+        <LanguageSwitcher />
       </div>
     </div>
   );
