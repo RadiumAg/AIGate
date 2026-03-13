@@ -1,0 +1,145 @@
+name: Vercel Deploy and GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+      - 'release-*'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      NEXT_PUBLIC_DEMO_MODE: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create demo config
+        run: |
+          cat > src/lib/demo-config.ts << 'EOF'
+          // Demo mode configuration
+          export const demoConfig = {
+            demoCredentials: {
+              email: 'demo@aigate.com',
+              password: 'demo123456'
+            }
+          };
+          EOF
+
+      - name: Build demo application
+        run: pnpm run build:demo
+
+      - name: Install Vercel CLI
+        run: pnpm add -g vercel
+
+      - name: Deploy to Vercel
+        id: vercel_deploy
+        run: |
+          # Get tag name
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+
+          # Deploy with Vercel CLI and capture deployment URL
+          DEPLOY_OUTPUT=$(vercel deploy . \
+            --token=${{ secrets.VERCEL_TOKEN }} \
+            --env NEXT_PUBLIC_DEMO_MODE=true \
+            --name=aigate-demo-${TAG_NAME} \
+            --prod)
+
+          echo "Deployment URL: $DEPLOY_OUTPUT"
+          echo "deployment_url=$DEPLOY_OUTPUT" >> $GITHUB_OUTPUT
+
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "Generating release notes for $TAG_NAME"
+
+          # Create release notes content
+          cat > release-notes.md << 'EOF'
+          ## 🚀 AIGate Release ${{ github.ref_name }}
+
+          ### 📋 部署信息
+          - **Demo 地址**: https://${{ github.ref_name }}.vercel.app
+          - **部署时间**: $(date '+%Y-%m-%d %H:%M:%S')
+          - **构建状态**: ✅ 成功
+
+          ### 🔧 更新内容
+          - 自动化部署流程优化
+          - Demo 模式配置完善
+          - Vercel 集成增强
+
+          ### 🎯 访问方式
+          - **演示账号**: demo@aigate.com
+          - **演示密码**: demo123456
+
+          ### 📦 构建信息
+          - Node.js 版本: 20.x
+          - 构建工具: pnpm
+          - 部署平台: Vercel
+          EOF
+
+          echo "notes_path=release-notes.md" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          name: 'Release ${{ github.ref_name }}'
+          bodyFile: ${{ steps.release_notes.outputs.notes_path }}
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: aigate-build-${{ github.ref_name }}
+          path: |
+            .next/
+            public/
+            package.json
+          retention-days: 30
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Deployment and Release successful!"
+          echo "Tag: ${{ github.ref_name }}"
+          echo "Release: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+          echo "Demo: https://${{ github.ref_name }}.vercel.app"
