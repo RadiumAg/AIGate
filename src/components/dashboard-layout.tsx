@@ -15,38 +15,40 @@ import {
   LogOut,
   User,
   Github,
+  Languages,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { isDemoMode } from '@/lib/demo-config';
+import { useTranslation } from '@/i18n/client';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-const navigation = [
+const getNavigation = (t: (key: string) => string | Record<string, string>) => [
   {
-    name: '仪表板',
+    name: t('Navigation.dashboard') as string,
     href: '/',
     icon: <Home className="h-5 w-5" />,
   },
   {
-    name: '接口调试',
+    name: t('Navigation.debug') as string,
     href: '/debug',
     icon: <Settings className="h-5 w-5" />,
   },
   {
-    name: '配额管理',
+    name: t('Navigation.quotas') as string,
     href: '/quotas',
     icon: <Gauge className="h-5 w-5" />,
   },
   {
-    name: 'API 密钥',
+    name: t('Navigation.keys') as string,
     href: '/keys',
     icon: <Key className="h-5 w-5" />,
   },
   {
-    name: '用户策略管理',
+    name: t('Navigation.users') as string,
     href: '/users',
     icon: <Users className="h-5 w-5" />,
   },
@@ -56,6 +58,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
   const { children } = props;
   const pathname = usePathname();
   const [darkMode, setDarkMode] = React.useState(false);
+  const { locale, setLocale, t } = useTranslation();
+
+  const navigation = React.useMemo(() => getNavigation(t), [t]);
 
   const toggleTheme = () => {
     const newDarkMode = !darkMode;
@@ -152,6 +157,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
                 {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </button>
 
+              <button
+                onClick={() => setLocale(locale === 'zh' ? 'en' : 'zh')}
+                className="p-2.5 rounded-xl bg-white/40 dark:bg-white/5 text-foreground/70 hover:bg-white/60 dark:hover:bg-white/10 hover:text-foreground transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] backdrop-blur-sm border border-white/30 dark:border-white/10 hover:scale-110 shadow-sm"
+                title={locale === 'zh' ? 'Switch to English' : '切换到中文'}
+              >
+                <Languages className="h-5 w-5" />
+              </button>
+
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -172,7 +185,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
                       disabled
                     >
                       <User className="h-4 w-4 mr-2" />
-                      <span>个人资料</span>
+                      <span>{t('Common.profile') as string}</span>
                     </Button>
                     <Button
                       variant="ghost"
@@ -182,7 +195,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
                       }}
                     >
                       <Settings className="h-4 w-4 mr-2" />
-                      <span>邮箱密码</span>
+                      <span>{t('Common.settings') as string}</span>
                     </Button>
                     <Button
                       variant="ghost"
@@ -192,7 +205,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => {
                       }}
                     >
                       <LogOut className="h-4 w-4 mr-2" />
-                      <span>退出登录</span>
+                      <span>{t('Auth.signOut') as string}</span>
                     </Button>
                   </div>
                 </PopoverContent>

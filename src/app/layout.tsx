@@ -3,6 +3,7 @@ import Script from 'next/script';
 import { TRPCProvider } from '../components/trpc-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { ConfirmProvider } from '@/components/ui/confirm';
+import { I18nProvider } from '@/i18n/client';
 import { syncAdminUserOnStartup } from '@/lib/init-admin';
 import './globals.css';
 
@@ -50,10 +51,12 @@ export default function RootLayout({
         )}
       </head>
       <body>
-        <Toaster />
-        <ConfirmProvider>
-          <TRPCProvider>{children}</TRPCProvider>
-        </ConfirmProvider>
+        <I18nProvider>
+          <Toaster />
+          <ConfirmProvider>
+            <TRPCProvider>{children}</TRPCProvider>
+          </ConfirmProvider>
+        </I18nProvider>
       </body>
     </html>
   );
