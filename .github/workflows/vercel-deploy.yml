@@ -19,17 +19,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
       - name: Install pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 9
           run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
 
       - name: Get pnpm store directory
         shell: bash
@@ -44,8 +44,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install dependencies and Vercel CLI
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm add -g vercel
 
       - name: Create demo config
         run: |
@@ -61,9 +63,6 @@ jobs:
 
       - name: Build demo application
         run: pnpm run build:demo
-
-      - name: Install Vercel CLI
-        run: pnpm add -g vercel
 
       - name: Deploy to Vercel
         id: vercel_deploy
