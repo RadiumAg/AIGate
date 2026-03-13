@@ -49,9 +49,6 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm add -g vercel
 
-      - name: Build demo application
-        run: pnpm run build:demo
-
       - name: Deploy to Vercel
         id: vercel_deploy
         run: |
@@ -61,7 +58,7 @@ jobs:
           # Deploy with Vercel CLI and capture deployment URL
           DEPLOY_OUTPUT=$(vercel deploy . \
             --token=${{ secrets.VERCEL_TOKEN }} \
-            --env NEXT_PUBLIC_DEMO_MODE=true \
+            --env NEXT_PUBLIC_DEMO_MODE=true DEMO_MODE=true\
             --name=aigate-demo-${TAG_NAME} \
             --yes \
             --prod)
