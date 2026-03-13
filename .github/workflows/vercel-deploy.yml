@@ -49,18 +49,6 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm add -g vercel
 
-      - name: Create demo config
-        run: |
-          cat > src/lib/demo-config.ts << 'EOF'
-          // Demo mode configuration
-          export const demoConfig = {
-            demoCredentials: {
-              email: 'demo@aigate.com',
-              password: 'demo123456'
-            }
-          };
-          EOF
-
       - name: Build demo application
         run: pnpm run build:demo
 
