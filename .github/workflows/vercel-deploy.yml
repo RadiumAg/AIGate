@@ -63,6 +63,7 @@ jobs:
             --token=${{ secrets.VERCEL_TOKEN }} \
             --env NEXT_PUBLIC_DEMO_MODE=true \
             --name=aigate-demo-${TAG_NAME} \
+            --yes \
             --prod)
 
           echo "Deployment URL: $DEPLOY_OUTPUT"
