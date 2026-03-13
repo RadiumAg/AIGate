@@ -58,8 +58,8 @@ jobs:
           # Deploy with Vercel CLI and capture deployment URL
           DEPLOY_OUTPUT=$(vercel deploy . \
             --token=${{ secrets.VERCEL_TOKEN }} \
-            --env NEXT_PUBLIC_DEMO_MODE=true DEMO_MODE=true\
-            --name=aigate-demo-${TAG_NAME} \
+            --env NEXT_PUBLIC_DEMO_MODE=true \
+            --env DEMO_MODE=true \
             --yes \
             --prod)
 
@@ -68,6 +68,8 @@ jobs:
 
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Generate Release Notes
         id: release_notes
