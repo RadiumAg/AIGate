@@ -23,15 +23,22 @@
 - [ai.ts](file://src/server/api/routers/ai.ts)
 - [quota.ts](file://src/server/api/routers/quota.ts)
 - [trpc-handler.ts](file://src/pages/api/trpc/[trpc].ts)
+- [demo-config.ts](file://src/lib/demo-config.ts)
+- [demo-data.ts](file://src/lib/demo-data.ts)
+- [demo-stats.ts](file://src/lib/demo-stats.ts)
+- [init-admin.ts](file://src/lib/init-admin.ts)
+- [logger-middleware.ts](file://src/lib/logger-middleware.ts)
+- [whitelist.ts](file://src/server/api/routers/whitelist.ts)
+- [chat-service.ts](file://src/lib/chat-service.ts)
 </cite>
 
 ## 更新摘要
 **变更内容**
-- 新增完整的 tRPC API 调用文档和实现说明
-- 补充流式响应处理的详细实现和最佳实践
-- 完善配额管理系统的架构和使用指南
-- 增加 AI 提供商适配器的详细技术规范
-- 更新架构图以反映新的 tRPC 服务器端架构
+- 新增演示模式检测机制和权限控制系统架构
+- 完善日志系统架构和配额管理模块详细说明
+- 更新 AI API 文档以反映最新的架构图和功能模块
+- 增强 tRPC API 调用指南和流式响应处理细节
+- 补充白名单规则管理和数据库操作的完整实现
 
 ## 目录
 1. [简介](#简介)
@@ -42,10 +49,12 @@
 6. [tRPC API 调用指南](#trpc-api-调用指南)
 7. [流式响应处理](#流式响应处理)
 8. [配额管理系统](#配额管理系统)
-9. [依赖关系分析](#依赖关系分析)
-10. [性能考虑](#性能考虑)
-11. [故障排除指南](#故障排除指南)
-12. [结论](#结论)
+9. [演示模式与权限控制](#演示模式与权限控制)
+10. [日志系统架构](#日志系统架构)
+11. [依赖关系分析](#依赖关系分析)
+12. [性能考虑](#性能考虑)
+13. [故障排除指南](#故障排除指南)
+14. [结论](#结论)
 
 ## 简介
 
@@ -59,6 +68,8 @@ AIGate 是一个基于 Next.js 14 + tRPC + Redis 的智能 AI 网关管理系统
 - **安全认证**：NextAuth.js 身份验证，支持管理员账户动态配置
 - **实时监控**：仪表板展示请求趋势、地区分布、IP 记录等关键指标
 - **完整的 tRPC 支持**：提供类型安全的 tRPC API 接口，支持多种调用方式
+- **演示模式支持**：内置演示模式检测和权限控制机制
+- **完善日志系统**：基于 Winston 的结构化日志记录和审计功能
 
 ### OpenAI 兼容接口
 
@@ -83,11 +94,18 @@ subgraph "业务逻辑层"
 Providers[AI 提供商适配器]
 Quota[配额管理器]
 Auth[认证中间件]
+Whitelist[白名单控制器]
+Demo[演示模式控制器]
 end
 subgraph "数据层"
 Redis[Redis 缓存]
 Database[(PostgreSQL)]
 Usage[(用量记录)]
+DemoData[演示数据存储]
+end
+subgraph "日志层"
+Logger[Winston 日志系统]
+Middleware[日志中间件]
 end
 UI --> TRPC
 UI --> OpenAI
@@ -99,14 +117,19 @@ Providers --> Quota
 Quota --> Redis
 Providers --> Database
 Database --> Usage
+Demo --> DemoData
+Logger --> Middleware
+Middleware --> Providers
 ```
 
 **图表来源**
-- [completions.ts:1-350](file://src/pages/api/ai/chat/completions.ts#L1-L350)
-- [stream.ts:1-184](file://src/pages/api/ai/chat/stream.ts#L1-L184)
+- [completions.ts:1-226](file://src/pages/api/ai/chat/completions.ts#L1-L226)
+- [stream.ts:1-124](file://src/pages/api/ai/chat/stream.ts#L1-L124)
 - [ai-providers.ts:1-759](file://src/lib/ai-providers.ts#L1-L759)
 - [trpc.ts:1-153](file://src/server/api/trpc.ts#L1-L153)
 - [root.ts:1-25](file://src/server/api/root.ts#L1-L25)
+- [demo-config.ts:1-57](file://src/lib/demo-config.ts#L1-L57)
+- [logger.ts:1-192](file://src/lib/logger.ts#L1-L192)
 
 **章节来源**
 - [README.md:1-83](file://README.md#L1-L83)
@@ -155,11 +178,31 @@ Database --> Usage
 - **RPM 限制**：每分钟请求次数控制
 - **用户级配额**：基于 `userId + apiKeyId` 组合的独立配额
 
+### 演示模式控制系统
+
+提供完整的演示模式支持：
+
+- **演示模式检测**：通过环境变量控制演示模式启用
+- **权限控制**：演示模式下的读写权限限制
+- **数据隔离**：演示模式使用内存数据存储
+- **自动重置**：支持定时重置演示数据
+
+### 日志系统架构
+
+基于 Winston 的结构化日志系统：
+
+- **多级别日志**：error、warn、info、http、debug
+- **文件轮转**：按日期自动轮转日志文件
+- **结构化格式**：JSON 格式便于分析和检索
+- **操作审计**：记录配额操作、AI 请求、认证等关键操作
+
 **章节来源**
-- [completions.ts:1-350](file://src/pages/api/ai/chat/completions.ts#L1-L350)
-- [stream.ts:1-184](file://src/pages/api/ai/chat/stream.ts#L1-L184)
+- [completions.ts:1-226](file://src/pages/api/ai/chat/completions.ts#L1-L226)
+- [stream.ts:1-124](file://src/pages/api/ai/chat/stream.ts#L1-L124)
 - [ai-providers.ts:1-759](file://src/lib/ai-providers.ts#L1-L759)
 - [quota.ts:1-327](file://src/lib/quota.ts#L1-L327)
+- [demo-config.ts:1-57](file://src/lib/demo-config.ts#L1-L57)
+- [logger.ts:1-192](file://src/lib/logger.ts#L1-L192)
 
 ## 架构概览
 
@@ -169,11 +212,15 @@ participant Client as 客户端应用
 participant API as API 网关
 participant TRPC as tRPC 服务器
 participant Auth as 认证模块
+participant Demo as 演示模式检测
 participant Quota as 配额检查
 participant Provider as AI 提供商
 participant Cache as Redis 缓存
 participant DB as PostgreSQL
+participant Logger as 日志系统
 Client->>API : POST /api/v1/chat/completions
+API->>Demo : 检测演示模式
+Demo-->>API : 演示模式状态
 API->>Auth : 验证 API Key 和用户权限
 Auth-->>API : 认证结果
 API->>Quota : 检查配额限制
@@ -185,6 +232,8 @@ API->>Provider : 转发 AI 请求
 Provider-->>API : AI 响应
 API->>DB : 记录使用量
 DB-->>API : 确认记录
+API->>Logger : 记录操作日志
+Logger-->>API : 日志确认
 API-->>Client : 返回 OpenAI 兼容响应
 else 配额不足
 API-->>Client : 429 Too Many Requests
@@ -192,9 +241,11 @@ end
 ```
 
 **图表来源**
-- [completions.ts:20-131](file://src/pages/api/ai/chat/completions.ts#L20-L131)
+- [completions.ts:34-96](file://src/pages/api/ai/chat/completions.ts#L34-L96)
 - [quota.ts:79-200](file://src/lib/quota.ts#L79-L200)
 - [ai-providers.ts:34-100](file://src/lib/ai-providers.ts#L34-L100)
+- [demo-config.ts:7-9](file://src/lib/demo-config.ts#L7-L9)
+- [logger.ts:134-153](file://src/lib/logger.ts#L134-L153)
 
 ## 详细组件分析
 
@@ -204,7 +255,8 @@ end
 
 ```mermaid
 flowchart TD
-Start([请求到达]) --> Validate[验证请求参数]
+Start([请求到达]) --> DetectDemo[检测演示模式]
+DetectDemo --> Validate[验证请求参数]
 Validate --> ExtractIP[提取客户端IP]
 ExtractIP --> GetWhitelist[获取白名单规则]
 GetWhitelist --> CheckWhitelist{白名单验证}
@@ -219,7 +271,8 @@ QuotaCheck --> |充足| ProcessRequest[处理请求]
 QuotaCheck --> |不足| TooManyRequests[返回429]
 ProcessRequest --> HandleResponse[处理响应]
 HandleResponse --> RecordUsage[记录使用量]
-RecordUsage --> Success[返回成功响应]
+RecordUsage --> LogOperation[记录日志]
+LogOperation --> Success[返回成功响应]
 Forbidden --> End([结束])
 BadRequest --> End
 TooManyRequests --> End
@@ -227,7 +280,7 @@ Success --> End
 ```
 
 **图表来源**
-- [completions.ts:20-131](file://src/pages/api/ai/chat/completions.ts#L20-L131)
+- [completions.ts:34-96](file://src/pages/api/ai/chat/completions.ts#L34-L96)
 
 #### 同步响应处理
 
@@ -263,11 +316,11 @@ Client->>API : 关闭连接
 ```
 
 **图表来源**
-- [stream.ts:105-175](file://src/pages/api/ai/chat/stream.ts#L105-L175)
+- [stream.ts:68-115](file://src/pages/api/ai/chat/stream.ts#L68-L115)
 
 **章节来源**
-- [completions.ts:133-310](file://src/pages/api/ai/chat/completions.ts#L133-L310)
-- [stream.ts:88-183](file://src/pages/api/ai/chat/stream.ts#L88-L183)
+- [completions.ts:98-200](file://src/pages/api/ai/chat/completions.ts#L98-L200)
+- [stream.ts:12-124](file://src/pages/api/ai/chat/stream.ts#L12-L124)
 
 ### AI 提供商适配器组件
 
@@ -426,7 +479,7 @@ QUOTA_POLICIES ||--o{ WHITELIST_RULES : "policy_name"
 
 **章节来源**
 - [schema.ts:1-162](file://src/lib/schema.ts#L1-L162)
-- [database.ts:1-692](file://src/lib/database.ts#L1-L692)
+- [database.ts:1-850](file://src/lib/database.ts#L1-L850)
 
 ## tRPC API 调用指南
 
@@ -629,7 +682,7 @@ Client->>StreamAPI : 关闭连接
 ```
 
 **图表来源**
-- [stream.ts:105-175](file://src/pages/api/ai/chat/stream.ts#L105-L175)
+- [stream.ts:68-115](file://src/pages/api/ai/chat/stream.ts#L68-L115)
 
 ### 流式响应格式
 
@@ -821,6 +874,175 @@ async function quotaAwareCall(params: any) {
 - [ai-api.md:599-730](file://docs/ai-api.md#L599-L730)
 - [ai.ts:242-299](file://src/server/api/routers/ai.ts#L242-L299)
 
+## 演示模式与权限控制
+
+### 演示模式检测机制
+
+系统提供了完整的演示模式支持，通过环境变量控制演示模式的启用和行为：
+
+```mermaid
+flowchart TD
+Start([应用启动]) --> CheckEnv[检查环境变量]
+CheckEnv --> EnvCheck{DEMO_MODE设置?}
+EnvCheck --> |true| EnableDemo[启用演示模式]
+EnvCheck --> |false| DisableDemo[禁用演示模式]
+EnableDemo --> LoadDemoConfig[加载演示配置]
+LoadDemoConfig --> InitDemoData[初始化演示数据]
+InitDemoData --> SetupDemoAPI[设置演示API]
+DisableDemo --> LoadRealData[加载真实数据]
+LoadRealData --> SetupRealAPI[设置真实API]
+SetupDemoAPI --> RunApp[启动应用]
+SetupRealAPI --> RunApp
+```
+
+**图表来源**
+- [demo-config.ts:7-9](file://src/lib/demo-config.ts#L7-L9)
+
+### 权限控制系统
+
+演示模式下的权限控制机制：
+
+| 操作类型 | 演示模式权限 | 真实模式权限 | 说明 |
+|----------|--------------|--------------|------|
+| 读取操作 | ✅ 允许 | ✅ 允许 | 所有读取操作 |
+| 写入操作 | ❌ 禁止 | ✅ 允许 | 演示模式下禁止修改 |
+| 删除操作 | ❌ 禁止 | ✅ 允许 | 演示模式下禁止删除 |
+| 数据重置 | ⚠️ 可选 | ❌ 禁止 | 演示模式可定时重置 |
+
+### 演示数据管理
+
+系统使用内存数据存储提供演示模式的数据支持：
+
+```mermaid
+classDiagram
+class DemoDataStore {
++Map~string,ApiKey~ apiKeys
++Map~string,QuotaPolicy~ quotaPolicies
++Map~string,UsageRecord~ usageRecords
++Map~string,WhitelistRule~ whitelistRules
++Map~string,User~ users
++initializeData() void
++generateMockUsageRecords() void
++resetData() void
+}
+class DemoDataLayer {
++getAllApiKeys() ApiKey[]
++getApiKeyById(string) ApiKey
++createApiKey(ApiKey) ApiKey
++updateApiKey(string,Partial) ApiKey
++deleteApiKey(string) boolean
+}
+DemoDataStore --> DemoDataLayer
+```
+
+**图表来源**
+- [demo-data.ts:20-435](file://src/lib/demo-data.ts#L20-L435)
+
+### 管理员账户同步
+
+系统支持启动时自动同步管理员用户：
+
+```mermaid
+sequenceDiagram
+participant App as 应用启动
+participant AdminSync as 管理员同步
+participant DB as 数据库
+App->>AdminSync : 调用同步函数
+AdminSync->>DB : 删除现有管理员
+DB-->>AdminSync : 删除完成
+AdminSync->>DB : 创建新管理员
+DB-->>AdminSync : 创建完成
+AdminSync-->>App : 同步完成
+```
+
+**图表来源**
+- [init-admin.ts:9-71](file://src/lib/init-admin.ts#L9-L71)
+
+**章节来源**
+- [demo-config.ts:1-57](file://src/lib/demo-config.ts#L1-L57)
+- [demo-data.ts:1-435](file://src/lib/demo-data.ts#L1-L435)
+- [demo-stats.ts:1-111](file://src/lib/demo-stats.ts#L1-L111)
+- [init-admin.ts:1-71](file://src/lib/init-admin.ts#L1-L71)
+
+## 日志系统架构
+
+### 日志级别和格式
+
+系统基于 Winston 提供了完整的日志记录功能：
+
+```mermaid
+graph TB
+subgraph "日志级别"
+Error[错误日志]
+Warn[警告日志]
+Info[信息日志]
+Http[HTTP请求日志]
+Debug[调试日志]
+end
+subgraph "日志格式"
+ConsoleFormat[控制台格式]
+FileFormat[文件格式(JSON)]
+end
+subgraph "日志输出"
+ConsoleTransport[控制台输出]
+ErrorFile[错误文件]
+CombinedFile[合并文件]
+HttpFile[HTTP文件]
+end
+Error --> ConsoleTransport
+Warn --> ConsoleTransport
+Info --> ConsoleTransport
+Http --> ConsoleTransport
+Debug --> ConsoleTransport
+ConsoleFormat --> ConsoleTransport
+FileFormat --> ErrorFile
+FileFormat --> CombinedFile
+FileFormat --> HttpFile
+```
+
+**图表来源**
+- [logger.ts:5-18](file://src/lib/logger.ts#L5-L18)
+- [logger.ts:35-45](file://src/lib/logger.ts#L35-L45)
+
+### 日志中间件
+
+提供统一的日志记录中间件：
+
+```mermaid
+sequenceDiagram
+participant Request as HTTP请求
+participant Middleware as 日志中间件
+participant Logger as Winston日志
+Request->>Middleware : 请求到达
+Middleware->>Logger : 记录请求开始
+Middleware->>Request : 处理请求
+Request-->>Middleware : 响应返回
+alt 错误响应
+Middleware->>Logger : 记录错误日志
+else 正常响应
+Middleware->>Logger : 记录成功日志
+end
+Middleware-->>Request : 返回响应
+```
+
+**图表来源**
+- [logger-middleware.ts:5-29](file://src/lib/logger-middleware.ts#L5-L29)
+
+### 专用日志记录函数
+
+系统提供了针对不同操作类型的专用日志记录函数：
+
+| 日志类型 | 函数名 | 用途 | 示例 |
+|----------|--------|------|------|
+| 配额操作 | logQuotaOperation | 记录配额检查、更新、重置 | `logQuotaOperation('check', userId, apiKey)` |
+| AI 请求 | logAIRequest | 记录AI请求详情 | `logAIRequest(userId, model, provider, tokens)` |
+| 认证操作 | logAuth | 记录用户认证状态 | `logAuth('login', userId)` |
+| 业务操作 | logOperation | 记录一般业务操作 | `logOperation('info', '用户注册')` |
+
+**章节来源**
+- [logger.ts:1-192](file://src/lib/logger.ts#L1-L192)
+- [logger-middleware.ts:1-138](file://src/lib/logger-middleware.ts#L1-L138)
+
 ## 依赖关系分析
 
 ### 外部依赖关系
@@ -844,7 +1066,7 @@ Winston[Winston 日志]
 Drizzle[Drizzle ORM]
 Zod[Zod 类型验证]
 UUID[UUID 生成]
-end
+End
 NextJS --> tRPC
 tRPC --> Redis
 tRPC --> PostgreSQL
@@ -868,6 +1090,7 @@ graph TD
 API[API 层] --> Providers[AI 提供商]
 API --> Quota[配额管理]
 API --> Auth[认证]
+API --> Demo[演示模式]
 Providers --> Database[数据库]
 Providers --> Redis[缓存]
 Quota --> Redis
@@ -878,12 +1101,16 @@ TRPC[TRPC 层] --> Routers[业务路由器]
 Routers --> Providers
 Routers --> Quota
 Routers --> Auth
+Routers --> Demo
+Demo --> DemoData[演示数据]
+Demo --> DemoStats[演示统计]
 ```
 
 **图表来源**
-- [completions.ts:1-10](file://src/pages/api/ai/chat/completions.ts#L1-L10)
+- [completions.ts:1-13](file://src/pages/api/ai/chat/completions.ts#L1-L13)
 - [ai-providers.ts:1-5](file://src/lib/ai-providers.ts#L1-L5)
 - [trpc.ts:1-153](file://src/server/api/trpc.ts#L1-L153)
+- [demo-data.ts:1-17](file://src/lib/demo-data.ts#L1-L17)
 
 **章节来源**
 - [package.json:1-91](file://package.json#L1-L91)
@@ -986,7 +1213,7 @@ Routers --> Auth
    ```
 
 **章节来源**
-- [logger.ts:1-184](file://src/lib/logger.ts#L1-L184)
+- [logger.ts:1-192](file://src/lib/logger.ts#L1-L192)
 - [quota.ts:189-199](file://src/lib/quota.ts#L189-L199)
 
 ## 结论
@@ -1001,6 +1228,8 @@ AIGate 提供了一个完整、高性能的 OpenAI 兼容聊天完成 API 解决
 4. **安全可靠**：完善的认证、授权和审计机制
 5. **类型安全**：基于 tRPC 的类型安全 API 接口
 6. **实时流式**：完整的流式响应支持，适合实时应用场景
+7. **演示模式**：内置演示模式支持，便于测试和演示
+8. **结构化日志**：基于 Winston 的完整日志记录系统
 
 ### 业务价值
 
@@ -1009,6 +1238,7 @@ AIGate 提供了一个完整、高性能的 OpenAI 兼容聊天完成 API 解决
 3. **监控可视化**：实时仪表板提供全面的使用情况监控
 4. **易于集成**：标准化的 API 接口降低集成复杂度
 5. **开发友好**：tRPC 提供更好的开发体验和错误处理
+6. **演示支持**：完整的演示模式支持，便于产品展示
 
 ### 未来发展
 
@@ -1016,5 +1246,6 @@ AIGate 提供了一个完整、高性能的 OpenAI 兼容聊天完成 API 解决
 2. **功能增强**：添加更多高级功能如模型路由、A/B 测试等
 3. **性能优化**：进一步提升并发处理能力和响应速度
 4. **生态建设**：构建更丰富的插件和集成生态系统
+5. **安全加固**：持续改进安全机制和权限控制
 
-AIGate 为需要在生产环境中安全、可控地使用 AI 模型的企业和个人开发者提供了一个可靠的基础设施解决方案。其完整的 tRPC API 支持、流式响应处理和配额管理功能，使其成为现代 AI 应用开发的理想选择。
+AIGate 为需要在生产环境中安全、可控地使用 AI 模型的企业和个人开发者提供了一个可靠的基础设施解决方案。其完整的 tRPC API 支持、流式响应处理、配额管理功能、演示模式支持和结构化日志系统，使其成为现代 AI 应用开发的理想选择。
