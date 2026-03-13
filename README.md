@@ -1,6 +1,11 @@
 # AIGate - AI 网关管理系统
 
-基于 Next.js 14 + tRPC + Redis 的智能 AI 网关管理系统，支持配额控制和多模型代理。
+基于 Next.js 16 + tRPC + Redis 的智能 AI 网关管理系统，支持配额控制和多模型代理。
+
+<p align="center">
+  <img src="./readme/dashboard.png" alt="AIGate 仪表板界面" width="800" />
+  <img src="./readme/dashboard-dark.png" alt="AIGate 仪表板界面黑夜模式" width="800" />
+</p>
 
 ## 核心功能
 
@@ -73,7 +78,7 @@ curl -X POST http://localhost:3000/api/v1/chat/completions \
 
 ## 技术架构
 
-- **前端框架**：Next.js 14 App Router + TypeScript
+- **前端框架**：Next.js 16 App Router + TypeScript
 - **状态管理**：tRPC 类型安全 RPC
 - **UI 组件**：Tailwind CSS 4 + shadcn/ui
 - **数据存储**：PostgreSQL + Redis
