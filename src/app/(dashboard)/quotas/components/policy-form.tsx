@@ -19,6 +19,7 @@ import {
   FieldSet,
   FieldLegend,
 } from '@/components/ui/field';
+import { useTranslation } from '@/i18n/client';
 
 interface QuotaPolicy {
   id: string;
@@ -41,6 +42,7 @@ interface PolicyFormProps {
 
 const PolicyForm: React.FC<PolicyFormProps> = (props) => {
   const { policy, onSave, onCancel } = props;
+  const { t } = useTranslation();
   const [formData, setFormData] = React.useState<
     Omit<QuotaPolicy, 'id' | 'createdAt' | 'updatedAt'>
   >(
@@ -84,27 +86,27 @@ const PolicyForm: React.FC<PolicyFormProps> = (props) => {
     <form onSubmit={handleSubmit} className="space-y-6">
       <FieldGroup>
         <Field>
-          <FieldLabel>策略名称</FieldLabel>
+          <FieldLabel>{t('Quota.name') as string}</FieldLabel>
           <Input type="text" name="name" value={formData.name} onChange={handleChange} required />
         </Field>
 
         <Field>
-          <FieldLabel>描述</FieldLabel>
+          <FieldLabel>{t('Quota.description') as string}</FieldLabel>
           <Textarea
             name="description"
             value={formData.description || ''}
             onChange={handleChange}
             rows={3}
-            placeholder="策略描述..."
+            placeholder={t('Quota.descriptionPlaceholder') as string}
           />
         </Field>
       </FieldGroup>
 
       <FieldSet className="border-t border-white/20 dark:border-white/10 pt-4">
-        <FieldLegend variant="label">配额限制</FieldLegend>
+        <FieldLegend variant="label">{t('Common.quotaLimit') as string}</FieldLegend>
         <FieldGroup>
           <Field>
-            <FieldLabel>限制类型</FieldLabel>
+            <FieldLabel>{t('Quota.limitType') as string}</FieldLabel>
             <Select
               value={formData.limitType}
               onValueChange={(value: 'token' | 'request') => {
@@ -120,41 +122,43 @@ const PolicyForm: React.FC<PolicyFormProps> = (props) => {
               }}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="选择限制类型" />
+                <SelectValue placeholder={t('Quota.limitTypePlaceholder') as string} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="token">Token 限制</SelectItem>
-                <SelectItem value="request">请求次数限制</SelectItem>
+                <SelectItem value="token">{t('Quota.tokenLimit') as string}</SelectItem>
+                <SelectItem value="request">{t('Quota.requestLimit') as string}</SelectItem>
               </SelectContent>
             </Select>
             <FieldDescription>
-              {formData.limitType === 'token'
-                ? '限制每日使用的 Token 数量'
-                : '限制每日请求次数（不限制 Token）'}
+              {
+                (formData.limitType === 'token'
+                  ? t('Quota.tokenLimitDesc')
+                  : t('Quota.requestLimitDesc')) as string
+              }
             </FieldDescription>
           </Field>
 
           {formData.limitType === 'token' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field>
-                <FieldLabel>每日 Token 上限</FieldLabel>
+                <FieldLabel>{t('Quota.dailyTokenLimit') as string}</FieldLabel>
                 <Input
                   type="number"
                   name="dailyTokenLimit"
                   value={formData.dailyTokenLimit || ''}
                   onChange={handleChange}
                   required
-                  placeholder="例如: 5000"
+                  placeholder="e.g. 5000"
                 />
               </Field>
               <Field>
-                <FieldLabel>每月 Token 上限</FieldLabel>
+                <FieldLabel>{t('Quota.monthlyTokenLimit') as string}</FieldLabel>
                 <Input
                   type="number"
                   name="monthlyTokenLimit"
                   value={formData.monthlyTokenLimit || ''}
                   onChange={handleChange}
-                  placeholder="例如: 50000（可选）"
+                  placeholder="e.g. 50000 (optional)"
                 />
               </Field>
             </div>
@@ -162,20 +166,20 @@ const PolicyForm: React.FC<PolicyFormProps> = (props) => {
 
           {formData.limitType === 'request' && (
             <Field>
-              <FieldLabel>每日请求次数上限</FieldLabel>
+              <FieldLabel>{t('Quota.dailyRequestLimit') as string}</FieldLabel>
               <Input
                 required
                 type="number"
                 name="dailyRequestLimit"
                 value={formData.dailyRequestLimit || ''}
-                placeholder="例如: 1000"
+                placeholder="e.g. 1000"
                 onChange={handleChange}
               />
             </Field>
           )}
 
           <Field>
-            <FieldLabel>每分钟请求次数 (RPM)</FieldLabel>
+            <FieldLabel>{t('Quota.rpmLimit') as string}</FieldLabel>
             <Input
               type="number"
               name="rpmLimit"
@@ -188,9 +192,9 @@ const PolicyForm: React.FC<PolicyFormProps> = (props) => {
       </FieldSet>
 
       <div className="flex space-x-3 pt-4">
-        <Button type="submit">保存</Button>
+        <Button type="submit">{t('Quota.save') as string}</Button>
         <Button type="button" variant="outline" onClick={onCancel}>
-          取消
+          {t('Quota.cancel') as string}
         </Button>
       </div>
     </form>

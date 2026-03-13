@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { confirm } from '@/components/ui/confirm';
 import { toast } from 'sonner';
 import { useMemoizedFn } from 'ahooks';
+import { useTranslation } from '@/i18n/client';
 
 interface QuotaPolicy {
   id: string;
@@ -25,6 +26,7 @@ interface QuotaPolicy {
 }
 
 const QuotasPage: React.FC = () => {
+  const { t } = useTranslation();
   const {
     data: policies = [],
     refetch: refetchPolicies,
@@ -37,7 +39,7 @@ const QuotasPage: React.FC = () => {
       refetchPolicies();
       setIsDialogOpen(false);
       setEditingPolicy(null);
-      toast.success('配额策略创建成功');
+      toast.success(t('Quota.policyCreated') as string);
     },
   });
 
@@ -46,14 +48,14 @@ const QuotasPage: React.FC = () => {
       refetchPolicies();
       setIsDialogOpen(false);
       setEditingPolicy(null);
-      toast.success('配额策略更新成功');
+      toast.success(t('Quota.policyUpdated') as string);
     },
   });
 
   const deletePolicyMutation = trpc.quota.deletePolicy.useMutation({
     onSuccess: () => {
       refetchPolicies();
-      toast.success('配额策略删除成功');
+      toast.success(t('Quota.policyDeleted') as string);
     },
   });
 
@@ -68,7 +70,7 @@ const QuotasPage: React.FC = () => {
   });
 
   const handleDeletePolicy = useMemoizedFn((id: string) => {
-    confirm('确定要删除这个配额策略吗？').then(() => {
+    confirm(t('Quota.deleteConfirm') as string).then(() => {
       deletePolicyMutation.mutate({ id });
     });
   });
@@ -92,14 +94,16 @@ const QuotasPage: React.FC = () => {
     <div className="space-y-6">
       {/* Header with Liquid Glass */}
       <div className="flex justify-between items-center rounded-2xl p-6 backdrop-blur-xl bg-white/60 dark:bg-black/30 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)]">
-        <h1 className="text-2xl font-bold text-foreground">配额管理</h1>
-        <Button onClick={handleAddPolicy}>新建策略</Button>
+        <h1 className="text-2xl font-bold text-foreground">{t('Quota.title') as string}</h1>
+        <Button onClick={handleAddPolicy}>{t('Quota.newPolicy') as string}</Button>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{editingPolicy ? '编辑配额策略' : '新建配额策略'}</DialogTitle>
+            <DialogTitle>
+              {(editingPolicy ? t('Quota.editPolicy') : t('Quota.createPolicy')) as string}
+            </DialogTitle>
           </DialogHeader>
           <PolicyForm
             policy={editingPolicy}
@@ -116,7 +120,7 @@ const QuotasPage: React.FC = () => {
         <div className="rounded-2xl p-8 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]">
           <div className="flex items-center justify-center">
             <Spinner className="h-8 w-8 text-primary" />
-            <span className="ml-2 text-muted-foreground">加载中...</span>
+            <span className="ml-2 text-muted-foreground">{t('Common.loading') as string}</span>
           </div>
         </div>
       ) : (

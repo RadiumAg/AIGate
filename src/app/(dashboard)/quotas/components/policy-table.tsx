@@ -5,6 +5,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { FileText } from 'lucide-react';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/i18n/client';
 
 interface QuotaPolicy {
   id: string;
@@ -21,24 +22,25 @@ interface QuotaPolicy {
 
 interface PolicyTableProps {
   policies: QuotaPolicy[];
+  isLoading?: boolean;
   onEdit: (policy: QuotaPolicy) => void;
   onDelete: (id: string) => void;
-  isLoading?: boolean;
 }
 
 const PolicyTable: React.FC<PolicyTableProps> = (props) => {
   const { policies, onEdit, onDelete, isLoading = false } = props;
+  const { t } = useTranslation();
 
   const columns: ColumnDef<QuotaPolicy>[] = React.useMemo(
     () => [
       {
         accessorKey: 'name',
-        header: '策略名称',
+        header: t('Quota.name') as string,
         cell: ({ row }) => <span className="font-medium text-foreground">{row.original.name}</span>,
       },
       {
         accessorKey: 'description',
-        header: '描述',
+        header: t('Quota.description') as string,
         cell: ({ row }) => (
           <span className="text-muted-foreground max-w-xs truncate block">
             {row.original.description || '-'}
@@ -47,7 +49,7 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
       },
       {
         accessorKey: 'limitType',
-        header: '限制类型',
+        header: t('Quota.limitType') as string,
         cell: ({ row }) => {
           const policy = row.original;
           return (
@@ -58,26 +60,31 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
                   : 'bg-green-500/15 text-green-700 dark:text-green-300 border border-green-500/30'
               }`}
             >
-              {policy.limitType === 'token' ? 'Token 限制' : '请求次数'}
+              {
+                (policy.limitType === 'token'
+                  ? t('Quota.tokenLimit')
+                  : t('Quota.requestLimit')) as string
+              }
             </span>
           );
         },
       },
       {
         accessorKey: 'dailyLimit',
-        header: '每日限额',
+        header: t('Quota.dailyLimit') as string,
         cell: ({ row }) => {
           const policy = row.original;
           if (policy.limitType === 'token') {
             return (
               <span className="text-foreground">
-                {policy.dailyTokenLimit?.toLocaleString() || '-'} Tokens
+                {policy.dailyTokenLimit?.toLocaleString() || '-'} {t('Quota.tokenUnit') as string}
               </span>
             );
           } else {
             return (
               <span className="text-foreground">
-                {policy.dailyRequestLimit?.toLocaleString() || '-'} 次
+                {policy.dailyRequestLimit?.toLocaleString() || '-'}{' '}
+                {t('Quota.requestUnit') as string}
               </span>
             );
           }
@@ -85,13 +92,13 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
       },
       {
         accessorKey: 'monthlyTokenLimit',
-        header: '每月限额',
+        header: t('Quota.monthlyLimit') as string,
         cell: ({ row }) => {
           const policy = row.original;
           if (policy.limitType === 'token' && policy.monthlyTokenLimit) {
             return (
               <span className="text-foreground">
-                {policy.monthlyTokenLimit.toLocaleString()} Tokens
+                {policy.monthlyTokenLimit.toLocaleString()} {t('Quota.tokenUnit') as string}
               </span>
             );
           }
@@ -100,12 +107,12 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
       },
       {
         accessorKey: 'rpmLimit',
-        header: 'RPM 限制',
+        header: t('Quota.rpmLimit') as string,
         cell: ({ row }) => <span className="text-foreground">{row.original.rpmLimit}</span>,
       },
       {
         accessorKey: 'createdAt',
-        header: '创建时间',
+        header: t('Quota.createdAt') as string,
         cell: ({ row }) => (
           <span className="text-gray-500 dark:text-gray-300">
             {row.original.createdAt ? new Date(row.original.createdAt).toLocaleDateString() : '-'}
@@ -114,7 +121,7 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
       },
       {
         id: 'actions',
-        header: () => <div className="text-right">操作</div>,
+        header: () => <div className="text-right">{t('Quota.actions') as string}</div>,
         cell: ({ row }) => {
           const policy = row.original;
 
@@ -127,7 +134,7 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
                 disabled={isLoading}
                 className="text-primary hover:text-primary/80 hover:bg-primary/10"
               >
-                编辑
+                {t('Quota.edit') as string}
               </Button>
               <Button
                 variant="ghost"
@@ -136,14 +143,14 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
                 disabled={isLoading}
                 className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
               >
-                删除
+                {t('Quota.delete') as string}
               </Button>
             </div>
           );
         },
       },
     ],
-    [onEdit, onDelete, isLoading]
+    [onEdit, onDelete, isLoading, t]
   );
 
   const emptyIcon = (
@@ -156,8 +163,8 @@ const PolicyTable: React.FC<PolicyTableProps> = (props) => {
     <DataTable
       columns={columns}
       data={policies}
-      emptyMessage="暂无配额策略"
-      emptyDescription="开始添加您的第一个配额策略"
+      emptyMessage={t('Quota.noPolicies') as string}
+      emptyDescription={t('Quota.addFirstPolicy') as string}
       emptyIcon={emptyIcon}
     />
   );

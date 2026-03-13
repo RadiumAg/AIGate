@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/i18n/client';
 
 interface QuotaPolicy {
   id: string;
@@ -18,6 +19,7 @@ interface QuotaCardProps {
 
 const QuotaCard: React.FC<QuotaCardProps> = (props) => {
   const { policy, onEdit, onDelete } = props;
+  const { t } = useTranslation();
 
   const formatNumber = (num: number): string => {
     return new Intl.NumberFormat().format(num);
@@ -50,7 +52,7 @@ const QuotaCard: React.FC<QuotaCardProps> = (props) => {
       <div className="space-y-4">
         <div>
           <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-1">
-            <span>每日 Token 上限</span>
+            <span>{t('Quota.dailyTokenLimit') as string}</span>
             <span>{formatNumber(policy.dailyTokenLimit)}</span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
@@ -60,7 +62,7 @@ const QuotaCard: React.FC<QuotaCardProps> = (props) => {
 
         <div>
           <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-1">
-            <span>每分钟请求次数</span>
+            <span>{t('Quota.rpmLimit') as string}</span>
             <span>{policy.rpmLimit} RPM</span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
@@ -70,7 +72,7 @@ const QuotaCard: React.FC<QuotaCardProps> = (props) => {
 
         <div>
           <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-1">
-            <span>最大上下文长度</span>
+            <span>{t('Quota.maxContextLength') as string}</span>
             <span>{formatNumber(policy.maxContextLength)}</span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
@@ -81,7 +83,7 @@ const QuotaCard: React.FC<QuotaCardProps> = (props) => {
 
       <div className="mt-6 pt-4 border-t border-gray-100 dark:border-slate-700">
         <Button variant="ghost" className="w-full">
-          查看详情
+          {t('Quota.viewDetails') as string}
         </Button>
       </div>
     </div>
