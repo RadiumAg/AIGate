@@ -68,11 +68,3 @@ export async function syncAdminUserOnStartup() {
     // 不要终止应用启动，只是记录错误
   }
 }
-
-// 如果直接运行此脚本，则执行同步
-if (require.main === module) {
-  syncAdminUserOnStartup().then(() => {
-    console.log('脚本执行完成');
-    process.exit(0);
-  });
-}
