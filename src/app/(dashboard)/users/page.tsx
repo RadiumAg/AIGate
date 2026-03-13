@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { confirm } from '@/components/ui/confirm';
 import { toast } from 'sonner';
 import { useMemoizedFn } from 'ahooks';
+import { useTranslation } from '@/i18n/client';
 
 interface WhitelistRule {
   id: string;
@@ -23,6 +24,7 @@ interface WhitelistRule {
 }
 
 const UsersPage: React.FC = () => {
+  const { t } = useTranslation();
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingRule, setEditingRule] = React.useState<WhitelistRule | null>(null);
   // 获取白名单规则数据
@@ -38,10 +40,10 @@ const UsersPage: React.FC = () => {
       refetchRules();
       setIsDialogOpen(false);
       setEditingRule(null);
-      toast.success('白名单规则创建成功');
+      toast.success(t('User.ruleCreated') as string);
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : '创建失败');
+      toast.error(error instanceof Error ? error.message : (t('User.createFailed') as string));
     },
   });
 
@@ -51,10 +53,10 @@ const UsersPage: React.FC = () => {
       refetchRules();
       setIsDialogOpen(false);
       setEditingRule(null);
-      toast.success('白名单规则更新成功');
+      toast.success(t('User.ruleUpdated') as string);
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : '更新失败');
+      toast.error(error instanceof Error ? error.message : (t('User.updateFailed') as string));
     },
   });
 
@@ -62,10 +64,10 @@ const UsersPage: React.FC = () => {
   const deleteRuleMutation = trpc.whitelist.delete.useMutation({
     onSuccess: () => {
       refetchRules();
-      toast.success('白名单规则删除成功');
+      toast.success(t('User.ruleDeleted') as string);
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : '删除失败');
+      toast.error(error instanceof Error ? error.message : (t('User.deleteFailed') as string));
     },
   });
 
@@ -73,10 +75,10 @@ const UsersPage: React.FC = () => {
   const toggleStatusMutation = trpc.whitelist.toggleStatus.useMutation({
     onSuccess: () => {
       refetchRules();
-      toast.success('白名单规则状态切换成功');
+      toast.success(t('User.ruleStatusToggled') as string);
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : '状态切换失败');
+      toast.error(error instanceof Error ? error.message : (t('User.toggleFailed') as string));
     },
   });
 
@@ -92,7 +94,7 @@ const UsersPage: React.FC = () => {
   });
 
   const handleDeleteRule = useMemoizedFn((id: string) => {
-    confirm('确定要删除这条白名单规则吗？').then(() => {
+    confirm(t('User.deleteConfirm') as string).then(() => {
       deleteRuleMutation.mutate({ id });
     });
   });
@@ -116,14 +118,16 @@ const UsersPage: React.FC = () => {
     <div className="space-y-6">
       {/* Header with Liquid Glass */}
       <div className="flex justify-between items-center rounded-2xl p-6 backdrop-blur-xl bg-white/60 dark:bg-black/30 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)]">
-        <h1 className="text-2xl font-bold text-foreground">用户策略管理</h1>
-        <Button onClick={handleAddRule}>添加规则</Button>
+        <h1 className="text-2xl font-bold text-foreground">{t('User.title') as string}</h1>
+        <Button onClick={handleAddRule}>{t('User.addRule') as string}</Button>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{editingRule ? '编辑白名单规则' : '添加白名单规则'}</DialogTitle>
+            <DialogTitle>
+              {(editingRule ? t('User.editRule') : t('User.createRule')) as string}
+            </DialogTitle>
           </DialogHeader>
           <WhitelistRuleForm
             ruleData={editingRule}
@@ -140,7 +144,7 @@ const UsersPage: React.FC = () => {
         <div className="rounded-2xl p-8 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]">
           <div className="flex items-center justify-center">
             <Spinner className="h-8 w-8 text-primary" />
-            <span className="ml-2 text-muted-foreground">加载中...</span>
+            <span className="ml-2 text-muted-foreground">{t('Common.loading') as string}</span>
           </div>
         </div>
       ) : (

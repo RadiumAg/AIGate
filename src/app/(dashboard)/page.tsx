@@ -11,8 +11,11 @@ import RecentActivity from './components/recent-activity';
 import DateRangePicker from '@/components/date-range-picker';
 import DatePickerWithRange from '@/components/date-picker-with-range';
 import { Users, BarChart3, Coins, UserCheck } from 'lucide-react';
+import { useTranslation } from '@/i18n/client';
 
 const HomePage: React.FC = () => {
+  const { t, locale } = useTranslation();
+
   // 日期范围状态
   const [dateRange, setDateRange] = React.useState<
     'today' | 'yesterday' | '7days' | '30days' | 'custom'
@@ -22,8 +25,8 @@ const HomePage: React.FC = () => {
   const [currentTime, setCurrentTime] = React.useState<string>('');
 
   React.useEffect(() => {
-    setCurrentTime(new Date().toLocaleString('zh-CN'));
-  }, []);
+    setCurrentTime(new Date().toLocaleString(locale === 'zh' ? 'zh-CN' : 'en-US'));
+  }, [locale]);
 
   // 计算日期范围
   const getDateRange = () => {
@@ -106,8 +109,8 @@ const HomePage: React.FC = () => {
     <div className="space-y-6">
       {/* Header with Liquid Glass */}
       <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/60 dark:bg-black/30 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)]">
-        <h1 className="text-2xl font-bold text-foreground">仪表板</h1>
-        <p className="text-muted-foreground mt-2">欢迎来到 AIGate 管理后台</p>
+        <h1 className="text-2xl font-bold text-foreground">{t('Dashboard.title') as string}</h1>
+        <p className="text-muted-foreground mt-2">{t('Dashboard.subtitle') as string}</p>
       </div>
 
       {/* 日期筛选器 - Liquid Glass */}
@@ -126,14 +129,14 @@ const HomePage: React.FC = () => {
           )}
         </div>
         <div className="text-sm text-muted-foreground font-medium" suppressHydrationWarning>
-          数据更新时间: {currentTime}
+          {t('Dashboard.dataUpdateTime') as string}: {currentTime}
         </div>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="总用户数"
+          title={t('Dashboard.totalUsers') as string}
           value={stats?.totalUsers.value || 0}
           change={stats?.totalUsers.change || 0}
           changeType={
@@ -147,7 +150,7 @@ const HomePage: React.FC = () => {
           icon={<Users className="h-6 w-6" />}
         />
         <StatCard
-          title="请求数"
+          title={t('Dashboard.requests') as string}
           value={stats?.requests.value || 0}
           change={stats?.requests.change || 0}
           changeType={
@@ -161,7 +164,7 @@ const HomePage: React.FC = () => {
           icon={<BarChart3 className="h-6 w-6" />}
         />
         <StatCard
-          title="Token 消耗"
+          title={t('Dashboard.tokenUsage') as string}
           value={stats?.tokens.value || 0}
           change={stats?.tokens.change || 0}
           changeType={
@@ -175,7 +178,7 @@ const HomePage: React.FC = () => {
           icon={<Coins className="h-6 w-6" />}
         />
         <StatCard
-          title="活跃用户"
+          title={t('Dashboard.activeUsers') as string}
           value={stats?.activeUsers.value || 0}
           change={stats?.activeUsers.change || 0}
           changeType={
@@ -194,32 +197,42 @@ const HomePage: React.FC = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* 近期请求趋势 */}
         <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
-          <h2 className="text-lg font-semibold text-foreground mb-4">近期请求趋势</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            {t('Dashboard.usageTrend') as string}
+          </h2>
           <UsageTrendChart data={usageTrend || []} loading={trendLoading} />
         </div>
 
         {/* 模型使用分布 */}
         <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
-          <h2 className="text-lg font-semibold text-foreground mb-4">模型使用分布</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            {t('Dashboard.modelDistribution') as string}
+          </h2>
           <ModelDistributionChart data={modelDistribution || []} loading={distributionLoading} />
         </div>
 
         {/* 请求地区分布 */}
         <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
-          <h2 className="text-lg font-semibold text-foreground mb-4">请求地区分布</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            {t('Dashboard.regionDistribution') as string}
+          </h2>
           <RegionHeatmapChart data={regionDistribution || []} loading={regionLoading} />
         </div>
       </div>
 
       {/* Recent IP Requests - Enhanced Liquid Glass */}
       <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
-        <h2 className="text-lg font-semibold text-foreground mb-4">最近 IP 请求记录</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">
+          {t('Dashboard.recentIpRequests') as string}
+        </h2>
         <RecentIpRequests data={recentIpRequests || []} loading={ipRequestsLoading} />
       </div>
 
       {/* Recent Activity - Enhanced Liquid Glass */}
       <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
-        <h2 className="text-lg font-semibold text-foreground mb-4">最近活动</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">
+          {t('Dashboard.recentActivity') as string}
+        </h2>
         <RecentActivity activities={activities || []} isLoading={activitiesLoading} />
       </div>
     </div>
