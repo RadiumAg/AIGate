@@ -1,0 +1,90 @@
+{
+  "Navigation": {
+    "dashboard": "Dashboard",
+    "debug": "API Debug",
+    "quotas": "Quota Management",
+    "keys": "API Keys",
+    "users": "User Policy Management"
+  },
+  "Common": {
+    "home": "Home",
+    "settings": "Settings",
+    "logout": "Logout",
+    "profile": "Profile",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "reset": "Reset",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "confirm": "Confirm",
+    "close": "Close"
+  },
+  "Auth": {
+    "login": "Login",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "totalUsers": "Total Users",
+    "todayRequests": "Today Requests",
+    "todayTokens": "Today Token Usage",
+    "activeUsers": "Active Users",
+    "recentActivity": "Recent Activity",
+    "usageTrend": "Usage Trend",
+    "regionDistribution": "Region Distribution",
+    "modelDistribution": "Model Distribution"
+  },
+  "ApiKey": {
+    "title": "API Key Management",
+    "name": "Name",
+    "provider": "Provider",
+    "status": "Status",
+    "baseUrl": "Base URL",
+    "active": "Active",
+    "disabled": "Disabled",
+    "createKey": "Create API Key",
+    "editKey": "Edit API Key",
+    "deleteKey": "Delete API Key",
+    "keyDeleted": "API Key deleted"
+  },
+  "Quota": {
+    "title": "Quota Management",
+    "name": "Policy Name",
+    "description": "Description",
+    "dailyLimit": "Daily Limit",
+    "monthlyLimit": "Monthly Limit",
+    "rpmLimit": "RPM Limit",
+    "createPolicy": "Create Quota Policy",
+    "editPolicy": "Edit Quota Policy",
+    "deletePolicy": "Delete Quota Policy"
+  },
+  "User": {
+    "title": "User Management",
+    "name": "Username",
+    "email": "Email",
+    "role": "Role",
+    "status": "Status",
+    "admin": "Admin",
+    "user": "User",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "Debug": {
+    "title": "API Debug",
+    "model": "Model",
+    "prompt": "Prompt",
+    "send": "Send",
+    "response": "Response",
+    "clear": "Clear"
+  }
+}

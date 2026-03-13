@@ -31,6 +31,7 @@
 - API Key 表单状态管理优化：表单组件使用标准化的字段命名，确保编辑和新增操作的准确性
 - 服务器端 API 路由器数据转换：后端路由层已适配新的字段命名，保持前后端数据格式一致
 - 数据库模式保持不变：数据库层面的字段仍为 `id` 和 `key`，与前端标准化保持一致
+- 确认对话框系统升级：从 DeleteConfirmModal 组件迁移到基于 confirm() 函数的液体玻璃样式确认系统
 
 ## 目录
 1. [简介](#简介)
@@ -47,7 +48,7 @@
 ## 简介
 本文件面向管理员与开发者，系统性阐述 API Key 管理系统的实现与使用。内容涵盖密钥的生成、验证、状态管理与生命周期控制；密钥绑定策略（白名单规则）、提供商关联、权限控制与使用统计；密钥轮换机制、安全策略配置、批量管理操作与审计日志记录。同时提供具体 API 调用示例与管理界面使用指南，帮助管理员高效、安全地管理 API Key。
 
-**更新** 系统已完成 API Key 字段命名标准化，将 `originId` 和 `originKey` 统一为 `id` 和 `key`，提升了代码的一致性和可维护性。这一变更已全面适配前端表格显示逻辑、表单状态管理和服务器端 API 路由器的数据转换。
+**更新** 系统已完成 API Key 字段命名标准化，将 `originId` 和 `originKey` 统一为 `id` 和 `key`，提升了代码的一致性和可维护性。这一变更已全面适配前端表格显示逻辑、表单状态管理和服务器端 API 路由器的数据转换。同时，确认对话框系统已升级为基于 confirm() 函数的液体玻璃样式系统，提供更统一的用户交互体验。
 
 ## 项目结构
 API Key 管理涉及三层：前端页面与对话框、后端 tRPC 路由层、数据库与缓存层。前端负责展示与交互，tRPC 路由负责业务编排与参数校验，数据库与缓存负责持久化与高性能读取。新的液体玻璃样式确认对话框系统通过 ConfirmProvider 全局集成，为所有页面提供统一的确认操作体验。
@@ -87,14 +88,14 @@ QuotaRouter --> DB
 ```
 
 **图表来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L140)
-- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L194)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L141)
+- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L174)
 - [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
 - [src/components/ui/dialog.tsx:30-56](file://src/components/ui/dialog.tsx#L30-L56)
 - [src/components/ui/alert-dialog.tsx:30-50](file://src/components/ui/alert-dialog.tsx#L30-L50)
 
 **章节来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L140)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L141)
 - [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
 
 ## 核心组件
@@ -106,13 +107,13 @@ QuotaRouter --> DB
 - **液体玻璃确认系统**：基于 ConfirmProvider 和 confirm 函数的现代化确认对话框系统，提供统一的用户反馈层。
 - **Toast 通知系统**：基于 Sonner 库的现代化通知组件，提供成功、错误、警告等多类型反馈。
 
-**更新** API Key 字段命名已完成标准化，统一使用 `id` 和 `key` 字段，提升了代码的一致性和可维护性。前端表格组件、表单组件和后端路由层均已适配新的字段命名规范。
+**更新** API Key 字段命名已完成标准化，统一使用 `id` 和 `key` 字段，提升了代码的一致性和可维护性。前端表格组件、表单组件和后端路由层均已适配新的字段命名规范。确认对话框系统已升级为基于 confirm() 函数的液体玻璃样式系统，提供更统一的用户交互体验。
 
 **章节来源**
 - [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
 - [src/lib/database.ts:19-81](file://src/lib/database.ts#L19-L81)
 - [src/lib/redis.ts:18-43](file://src/lib/redis.ts#L18-L43)
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L140)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L141)
 - [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
 
@@ -225,17 +226,17 @@ Page->>Table : 刷新数据
 ```
 
 **图表来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L140)
-- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L273)
-- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L194)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L141)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L263)
+- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L174)
 - [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L1-L54)
 - [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
 
 **章节来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L140)
-- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L273)
-- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L194)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L141)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L263)
+- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L174)
 - [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L1-L54)
 - [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
@@ -576,9 +577,9 @@ Toast --> QR
 **更新** 新增液体玻璃确认对话框系统配置说明和使用指南。系统提供完整的样式定制和动画配置选项。
 
 **章节来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L140)
-- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L273)
-- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L194)
+- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L141)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L263)
+- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L174)
 - [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
 - [src/app/layout.tsx:1-58](file://src/app/layout.tsx#L1-L58)
 
