@@ -3,6 +3,7 @@
 import React from 'react';
 import { trpc } from '@/components/trpc-provider';
 import UsageTrendChart from '@/app/(dashboard)/components/usage-trend-chart';
+import BillingTrendChart from '@/app/(dashboard)/components/billing-trend-chart';
 import ModelDistributionChart from '@/app/(dashboard)/components/model-distribution-chart';
 import RegionHeatmapChart from '@/app/(dashboard)/components/region-heatmap-chart';
 import RecentIpRequests from '@/app/(dashboard)/components/recent-ip-requests';
@@ -105,6 +106,12 @@ const HomePage: React.FC = () => {
   const { data: recentIpRequests, isLoading: ipRequestsLoading } =
     trpc.dashboard.getRecentIpRequests.useQuery();
 
+  // 获取账单趋势数据
+  const { data: billingTrend, isLoading: billingLoading } = trpc.dashboard.getBillingTrend.useQuery({
+    startDate: queryStart,
+    endDate: queryEnd,
+  });
+
   return (
     <div className="space-y-6">
       {/* Header with Liquid Glass */}
@@ -194,13 +201,21 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Charts - Side by Side Layout */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-4 gap-6">
         {/* 近期请求趋势 */}
         <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
           <h2 className="text-lg font-semibold text-foreground mb-4">
             {t('Dashboard.usageTrend') as string}
           </h2>
           <UsageTrendChart data={usageTrend || []} loading={trendLoading} />
+        </div>
+
+        {/* 账单用量趋势 */}
+        <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            账单用量趋势
+          </h2>
+          <BillingTrendChart data={billingTrend || []} loading={billingLoading} />
         </div>
 
         {/* 模型使用分布 */}
