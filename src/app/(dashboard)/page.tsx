@@ -107,10 +107,12 @@ const HomePage: React.FC = () => {
     trpc.dashboard.getRecentIpRequests.useQuery();
 
   // 获取账单趋势数据
-  const { data: billingTrend, isLoading: billingLoading } = trpc.dashboard.getBillingTrend.useQuery({
-    startDate: queryStart,
-    endDate: queryEnd,
-  });
+  const { data: billingTrend, isLoading: billingLoading } = trpc.dashboard.getBillingTrend.useQuery(
+    {
+      startDate: queryStart,
+      endDate: queryEnd,
+    }
+  );
 
   return (
     <div className="space-y-6">
@@ -212,9 +214,7 @@ const HomePage: React.FC = () => {
 
         {/* 账单用量趋势 */}
         <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)]">
-          <h2 className="text-lg font-semibold text-foreground mb-4">
-            账单用量趋势
-          </h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">账单用量趋势</h2>
           <BillingTrendChart data={billingTrend || []} loading={billingLoading} />
         </div>
 

@@ -104,8 +104,8 @@ const BillingTrendChart: React.FC<BillingTrendChartProps> = (props) => {
         formatter: (params: any[]) => {
           const date = params[0].axisValue;
           let tooltipContent = `<div style="font-weight: 500; margin-bottom: 4px;">${date}</div>`;
-          
-          params.forEach(param => {
+
+          params.forEach((param) => {
             if (param.seriesName === '费用') {
               tooltipContent += `<div style="display: flex; align-items: center; margin: 2px 0;">
                 <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${param.color}; margin-right: 6px;"></span>
@@ -118,9 +118,9 @@ const BillingTrendChart: React.FC<BillingTrendChartProps> = (props) => {
               </div>`;
             }
           });
-          
+
           return tooltipContent;
-        }
+        },
       },
       legend: {
         data: ['费用', 'Token 消耗'],
