@@ -4,6 +4,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { CheckCircle, AlertCircle } from 'lucide-react';
+import { useTranslation } from '@/i18n/client';
 
 interface CheckQuotaTabProps {
   userId: string;
@@ -20,21 +21,24 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
   isLoading,
   onCheck,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-foreground">检查配额 (checkQuota)</h3>
-          <p className="text-xs text-muted-foreground">检查用户是否有足够的配额进行请求</p>
+          <h3 className="text-sm font-medium text-foreground">
+            {t('Debug.checkQuotaTitle') as string}
+          </h3>
+          <p className="text-xs text-muted-foreground">{t('Debug.checkQuotaDesc') as string}</p>
         </div>
         <Button onClick={onCheck} disabled={isLoading || !userId || !apiKeyId} size="sm">
           {isLoading ? (
             <>
               <Spinner className="-ml-1 mr-2 h-3 w-3" />
-              检查中...
+              {t('Debug.checking') as string}
             </>
           ) : (
-            '执行检查'
+            (t('Debug.executeCheck') as string)
           )}
         </Button>
       </div>
@@ -61,25 +65,33 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
                 {result.remaining && (
                   <span className="text-sm font-medium text-green-700 dark:text-green-300">
                     {result?.remaining?.type === 'token'
-                      ? `剩余token ${result?.remaining?.daily}`
-                      : `剩余请求次数 ${result?.remaining?.daily}`}
+                      ? `${t('Debug.remainingTokens') as string} ${result?.remaining?.daily}`
+                      : `${t('Debug.remainingRequests') as string} ${result?.remaining?.daily}`}
                   </span>
                 )}
               </div>
               {result.policy && (
                 <div className="mt-3 p-3 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10">
-                  <p className="text-xs font-medium text-foreground/70 mb-2">配额策略</p>
+                  <p className="text-xs font-medium text-foreground/70 mb-2">
+                    {t('Debug.quotaPolicy') as string}
+                  </p>
                   <div className="text-xs space-y-1">
                     <div>
-                      <span className="text-muted-foreground">策略名称:</span>
+                      <span className="text-muted-foreground">
+                        {t('Debug.policyName') as string}:
+                      </span>
                       <span className="ml-2 text-foreground">{result.policy.name}</span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">限制类型:</span>
+                      <span className="text-muted-foreground">
+                        {t('Debug.limitType') as string}:
+                      </span>
                       <span className="ml-2 text-foreground">{result.policy.limitType}</span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">每日限制:</span>
+                      <span className="text-muted-foreground">
+                        {t('Debug.dailyLimit') as string}:
+                      </span>
                       <span className="ml-2 text-foreground">
                         {result.policy.limitType === 'token'
                           ? result.policy.dailyTokenLimit
@@ -87,7 +99,9 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">RPM 限制:</span>
+                      <span className="text-muted-foreground">
+                        {t('Debug.rpmLimit') as string}:
+                      </span>
                       <span className="ml-2 text-foreground">{result.policy.rpmLimit}</span>
                     </div>
                   </div>
@@ -97,7 +111,9 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
                 <div className="mt-2 text-xs">
                   {result.remainingTokens !== undefined && (
                     <div>
-                      <span className="text-muted-foreground">剩余 Tokens:</span>
+                      <span className="text-muted-foreground">
+                        {t('Debug.remainingTokens') as string}:
+                      </span>
                       <span className="ml-2 font-mono text-foreground">
                         {result.remainingTokens}
                       </span>
@@ -105,7 +121,9 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
                   )}
                   {result.remainingRequests !== undefined && (
                     <div>
-                      <span className="text-muted-foreground">剩余请求次数:</span>
+                      <span className="text-muted-foreground">
+                        {t('Debug.remainingRequests') as string}:
+                      </span>
                       <span className="ml-2 font-mono text-foreground">
                         {result.remainingRequests}
                       </span>
@@ -115,7 +133,7 @@ const CheckQuotaTab: React.FC<CheckQuotaTabProps> = ({
               )}
               <details className="mt-2">
                 <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors">
-                  查看完整响应
+                  {t('Debug.viewFullResponse') as string}
                 </summary>
                 <pre className="mt-2 p-2 rounded-lg backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 text-xs overflow-x-auto">
                   {JSON.stringify(result, null, 2)}

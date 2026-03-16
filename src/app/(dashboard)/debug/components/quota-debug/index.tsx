@@ -3,6 +3,7 @@
 import React from 'react';
 import { trpc } from '@/components/trpc-provider';
 import { CheckCircle, RefreshCw, Trash2 } from 'lucide-react';
+import { useTranslation } from '@/i18n/client';
 import { QuotaDebugProps, TabType, GetUserUsageResult, ResetQuotaResult } from './types';
 import CheckQuotaTab from './check-quota-tab';
 import UsageTab from './usage-tab';
@@ -10,6 +11,7 @@ import ResetTab from './reset-tab';
 import { confirm } from '@/components/ui/confirm';
 
 const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
+  const { t } = useTranslation();
   const [checkQuotaResult, setCheckQuotaResult] = React.useState<Record<string, any>>({});
   const [getUserUsageResult, setGetUserUsageResult] = React.useState<GetUserUsageResult | null>(
     null
@@ -26,7 +28,7 @@ const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
 
   const handleCheckQuota = async () => {
     if (!userId || !apiKeyId) {
-      setCheckQuotaResult({ error: '请先填写 User ID 和选择 API Key' });
+      setCheckQuotaResult({ error: t('Debug.fillUserIdAndApiKey') as string });
       return;
     }
     try {
@@ -36,13 +38,13 @@ const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
       }
     } catch (error: unknown) {
       const err = error as Error;
-      setCheckQuotaResult({ error: err.message || '检查配额失败' });
+      setCheckQuotaResult({ error: err.message || (t('Debug.checkQuotaFailed') as string) });
     }
   };
 
   const handleGetUserUsage = async () => {
     if (!userId || !apiKeyId) {
-      setGetUserUsageResult({ error: '请先填写 User ID 和选择 API Key' });
+      setGetUserUsageResult({ error: t('Debug.fillUserIdAndApiKey') as string });
       return;
     }
     try {
@@ -52,16 +54,16 @@ const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
       }
     } catch (error: unknown) {
       const err = error as Error;
-      setGetUserUsageResult({ error: err.message || '获取使用情况失败' });
+      setGetUserUsageResult({ error: err.message || (t('Debug.getUsageFailed') as string) });
     }
   };
 
   const handleResetQuota = async () => {
     if (!userId || !apiKeyId) {
-      setResetQuotaResult({ error: '请先填写 User ID 和选择 API Key' });
+      setResetQuotaResult({ error: t('Debug.fillUserIdAndApiKey') as string });
       return;
     }
-    if (await confirm('确定要重置该用户的配额吗？')) {
+    if (await confirm(t('Debug.confirmResetQuota') as string)) {
       return;
     }
     try {
@@ -72,14 +74,14 @@ const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
       setResetQuotaResult(result as ResetQuotaResult);
     } catch (error: unknown) {
       const err = error as Error;
-      setResetQuotaResult({ error: err.message || '重置配额失败' });
+      setResetQuotaResult({ error: err.message || (t('Debug.resetQuotaFailed') as string) });
     }
   };
 
   const tabs = [
-    { id: 'check' as TabType, label: '检查配额', icon: CheckCircle },
-    { id: 'usage' as TabType, label: '使用情况', icon: RefreshCw },
-    { id: 'reset' as TabType, label: '重置配额', icon: Trash2 },
+    { id: 'check' as TabType, label: t('Debug.tabCheckQuota') as string, icon: CheckCircle },
+    { id: 'usage' as TabType, label: t('Debug.tabUsage') as string, icon: RefreshCw },
+    { id: 'reset' as TabType, label: t('Debug.tabResetQuota') as string, icon: Trash2 },
   ];
 
   return (
@@ -89,11 +91,9 @@ const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
           <div className="p-1.5 rounded-lg bg-primary/20 backdrop-blur-sm mr-2">
             <CheckCircle className="w-4 h-4 text-primary" />
           </div>
-          配额调试
+          {t('Debug.quotaDebug') as string}
         </h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          调试配额相关 API：checkQuota、getUserUsage、resetQuota
-        </p>
+        <p className="text-sm text-muted-foreground mt-1">{t('Debug.quotaDebugDesc') as string}</p>
       </div>
 
       <div className="p-6 space-y-4">
@@ -120,11 +120,15 @@ const QuotaDebug: React.FC<QuotaDebugProps> = ({ userId, apiKeyId }) => {
           <div className="text-sm space-y-1">
             <div>
               <span className="text-muted-foreground">User ID:</span>
-              <span className="ml-2 font-mono text-foreground">{userId || '未设置'}</span>
+              <span className="ml-2 font-mono text-foreground">
+                {userId || (t('Debug.notSet') as string)}
+              </span>
             </div>
             <div>
               <span className="text-muted-foreground">API Key ID:</span>
-              <span className="ml-2 font-mono text-foreground">{apiKeyId || '未选择'}</span>
+              <span className="ml-2 font-mono text-foreground">
+                {apiKeyId || (t('Debug.notSelected') as string)}
+              </span>
             </div>
           </div>
         </div>

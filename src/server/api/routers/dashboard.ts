@@ -509,4 +509,66 @@ export const dashboardRouter = createTRPCRouter({
         throw new Error('获取模型分布失败');
       }
     }),
+
+  // 获取账单趋势数据
+  getBillingTrend: protectedProcedure
+    .input(
+      z.object({
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+        days: z.number().optional().default(7),
+      })
+    )
+    .query(async ({ input }) => {
+      try {
+        const { startDate, endDate, days } = input;
+
+        // 如果提供了具体日期范围，使用该范围
+        let queryStartDate: Date;
+        let queryEndDate: Date;
+
+        if (startDate && endDate) {
+          queryStartDate = startDate;
+          queryEndDate = endDate;
+        } else {
+          // 否则使用最近N天
+          queryEndDate = new Date();
+          queryStartDate = new Date();
+          queryStartDate.setDate(queryStartDate.getDate() - (days - 1));
+          queryStartDate.setHours(0, 0, 0, 0);
+          queryEndDate.setHours(23, 59, 59, 999);
+        }
+
+        const records = await usageRecordDb.getByDateRange(queryStartDate, queryEndDate);
+
+        // 按日期分组统计
+        const dailyStats = new Map();
+
+        // 初始化日期范围内的所有日期
+        const currentDate = new Date(queryStartDate);
+        while (currentDate <= queryEndDate) {
+          const dateStr = getTodayString(currentDate);
+          dailyStats.set(dateStr, {
+            date: dateStr,
+            cost: 0,
+            tokens: 0,
+          });
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        records.forEach((record) => {
+          const dateStr = getTodayString(record.timestamp);
+          if (dailyStats.has(dateStr)) {
+            const stats = dailyStats.get(dateStr);
+            stats.cost += parseFloat(record.cost || '0');
+            stats.tokens += record.totalTokens;
+          }
+        });
+
+        return Array.from(dailyStats.values());
+      } catch (error) {
+        console.error('获取账单趋势失败:', error);
+        throw new Error('获取账单趋势失败');
+      }
+    }),
 });

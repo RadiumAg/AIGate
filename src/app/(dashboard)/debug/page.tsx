@@ -4,6 +4,7 @@ import React from 'react';
 import { nanoid } from 'nanoid';
 import { useLocalStorageState } from 'ahooks';
 import { trpc } from '@/components/trpc-provider';
+import { useTranslation } from '@/i18n/client';
 import RequestConfig from './components/request-config';
 import ResponseResult from './components/response-result';
 import CodeModal from './components/code-modal';
@@ -12,6 +13,8 @@ import { DebugRequestForm, ResponseData } from './components/types';
 import { Spinner } from '@/components/ui/spinner';
 
 const DebugPage: React.FC = () => {
+  const { t } = useTranslation();
+
   // 获取支持的模型列表
   const { data: supportedModels, isLoading: isLoadingModels } =
     trpc.ai.getSupportedModels.useQuery();
@@ -95,7 +98,7 @@ const DebugPage: React.FC = () => {
       const estimated = Math.ceil(totalChars / 4); // 简单估算：4个字符约等于1个token
       setEstimatedTokens(estimated);
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : '估算失败');
+      setError(error instanceof Error ? error.message : (t('Debug.estimateFailed') as string));
     } finally {
       setIsEstimating(false);
     }
@@ -218,7 +221,7 @@ curl -X POST '${baseUrl}/api/ai/chat/completions' \\
   // 发送请求
   const handleSubmit = async () => {
     if (!form.apiKeyId || !form.model || form.messages.some((m) => !m.content.trim())) {
-      setError('请填写完整的请求信息');
+      setError(t('Debug.fillRequiredFields') as string);
       return;
     }
 
@@ -250,13 +253,13 @@ curl -X POST '${baseUrl}/api/ai/chat/completions' \\
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || '请求失败');
+          throw new Error(errorData.error || (t('Debug.requestFailed') as string));
         }
 
         // 处理 SSE 流
         const reader = response.body?.getReader();
         if (!reader) {
-          throw new Error('无法读取响应流');
+          throw new Error(t('Debug.cannotReadStream') as string);
         }
 
         const decoder = new TextDecoder();
@@ -309,7 +312,7 @@ curl -X POST '${baseUrl}/api/ai/chat/completions' \\
         setResponse(responseData);
       }
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : '请求失败');
+      setError(error instanceof Error ? error.message : (t('Debug.requestFailed') as string));
       setIsStreaming(false);
     }
   };
@@ -318,15 +321,15 @@ curl -X POST '${baseUrl}/api/ai/chat/completions' \\
     <div className="space-y-6">
       {/* Header with Liquid Glass */}
       <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/60 dark:bg-black/30 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)]">
-        <h1 className="text-2xl font-bold text-foreground">接口调试</h1>
-        <p className="text-muted-foreground mt-2">测试和调试 AI 接口功能</p>
+        <h1 className="text-2xl font-bold text-foreground">{t('Debug.title') as string}</h1>
+        <p className="text-muted-foreground mt-2">{t('Debug.subtitle') as string}</p>
       </div>
 
       {isLoading ? (
         <div className="rounded-2xl p-8 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]">
           <div className="flex items-center justify-center">
             <Spinner className="h-8 w-8 text-primary" />
-            <span className="ml-2 text-muted-foreground">加载中...</span>
+            <span className="ml-2 text-muted-foreground">{t('Common.loading') as string}</span>
           </div>
         </div>
       ) : (

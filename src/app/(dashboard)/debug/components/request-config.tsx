@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Settings } from 'lucide-react';
+import { useTranslation } from '@/i18n/client';
 import {
   Select,
   SelectContent,
@@ -50,6 +51,7 @@ interface RequestConfigProps {
 }
 
 const RequestConfig: React.FC<RequestConfigProps> = (props) => {
+  const { t } = useTranslation();
   const {
     form,
     apiKeys,
@@ -124,7 +126,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
           <div className="p-1.5 rounded-lg bg-primary/20 backdrop-blur-sm mr-2">
             <Settings className="w-4 h-4 text-primary" />
           </div>
-          请求配置
+          {t('Debug.requestConfig') as string}
         </h2>
       </div>
 
@@ -132,7 +134,9 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
         {/* 基础配置 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-2">API Key</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-2">
+              {t('Debug.apiKey') as string}
+            </label>
             <Select
               value={form?.apiKeyId || ''}
               onValueChange={(id: string) => {
@@ -141,7 +145,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
               }}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="请选择 API Key" />
+                <SelectValue placeholder={t('Debug.selectApiKey') as string} />
               </SelectTrigger>
               <SelectContent>
                 {apiKeys ? (
@@ -154,7 +158,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
                     ))
                 ) : (
                   <SelectItem value="no-keys" disabled>
-                    暂无可用 API Key
+                    {t('Debug.noApiKeyAvailable') as string}
                   </SelectItem>
                 )}
               </SelectContent>
@@ -162,7 +166,9 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-2">模型</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-2">
+              {t('Debug.model') as string}
+            </label>
             <input
               type="text"
               value={form?.model || ''}
@@ -172,8 +178,8 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
               }}
               placeholder={
                 form?.apiKeyId
-                  ? `请输入${apiKeys?.find((k) => k.id === form.apiKeyId)?.provider || ''}模型名称`
-                  : '请先选择 API Key'
+                  ? `${t('Debug.enterModelName') as string}${apiKeys?.find((k) => k.id === form.apiKeyId)?.provider || ''}`
+                  : (t('Debug.selectApiKeyFirst') as string)
               }
               disabled={!form?.apiKeyId}
               className="w-full px-3 py-2 rounded-xl bg-white/40 dark:bg-black/20 backdrop-blur-lg border border-white/30 dark:border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.3)] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-white/50 dark:focus:bg-black/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -191,7 +197,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
                   providerModels.length > 0 && (
                     <div className="mt-2">
                       <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        {selectedApiKey?.provider} 支持的模型：
+                        {selectedApiKey?.provider} {t('Debug.supportedModels') as string}
                       </p>
                       <div className="flex flex-wrap gap-1">
                         {providerModels.slice(0, 8).map((modelInfo) => (
@@ -211,7 +217,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
                         ))}
                         {providerModels.length > 8 && (
                           <span className="px-2 py-1 text-xs text-gray-400 dark:text-gray-500">
-                            +{providerModels.length - 8} 更多...
+                            +{providerModels.length - 8} {t('Debug.more') as string}
                           </span>
                         )}
                       </div>
@@ -225,7 +231,9 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
         {/* 用户 ID 和高级参数 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-2">用户 ID</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-2">
+              {t('Debug.userId') as string}
+            </label>
             <input
               type="text"
               value={form?.userId || ''}
@@ -238,7 +246,9 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-2">Max Tokens</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-2">
+              {t('Debug.maxTokens') as string}
+            </label>
             <input
               type="number"
               min="1"
@@ -285,23 +295,27 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
             htmlFor="stream-mode"
             className="text-sm font-medium text-foreground/80 cursor-pointer"
           >
-            启用 Stream 模式
+            {t('Debug.enableStreamMode') as string}
           </Label>
-          <span className="text-xs text-muted-foreground">（实时返回响应内容）</span>
+          <span className="text-xs text-muted-foreground">
+            {t('Debug.streamModeDesc') as string}
+          </span>
         </div>
 
         {/* 预设示例 */}
         <div>
-          <label className="block text-sm font-medium text-foreground/80 mb-2">快速示例</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-2">
+            {t('Debug.quickExamples') as string}
+          </label>
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" size="sm" onClick={() => loadExample('simple')}>
-              简单对话
+              {t('Debug.simpleChat') as string}
             </Button>
             <Button variant="secondary" size="sm" onClick={() => loadExample('system')}>
-              系统提示
+              {t('Debug.systemPrompt') as string}
             </Button>
             <Button variant="secondary" size="sm" onClick={() => loadExample('conversation')}>
-              多轮对话
+              {t('Debug.multiTurnChat') as string}
             </Button>
           </div>
         </div>
@@ -310,10 +324,10 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
         <div>
           <div className="flex items-center justify-between mb-3">
             <label className="block text-sm font-medium text-foreground/80">
-              消息 ({form?.messages?.length || 0})
+              {t('Debug.messages') as string} ({form?.messages?.length || 0})
             </label>
             <Button variant="secondary" size="sm" onClick={handleAddMessage}>
-              + 添加消息
+              + {t('Debug.addMessage') as string}
             </Button>
           </div>
           <ScrollArea className="h-0 min-h-55 max-h-96">
@@ -340,7 +354,9 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
             disabled={isEstimating || !form?.apiKeyId}
             className="flex-1"
           >
-            {isEstimating ? '估算中...' : '估算 Token'}
+            {isEstimating
+              ? (t('Debug.estimating') as string)
+              : (t('Debug.estimateToken') as string)}
           </Button>
 
           <Button
@@ -356,10 +372,10 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
             {isSubmitting ? (
               <>
                 <Spinner className="-ml-1 mr-2 h-4 w-4" />
-                发送中...
+                {t('Debug.sending') as string}
               </>
             ) : (
-              '发送请求'
+              (t('Debug.sendRequest') as string)
             )}
           </Button>
 
@@ -372,7 +388,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
               disabled={
                 !form?.apiKeyId || !form?.model || form?.messages?.some((m) => !m.content.trim())
               }
-              title="生成 JavaScript 代码"
+              title={t('Debug.generateJSCode') as string}
             >
               JS
             </Button>
@@ -383,7 +399,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
               disabled={
                 !form?.apiKeyId || !form?.model || form?.messages?.some((m) => !m.content.trim())
               }
-              title="生成 Python 代码"
+              title={t('Debug.generatePythonCode') as string}
             >
               PY
             </Button>
@@ -394,7 +410,7 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
               disabled={
                 !form?.apiKeyId || !form?.model || form?.messages?.some((m) => !m.content.trim())
               }
-              title="生成 cURL 命令"
+              title={t('Debug.generateCurlCommand') as string}
             >
               cURL
             </Button>
@@ -405,7 +421,8 @@ const RequestConfig: React.FC<RequestConfigProps> = (props) => {
         {estimatedTokens && (
           <div className="p-3 rounded-xl backdrop-blur-lg bg-blue-500/10 dark:bg-blue-500/10 border border-blue-500/30">
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              预估 Token 消耗: <span className="font-mono font-semibold">{estimatedTokens}</span>
+              {t('Debug.estimatedTokenConsumption') as string}:{' '}
+              <span className="font-mono font-semibold">{estimatedTokens}</span>
             </p>
           </div>
         )}
