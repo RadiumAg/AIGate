@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { CheckCircle, AlertCircle, Check, MessageSquare } from 'lucide-react';
+import { useTranslation } from '@/i18n/client';
 
 interface ResponseData {
   id: string;
@@ -41,6 +42,7 @@ interface ResponseResultProps {
 }
 
 const ResponseResult: React.FC<ResponseResultProps> = (props) => {
+  const { t } = useTranslation();
   const { response, error, isLoading, streamContent, isStreaming } = props;
 
   return (
@@ -50,7 +52,7 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
           <div className="p-1.5 rounded-lg bg-green-500/20 backdrop-blur-sm mr-2">
             <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
           </div>
-          响应结果
+          {t('Debug.responseResult') as string}
         </h2>
       </div>
 
@@ -68,10 +70,12 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
           <div className="space-y-4">
             {/* AI 回复 */}
             <div>
-              <label className="block text-sm font-medium text-foreground/80 mb-2">AI 回复</label>
+              <label className="block text-sm font-medium text-foreground/80 mb-2">
+                {t('Debug.aiReply') as string}
+              </label>
               <div className="p-4 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
                 <p className="text-foreground whitespace-pre-wrap font-mono text-sm">
-                  {response.choices?.[0]?.message?.content || '无回复内容'}
+                  {response.choices?.[0]?.message?.content || (t('Debug.noReplyContent') as string)}
                 </p>
               </div>
             </div>
@@ -80,11 +84,13 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
             {response.usage && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Token 使用统计
+                  {t('Debug.tokenUsageStats') as string}
                 </label>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="p-3 rounded-xl backdrop-blur-lg bg-blue-500/10 dark:bg-blue-500/10 border border-blue-500/30 text-center">
-                    <p className="text-xs text-blue-600 dark:text-blue-400">Prompt</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      {t('Debug.prompt') as string}
+                    </p>
                     <p className="text-lg font-semibold text-blue-800 dark:text-blue-200">
                       {response.usage.prompt_tokens}
                     </p>
@@ -96,7 +102,9 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
                     </p>
                   </div>
                   <div className="p-3 rounded-xl backdrop-blur-lg bg-purple-500/10 dark:bg-purple-500/10 border border-purple-500/30 text-center">
-                    <p className="text-xs text-purple-600 dark:text-purple-400">Total</p>
+                    <p className="text-xs text-purple-600 dark:text-purple-400">
+                      {t('Debug.total') as string}
+                    </p>
                     <p className="text-lg font-semibold text-purple-800 dark:text-purple-200">
                       {response.usage.total_tokens}
                     </p>
@@ -109,30 +117,38 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
             {response.aigate_metadata && (
               <div>
                 <label className="block text-sm font-medium text-foreground/80 mb-2">
-                  AIGate 元数据
+                  {t('Debug.aigateMetadata') as string}
                 </label>
                 <div className="p-4 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-muted-foreground">请求 ID:</span>
+                      <span className="text-muted-foreground">
+                        {t('Debug.requestId') as string}:
+                      </span>
                       <span className="ml-2 font-mono text-foreground">
                         {response.aigate_metadata.requestId}
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">提供商:</span>
+                      <span className="text-muted-foreground">
+                        {t('Debug.provider') as string}:
+                      </span>
                       <span className="ml-2 font-semibold text-foreground">
                         {response.aigate_metadata.provider}
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">处理时间:</span>
+                      <span className="text-muted-foreground">
+                        {t('Debug.processingTime') as string}:
+                      </span>
                       <span className="ml-2 text-foreground">
                         {response.aigate_metadata.processingTime}ms
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">剩余配额:</span>
+                      <span className="text-muted-foreground">
+                        {t('Debug.remainingQuota') as string}:
+                      </span>
                       <span className="ml-2 text-foreground">
                         {response.aigate_metadata.quotaRemaining.tokens} tokens
                       </span>
@@ -145,7 +161,7 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
             {/* 原始响应 */}
             <details className="group">
               <summary className="cursor-pointer text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
-                查看原始响应 JSON
+                {t('Debug.viewRawResponse') as string}
               </summary>
               <div className="mt-2 p-4 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
                 <pre className="text-xs text-muted-foreground overflow-x-auto">
@@ -165,7 +181,7 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
-                实时响应 (Stream)
+                {t('Debug.realtimeResponse') as string}
               </label>
               <div className="p-4 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
                 <p className="text-foreground whitespace-pre-wrap font-mono text-sm">
@@ -181,7 +197,7 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-foreground/80 mb-2">
-                AI 回复 (Stream)
+                {t('Debug.aiReplyStream') as string}
               </label>
               <div className="p-4 rounded-xl backdrop-blur-lg bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
                 <p className="text-foreground whitespace-pre-wrap font-mono text-sm">
@@ -192,7 +208,7 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
             <div className="p-3 rounded-xl backdrop-blur-lg bg-green-500/10 dark:bg-green-500/10 border border-green-500/30">
               <p className="text-sm text-green-700 dark:text-green-300 flex items-center">
                 <Check className="w-4 h-4 mr-2" />
-                Stream 响应已完成
+                {t('Debug.streamCompleted') as string}
               </p>
             </div>
           </div>
@@ -203,7 +219,7 @@ const ResponseResult: React.FC<ResponseResultProps> = (props) => {
             <div className="mx-auto w-16 h-16 rounded-2xl backdrop-blur-lg bg-white/40 dark:bg-white/5 border border-white/30 dark:border-white/10 flex items-center justify-center mb-4">
               <MessageSquare className="h-8 w-8 text-muted-foreground/60" />
             </div>
-            <p className="text-sm text-muted-foreground">配置请求参数后点击发送请求查看响应结果</p>
+            <p className="text-sm text-muted-foreground">{t('Debug.configureAndSend') as string}</p>
           </div>
         )}
       </div>

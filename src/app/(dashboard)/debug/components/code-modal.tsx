@@ -4,6 +4,7 @@ import React from 'react';
 import { Copy } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/i18n/client';
 
 interface CodeModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface CodeModalProps {
 }
 
 const CodeModal: React.FC<CodeModalProps> = (props) => {
+  const { t } = useTranslation();
   const { isOpen, generatedCode, onClose, onCopyToClipboard } = props;
 
   return (
@@ -20,10 +22,10 @@ const CodeModal: React.FC<CodeModalProps> = (props) => {
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>生成的代码</span>
+            <span>{t('Debug.generatedCode') as string}</span>
             <Button variant="secondary" size="sm" onClick={() => onCopyToClipboard(generatedCode)}>
               <Copy className="w-4 h-4 mr-1" />
-              复制
+              {t('Common.copy') as string}
             </Button>
           </DialogTitle>
         </DialogHeader>
@@ -34,11 +36,12 @@ const CodeModal: React.FC<CodeModalProps> = (props) => {
           </pre>
           <div className="mt-4 p-3 rounded-xl backdrop-blur-lg bg-blue-500/10 dark:bg-blue-500/10 border border-blue-500/30">
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              <strong>说明：</strong> 此代码使用 AIGate 系统中已配置的 API Key，通过
+              <strong>{t('Common.description') as string}：</strong>{' '}
+              {t('Debug.codeDescription') as string}
               <code className="bg-blue-200/50 dark:bg-blue-500/30 px-1 rounded">
                 X-API-Key-ID
               </code>{' '}
-              头部字段指定要使用的 API Key。
+              {t('Debug.codeDescription2') as string}
             </p>
           </div>
         </div>

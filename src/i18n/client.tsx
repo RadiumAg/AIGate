@@ -15,7 +15,7 @@ const messagesMap = {
 interface I18nContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (key: string) => string | Record<string, string>;
+  t: (key: string) => string;
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
@@ -56,7 +56,7 @@ export function I18nProvider({ children }: I18nProviderProps) {
   });
 
   const t = useCallback(
-    (key: string): string | Record<string, string> => {
+    (key: string): string => {
       const messages = messagesMap[locale || 'zh'];
       const value = getNestedValue(messages as Record<string, unknown>, key);
 
@@ -65,7 +65,13 @@ export function I18nProvider({ children }: I18nProviderProps) {
         return key;
       }
 
-      return value;
+      if (typeof value === 'string') {
+        return value;
+      }
+
+      // If value is an object (namespace), return the key as fallback
+      console.warn(`Translation key '${key}' returns an object, expected string`);
+      return key;
     },
     [locale]
   );

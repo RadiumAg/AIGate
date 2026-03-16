@@ -20,6 +20,7 @@ import {
   FieldSet,
   FieldLegend,
 } from '@/components/ui/field';
+import { useTranslation } from '@/i18n/client';
 
 interface WhitelistRule {
   id: string;
@@ -127,6 +128,7 @@ const USERID_PRESENTS = [
 
 const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
   const { ruleData, onSave, onCancel } = props;
+  const { t } = useTranslation();
 
   const { data: policies = [] } = trpc.quota.getAllPolicies.useQuery();
   const { data: apiKeys = [] } = trpc.apiKey.getAll.useQuery();
@@ -301,7 +303,7 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
     <form onSubmit={handleSubmit} className="space-y-6">
       <FieldGroup>
         <Field>
-          <FieldLabel>策略名称</FieldLabel>
+          <FieldLabel>{t('Whitelist.policyName')}</FieldLabel>
           <Select
             name="policyName"
             value={formData.policyName}
@@ -309,7 +311,7 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
             required
           >
             <SelectTrigger>
-              <SelectValue placeholder="选择策略" />
+              <SelectValue placeholder={t('Whitelist.selectPolicy')} />
             </SelectTrigger>
             <SelectContent>
               {policies.length > 0 ? (
@@ -319,25 +321,25 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
                   </SelectItem>
                 ))
               ) : (
-                <SelectItem value="默认策略">默认策略</SelectItem>
+                <SelectItem value="默认策略">{t('Whitelist.defaultPolicy')}</SelectItem>
               )}
             </SelectContent>
           </Select>
         </Field>
 
         <Field>
-          <FieldLabel>描述</FieldLabel>
+          <FieldLabel>{t('Common.description')}</FieldLabel>
           <Textarea
             name="description"
             value={formData.description || ''}
             rows={3}
-            placeholder="规则描述..."
+            placeholder={t('Whitelist.descriptionPlaceholder')}
             onChange={(e) => handleChange('description', e.target.value)}
           />
         </Field>
 
         <Field>
-          <FieldLabel>优先级</FieldLabel>
+          <FieldLabel>{t('Whitelist.priority')}</FieldLabel>
           <Input
             type="number"
             name="priority"
@@ -346,21 +348,21 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
             required
             onChange={(e) => handleChange('priority', Number(e.target.value))}
           />
-          <FieldDescription>数字越大优先级越高，匹配时优先使用高优先级规则</FieldDescription>
+          <FieldDescription>{t('Whitelist.priorityDesc')}</FieldDescription>
         </Field>
 
         <Field>
-          <FieldLabel>关联 API Key</FieldLabel>
+          <FieldLabel>{t('Whitelist.associatedApiKey')}</FieldLabel>
           <Select
             name="apiKeyId"
             value={formData.apiKeyId || ''}
             onValueChange={(value) => handleChange('apiKeyId', value === 'none' ? '' : value)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="不关联 API Key" />
+              <SelectValue placeholder={t('Whitelist.noAssociatedApiKey')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">不关联 API Key</SelectItem>
+              <SelectItem value="none">{t('Whitelist.noAssociatedApiKey')}</SelectItem>
               {apiKeys.map((apiKey) => (
                 <SelectItem key={apiKey.id} value={apiKey.id}>
                   {apiKey.name} ({apiKey.provider})
@@ -368,16 +370,14 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
               ))}
             </SelectContent>
           </Select>
-          <FieldDescription>
-            选择关联的 API Key，每个 API Key 只能绑定一个白名单规则
-          </FieldDescription>
+          <FieldDescription>{t('Whitelist.associatedApiKeyDesc')}</FieldDescription>
         </Field>
       </FieldGroup>
 
       <FieldSet className="border-t border-white/20 dark:border-white/10 pt-4">
-        <FieldLegend variant="label">UserId 格式生成规则</FieldLegend>
+        <FieldLegend variant="label">{t('Whitelist.userIdPatternTitle')}</FieldLegend>
         <Field>
-          <FieldLabel>UserId 格式生成规则 (userIdPattern)</FieldLabel>
+          <FieldLabel>{t('Whitelist.userIdPatternLabel')}</FieldLabel>
           <div className="relative" ref={userIdPresetDropdownRef}>
             <Input
               ref={userIdPatternInputRef}
@@ -393,7 +393,7 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
                   setShowUserIdPresets(true);
                 }
               }}
-              placeholder="输入 @ 可快速选择预设模板（如 @ip 、 @user_id 、 @any）"
+              placeholder={t('Whitelist.userIdPatternPlaceholder')}
             />
             {showUserIdPresets && filteredUserIdPresets.length > 0 && (
               <div className="absolute z-10 w-full mt-1 rounded-xl backdrop-blur-xl bg-white/90 dark:bg-black/70 border border-white/30 dark:border-white/10 shadow-[0_16px_48px_rgba(0,0,0,0.15)] max-h-64 overflow-y-auto">
@@ -420,19 +420,17 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
               </div>
             )}
           </div>
-          <FieldDescription>
-            用于校验传入的 userId 格式，不符合此模式的请求将被拒绝。留空表示不进行格式校验。
-          </FieldDescription>
+          <FieldDescription>{t('Whitelist.userIdPatternDesc')}</FieldDescription>
         </Field>
       </FieldSet>
 
       <FieldSet className="border-t border-white/20 dark:border-white/10 pt-4">
-        <FieldLegend variant="label">用户UserId校验规则</FieldLegend>
+        <FieldLegend variant="label">{t('Whitelist.validationTitle')}</FieldLegend>
         <FieldGroup>
           <Field orientation="horizontal">
             <div className="flex-1">
-              <FieldLabel>启用校验规则</FieldLabel>
-              <FieldDescription>开启后，传入的 userId 必须匹配校验规则才允许请求</FieldDescription>
+              <FieldLabel>{t('Whitelist.enableValidation')}</FieldLabel>
+              <FieldDescription>{t('Whitelist.enableValidationDesc')}</FieldDescription>
             </div>
             <button
               type="button"
@@ -451,7 +449,7 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
 
           {formData.validationEnabled && (
             <Field>
-              <FieldLabel>校验规则</FieldLabel>
+              <FieldLabel>{t('Whitelist.validationRule')}</FieldLabel>
               <div className="relative" ref={presetDropdownRef}>
                 <Input
                   ref={validationInputRef}
@@ -466,7 +464,7 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
                       setShowPresets(true);
                     }
                   }}
-                  placeholder="输入正则表达式，或输入 @ 选择预设模板"
+                  placeholder={t('Whitelist.validationPlaceholder')}
                 />
                 {showPresets && filteredPresets.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 rounded-xl backdrop-blur-xl bg-white/90 dark:bg-black/70 border border-white/30 dark:border-white/10 shadow-[0_16px_48px_rgba(0,0,0,0.15)] max-h-64 overflow-y-auto">
@@ -493,34 +491,16 @@ const WhitelistRuleForm: React.FC<WhitelistRuleFormProps> = (props) => {
                   </div>
                 )}
               </div>
-              <FieldDescription>
-                {'输入 '}
-                <code className="bg-white/60 dark:bg-black/40 px-1 rounded-lg border border-white/30 dark:border-white/10">
-                  @
-                </code>
-                {' 可快速选择预设模板（如 '}
-                <code className="bg-white/60 dark:bg-black/40 px-1 rounded-lg border border-white/30 dark:border-white/10">
-                  @ip
-                </code>
-                {'、'}
-                <code className="bg-white/60 dark:bg-black/40 px-1 rounded-lg border border-white/30 dark:border-white/10">
-                  @email
-                </code>
-                {'、'}
-                <code className="bg-white/60 dark:bg-black/40 px-1 rounded-lg border border-white/30 dark:border-white/10">
-                  @origin
-                </code>
-                {'），也可直接输入正则表达式'}
-              </FieldDescription>
+              <FieldDescription>{t('Whitelist.validationHelp')}</FieldDescription>
             </Field>
           )}
         </FieldGroup>
       </FieldSet>
 
       <div className="flex space-x-3 pt-4">
-        <Button type="submit">保存</Button>
+        <Button type="submit">{t('Common.save')}</Button>
         <Button type="button" variant="outline" onClick={onCancel}>
-          取消
+          {t('Common.cancel')}
         </Button>
       </div>
     </form>

@@ -5,6 +5,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { FileText } from 'lucide-react';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/i18n/client';
 
 interface WhitelistRule {
   id: string;
@@ -27,6 +28,7 @@ interface WhitelistRuleTableProps {
 
 const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
   const { rules, onEdit, onDelete, onToggleStatus, isLoading = false } = props;
+  const { t } = useTranslation();
 
   const sortedRules = React.useMemo(
     () => [...rules].sort((a, b) => b.priority - a.priority),
@@ -37,7 +39,7 @@ const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
     () => [
       {
         accessorKey: 'priority',
-        header: '优先级',
+        header: t('Whitelist.priority'),
         cell: ({ row }) => (
           <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/30 backdrop-blur-sm">
             {row.original.priority}
@@ -46,14 +48,14 @@ const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
       },
       {
         accessorKey: 'policyName',
-        header: '策略名称',
+        header: t('Whitelist.policyName'),
         cell: ({ row }) => (
           <span className="text-sm font-medium text-foreground">{row.original.policyName}</span>
         ),
       },
       {
         accessorKey: 'description',
-        header: '描述',
+        header: t('Common.description'),
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground max-w-xs truncate block">
             {row.original.description || '-'}
@@ -62,16 +64,18 @@ const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
       },
       {
         accessorKey: 'validationEnabled',
-        header: '校验规则',
+        header: t('Whitelist.validationRule'),
         cell: ({ row }) => {
           const rule = row.original;
           if (!rule.validationEnabled) {
-            return <span className="text-sm text-muted-foreground/60">未启用</span>;
+            return (
+              <span className="text-sm text-muted-foreground/60">{t('Whitelist.disabled')}</span>
+            );
           }
           return (
             <div className="flex items-center gap-1.5">
               <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium bg-green-500/15 text-green-700 dark:text-green-300 border border-green-500/30 backdrop-blur-sm">
-                已启用
+                {t('Whitelist.enabled')}
               </span>
               {rule.validationPattern && (
                 <code
@@ -87,7 +91,7 @@ const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
       },
       {
         accessorKey: 'status',
-        header: '状态',
+        header: t('Common.status'),
         cell: ({ row }) => {
           const rule = row.original;
           return (
@@ -102,21 +106,21 @@ const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
                   : 'text-red-700 dark:text-red-300 bg-red-500/15 hover:bg-red-500/25 border border-red-500/30'
               }`}
             >
-              {rule.status === 'active' ? '启用' : '禁用'}
+              {rule.status === 'active' ? t('Common.active') : t('Common.inactive')}
             </Button>
           );
         },
       },
       {
         accessorKey: 'createdAt',
-        header: '创建时间',
+        header: t('Common.createdAt'),
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground">{row.original.createdAt}</span>
         ),
       },
       {
         id: 'actions',
-        header: '操作',
+        header: t('Common.actions'),
         cell: ({ row }) => {
           const rule = row.original;
           return (
@@ -128,7 +132,7 @@ const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
                 disabled={isLoading}
                 className="text-indigo-500 hover:text-indigo-600 hover:bg-indigo-500/10"
               >
-                编辑
+                {t('Common.edit')}
               </Button>
               <Button
                 variant="ghost"
@@ -137,14 +141,14 @@ const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
                 disabled={isLoading}
                 className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
               >
-                删除
+                {t('Common.delete')}
               </Button>
             </div>
           );
         },
       },
     ],
-    [onEdit, onDelete, onToggleStatus, isLoading]
+    [onEdit, onDelete, onToggleStatus, isLoading, t]
   );
 
   const emptyIcon = (
@@ -157,8 +161,8 @@ const WhitelistRuleTable: React.FC<WhitelistRuleTableProps> = (props) => {
     <DataTable
       columns={columns}
       data={sortedRules}
-      emptyMessage="暂无白名单规则"
-      emptyDescription="开始添加您的第一条白名单规则"
+      emptyMessage={t('Whitelist.noRules')}
+      emptyDescription={t('Whitelist.addFirstRule')}
       emptyIcon={emptyIcon}
     />
   );
