@@ -170,6 +170,11 @@
     "active": "Active",
     "inactive": "Inactive"
   },
+  "Pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "morePages": "More pages"
+  },
   "Whitelist": {
     "priority": "Priority",
     "policyName": "Policy Name",

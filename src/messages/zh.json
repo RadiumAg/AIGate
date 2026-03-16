@@ -170,6 +170,11 @@
     "active": "激活",
     "inactive": "未激活"
   },
+  "Pagination": {
+    "previous": "上一页",
+    "next": "下一页",
+    "morePages": "更多页"
+  },
   "Whitelist": {
     "priority": "优先级",
     "policyName": "策略名称",
