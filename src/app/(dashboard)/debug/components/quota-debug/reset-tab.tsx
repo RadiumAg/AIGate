@@ -4,6 +4,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { CheckCircle, AlertCircle, Trash2 } from 'lucide-react';
+import { useTranslation } from '@/i18n/client';
 import { ResetQuotaResult } from './types';
 
 interface ResetTabProps {
@@ -15,12 +16,15 @@ interface ResetTabProps {
 }
 
 const ResetTab: React.FC<ResetTabProps> = ({ userId, apiKeyId, result, onReset, isLoading }) => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-foreground">重置配额 (resetQuota)</h3>
-          <p className="text-xs text-muted-foreground">重置用户今日的配额计数（谨慎操作）</p>
+          <h3 className="text-sm font-medium text-foreground">
+            {t('Debug.resetQuotaTitle') as string}
+          </h3>
+          <p className="text-xs text-muted-foreground">{t('Debug.resetQuotaDesc') as string}</p>
         </div>
         <Button
           onClick={onReset}
@@ -31,12 +35,12 @@ const ResetTab: React.FC<ResetTabProps> = ({ userId, apiKeyId, result, onReset, 
           {isLoading ? (
             <>
               <Spinner className="-ml-1 mr-2 h-3 w-3" />
-              重置中...
+              {t('Debug.resetting') as string}
             </>
           ) : (
             <>
               <Trash2 className="-ml-1 mr-2 h-3 w-3" />
-              重置配额
+              {t('Debug.resetQuota') as string}
             </>
           )}
         </Button>
@@ -59,7 +63,7 @@ const ResetTab: React.FC<ResetTabProps> = ({ userId, apiKeyId, result, onReset, 
             <div className="flex items-center">
               <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
               <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                配额重置成功
+                {t('Debug.quotaResetSuccess') as string}
               </span>
             </div>
           )}

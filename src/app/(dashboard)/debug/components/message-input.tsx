@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/i18n/client';
 
 interface MessageInputProps {
   message: { role: 'system' | 'user' | 'assistant'; content: string };
@@ -19,6 +20,7 @@ interface MessageInputProps {
 }
 
 const MessageInput: React.FC<MessageInputProps> = (props) => {
+  const { t } = useTranslation();
   const { message, index, canRemove, onChange, onRemove } = props;
 
   return (
@@ -32,9 +34,9 @@ const MessageInput: React.FC<MessageInputProps> = (props) => {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="system">System</SelectItem>
-            <SelectItem value="user">User</SelectItem>
-            <SelectItem value="assistant">Assistant</SelectItem>
+            <SelectItem value="system">{t('Debug.roleSystem') as string}</SelectItem>
+            <SelectItem value="user">{t('Debug.roleUser') as string}</SelectItem>
+            <SelectItem value="assistant">{t('Debug.roleAssistant') as string}</SelectItem>
           </SelectContent>
         </Select>
         {canRemove && (
@@ -44,14 +46,14 @@ const MessageInput: React.FC<MessageInputProps> = (props) => {
             onClick={() => onRemove(index)}
             className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
           >
-            删除
+            {t('Common.delete') as string}
           </Button>
         )}
       </div>
       <textarea
         value={message.content}
         onChange={(e) => onChange(index, 'content', e.target.value)}
-        placeholder="输入消息内容..."
+        placeholder={t('Debug.enterMessageContent') as string}
         rows={3}
         className="w-full px-3 py-2 rounded-xl bg-white/60 dark:bg-black/30 backdrop-blur-lg border border-white/30 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-white/70 dark:focus:bg-black/40 transition-all duration-200 resize-none"
       />
