@@ -56,7 +56,9 @@
     "regionDistribution": "请求地区分布",
     "modelDistribution": "模型使用分布",
     "recentIpRequests": "最近 IP 请求记录",
-    "dataUpdateTime": "数据更新时间"
+    "dataUpdateTime": "数据更新时间",
+    "chinaMap": "中国",
+    "worldMap": "全球"
   },
   "ApiKey": {
     "title": "API 密钥管理",

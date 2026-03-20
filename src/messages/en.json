@@ -56,7 +56,9 @@
     "regionDistribution": "Request Region Distribution",
     "modelDistribution": "Model Usage Distribution",
     "recentIpRequests": "Recent IP Requests",
-    "dataUpdateTime": "Data updated at"
+    "dataUpdateTime": "Data updated at",
+    "chinaMap": "China",
+    "worldMap": "World"
   },
   "ApiKey": {
     "title": "API Key Management",
