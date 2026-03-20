@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslation } from '@/i18n/client';
 
 const CHINA_MAP_GEOJSON_URL = '/100000_full.json';
-const WORLD_MAP_GEOJSON_URL = 'https://cdn.jsdelivr.net/npm/echarts@5/map/json/world.json';
+const WORLD_MAP_GEOJSON_URL = '/world.json';
 
 // 中国省份名称映射
 const CHINA_PROVINCES = new Set([

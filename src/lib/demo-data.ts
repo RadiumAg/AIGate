@@ -172,7 +172,19 @@ class DemoDataStore {
   private generateMockUsageRecords() {
     const models = ['gpt-4', 'gpt-3.5-turbo', 'claude-3-opus', 'claude-3-sonnet', 'deepseek-chat'];
     const providers = ['OPENAI', 'ANTHROPIC', 'DEEPSEEK'];
-    const regions = ['北京', '上海', '广州', '深圳', '杭州', '成都', '武汉', '西安'];
+    // 中国省份
+    const chinaRegions = ['北京', '上海', '广州', '深圳', '杭州', '成都', '武汉', '西安'];
+    // 国际地区
+    const internationalRegions = [
+      '美国',
+      '日本',
+      '新加坡',
+      '韩国',
+      '德国',
+      '英国',
+      '澳大利亚',
+      '加拿大',
+    ];
 
     // 生成最近7天的使用记录
     for (let i = 0; i < 100; i++) {
@@ -184,7 +196,11 @@ class DemoDataStore {
 
       const model = models[Math.floor(Math.random() * models.length)];
       const provider = providers[Math.floor(Math.random() * providers.length)];
-      const region = regions[Math.floor(Math.random() * regions.length)];
+      // 70% 中国，30% 国际
+      const region =
+        Math.random() < 0.7
+          ? chinaRegions[Math.floor(Math.random() * chinaRegions.length)]
+          : internationalRegions[Math.floor(Math.random() * internationalRegions.length)];
       const promptTokens = Math.floor(Math.random() * 2000) + 100;
       const completionTokens = Math.floor(Math.random() * 1000) + 50;
 
