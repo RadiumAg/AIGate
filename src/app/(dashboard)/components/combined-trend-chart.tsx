@@ -3,18 +3,21 @@
 import React from 'react';
 import * as echarts from 'echarts';
 import { Spinner } from '@/components/ui/spinner';
+import { useTranslation } from '@/i18n/client';
 
-interface BillingTrendChartProps {
+interface CombinedTrendChartProps {
   data: Array<{
     date: string;
-    cost: number;
+    requests: number;
     tokens: number;
+    cost: number;
   }>;
   loading: boolean;
 }
 
-const BillingTrendChart: React.FC<BillingTrendChartProps> = (props) => {
+const CombinedTrendChart: React.FC<CombinedTrendChartProps> = (props) => {
   const { data, loading } = props;
+  const { t, locale } = useTranslation();
   const chartRef = React.useRef<HTMLDivElement>(null);
 
   // 获取系统主题偏好
@@ -51,19 +54,25 @@ const BillingTrendChart: React.FC<BillingTrendChartProps> = (props) => {
           tooltipBg: 'rgba(30, 30, 36, 0.95)',
           borderColor: '#4b5563',
           // 系列颜色
+          requestsColor: '#60a5fa',
+          tokensColor: '#34d399',
           costColor: '#fbbf24',
+          // Y轴颜色
+          requestsYAxisColor: '#60a5fa',
+          tokensYAxisColor: '#34d399',
           costYAxisColor: '#fbbf24',
-          tokensColor: '#60a5fa',
-          tokensYAxisColor: '#60a5fa',
           // 数据点边框
           itemBorderColor: '#1e1e24',
           // 阴影和渐变
+          requestsShadow: 'rgba(96, 165, 250, 0.4)',
+          requestsGradientStart: 'rgba(96, 165, 250, 0.3)',
+          requestsGradientEnd: 'rgba(96, 165, 250, 0.05)',
+          tokensShadow: 'rgba(52, 211, 153, 0.4)',
+          tokensGradientStart: 'rgba(52, 211, 153, 0.3)',
+          tokensGradientEnd: 'rgba(52, 211, 153, 0.05)',
           costShadow: 'rgba(251, 191, 36, 0.4)',
           costGradientStart: 'rgba(251, 191, 36, 0.3)',
           costGradientEnd: 'rgba(251, 191, 36, 0.05)',
-          tokensShadow: 'rgba(96, 165, 250, 0.4)',
-          tokensGradientStart: 'rgba(96, 165, 250, 0.3)',
-          tokensGradientEnd: 'rgba(96, 165, 250, 0.05)',
         }
       : {
           backgroundColor: 'transparent',
@@ -73,20 +82,30 @@ const BillingTrendChart: React.FC<BillingTrendChartProps> = (props) => {
           tooltipBg: 'rgba(255, 255, 255, 0.95)',
           borderColor: '#e5e7eb',
           // 系列颜色
+          requestsColor: '#3b82f6',
+          tokensColor: '#10b981',
           costColor: '#f59e0b',
+          // Y轴颜色
+          requestsYAxisColor: '#1890ff',
+          tokensYAxisColor: '#52c41a',
           costYAxisColor: '#d97706',
-          tokensColor: '#3b82f6',
-          tokensYAxisColor: '#1890ff',
           // 数据点边框
           itemBorderColor: '#ffffff',
           // 阴影和渐变
+          requestsShadow: 'rgba(59, 130, 246, 0.3)',
+          requestsGradientStart: 'rgba(59, 130, 246, 0.2)',
+          requestsGradientEnd: 'rgba(59, 130, 246, 0.02)',
+          tokensShadow: 'rgba(16, 185, 129, 0.3)',
+          tokensGradientStart: 'rgba(16, 185, 129, 0.2)',
+          tokensGradientEnd: 'rgba(16, 185, 129, 0.02)',
           costShadow: 'rgba(245, 158, 11, 0.3)',
           costGradientStart: 'rgba(245, 158, 11, 0.2)',
           costGradientEnd: 'rgba(245, 158, 11, 0.02)',
-          tokensShadow: 'rgba(59, 130, 246, 0.3)',
-          tokensGradientStart: 'rgba(59, 130, 246, 0.2)',
-          tokensGradientEnd: 'rgba(59, 130, 246, 0.02)',
         };
+
+    const requestsLabel = t('Dashboard.requests') as string;
+    const tokensLabel = t('Dashboard.tokenUsage') as string;
+    const costLabel = t('Dashboard.cost') as string;
 
     const option = {
       backgroundColor: themeConfig.backgroundColor,
@@ -101,51 +120,56 @@ const BillingTrendChart: React.FC<BillingTrendChartProps> = (props) => {
         },
         padding: [10, 15],
         extraCssText: 'box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border-radius: 8px;',
-        formatter: (params: any[]) => {
+        formatter: (
+          params: { axisValue: string; seriesName: string; value: number; color: string }[]
+        ) => {
           const date = params[0].axisValue;
           let tooltipContent = `<div style="font-weight: 500; margin-bottom: 4px;">${date}</div>`;
 
           params.forEach((param) => {
-            if (param.seriesName === '费用') {
-              tooltipContent += `<div style="display: flex; align-items: center; margin: 2px 0;">
-                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${param.color}; margin-right: 6px;"></span>
-                <span>${param.seriesName}: $${param.value.toFixed(4)}</span>
-              </div>`;
-            } else {
-              tooltipContent += `<div style="display: flex; align-items: center; margin: 2px 0;">
-                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${param.color}; margin-right: 6px;"></span>
-                <span>${param.seriesName}: ${param.value.toLocaleString()} tokens</span>
-              </div>`;
-            }
+            const value =
+              param.seriesName === costLabel
+                ? `$${param.value.toFixed(4)}`
+                : param.value.toLocaleString();
+            const unit =
+              param.seriesName === requestsLabel
+                ? ' 次'
+                : param.seriesName === tokensLabel
+                  ? ' tokens'
+                  : '';
+            tooltipContent += `<div style="display: flex; align-items: center; margin: 2px 0;">
+              <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${param.color}; margin-right: 6px;"></span>
+              <span>${param.seriesName}: ${value}${unit}</span>
+            </div>`;
           });
 
           return tooltipContent;
         },
       },
       legend: {
-        data: ['费用', 'Token 消耗'],
+        data: [requestsLabel, tokensLabel, costLabel],
         textStyle: {
           color: themeConfig.textColor,
           fontSize: 12,
         },
         itemWidth: 12,
         itemHeight: 12,
-        itemGap: 20,
+        itemGap: 16,
         right: 20,
         top: 0,
       },
       grid: {
-        left: '8%',
-        right: '8%',
+        left: '6%',
+        right: '6%',
         bottom: '15%',
-        top: '20%',
+        top: '22%',
         containLabel: true,
       },
       xAxis: {
         type: 'category',
-        boundaryGap: false,
+        boundaryGap: true,
         data: data.map((item) =>
-          new Date(item.date).toLocaleDateString('zh-CN', {
+          new Date(item.date).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', {
             month: 'short',
             day: 'numeric',
           })
@@ -166,21 +190,17 @@ const BillingTrendChart: React.FC<BillingTrendChartProps> = (props) => {
           margin: 12,
         },
         splitLine: {
-          show: true,
-          lineStyle: {
-            color: themeConfig.gridColor,
-            type: 'dashed',
-          },
+          show: false,
         },
       },
       yAxis: [
         {
           type: 'value',
-          name: '费用 ($)',
+          name: requestsLabel,
           position: 'left',
           nameTextStyle: {
-            color: themeConfig.costYAxisColor,
-            fontSize: 12,
+            color: themeConfig.requestsYAxisColor,
+            fontSize: 11,
             fontWeight: '500',
           },
           axisLine: {
@@ -195,10 +215,8 @@ const BillingTrendChart: React.FC<BillingTrendChartProps> = (props) => {
           },
           axisLabel: {
             color: themeConfig.textColor,
-            fontSize: 11,
-            formatter: (value: number) => {
-              return `$${value.toFixed(4)}`;
-            },
+            fontSize: 10,
+            formatter: '{value}',
           },
           splitLine: {
             show: true,
@@ -210,11 +228,11 @@ const BillingTrendChart: React.FC<BillingTrendChartProps> = (props) => {
         },
         {
           type: 'value',
-          name: 'Token（个）',
+          name: tokensLabel,
           position: 'right',
           nameTextStyle: {
             color: themeConfig.tokensYAxisColor,
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: '500',
           },
           axisLine: {
@@ -229,7 +247,7 @@ const BillingTrendChart: React.FC<BillingTrendChartProps> = (props) => {
           },
           axisLabel: {
             color: themeConfig.textColor,
-            fontSize: 11,
+            fontSize: 10,
             formatter: (value: number) => {
               if (value >= 1000000) {
                 return `${(value / 1000000).toFixed(1)}M`;
@@ -243,73 +261,99 @@ const BillingTrendChart: React.FC<BillingTrendChartProps> = (props) => {
             show: false,
           },
         },
+        {
+          type: 'value',
+          name: costLabel,
+          position: 'right',
+          offset: 60,
+          nameTextStyle: {
+            color: themeConfig.costYAxisColor,
+            fontSize: 11,
+            fontWeight: '500',
+          },
+          axisLine: {
+            show: true,
+            lineStyle: {
+              color: themeConfig.axisColor,
+              width: 1,
+            },
+          },
+          axisTick: {
+            show: false,
+          },
+          axisLabel: {
+            color: themeConfig.textColor,
+            fontSize: 10,
+            formatter: (value: number) => `$${value.toFixed(2)}`,
+          },
+          splitLine: {
+            show: false,
+          },
+        },
       ],
       series: [
         {
-          name: '费用',
-          type: 'line',
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 6,
-          showSymbol: true,
-          lineStyle: {
-            color: themeConfig.costColor,
-            width: 3,
-          },
+          name: requestsLabel,
+          type: 'bar',
+          barMaxWidth: 24,
           itemStyle: {
-            color: themeConfig.costColor,
-            borderColor: themeConfig.itemBorderColor,
-            borderWidth: 2,
-            shadowColor: themeConfig.costShadow,
-            shadowBlur: 6,
-          },
-          areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              {
-                offset: 0,
-                color: themeConfig.costGradientStart,
-              },
-              {
-                offset: 1,
-                color: themeConfig.costGradientEnd,
-              },
+              { offset: 0, color: themeConfig.requestsColor },
+              { offset: 1, color: themeConfig.requestsGradientEnd },
             ]),
+            borderRadius: [4, 4, 0, 0],
           },
-          data: data.map((item) => item.cost),
+          emphasis: {
+            itemStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: themeConfig.requestsColor },
+                { offset: 1, color: themeConfig.requestsGradientEnd },
+              ]),
+            },
+          },
+          data: data.map((item) => item.requests),
           yAxisIndex: 0,
         },
         {
-          name: 'Token 消耗',
+          name: tokensLabel,
+          type: 'bar',
+          barMaxWidth: 24,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: themeConfig.tokensColor },
+              { offset: 1, color: themeConfig.tokensGradientEnd },
+            ]),
+            borderRadius: [4, 4, 0, 0],
+          },
+          emphasis: {
+            itemStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: themeConfig.tokensColor },
+                { offset: 1, color: themeConfig.tokensGradientEnd },
+              ]),
+            },
+          },
+          data: data.map((item) => item.tokens),
+          yAxisIndex: 1,
+        },
+        {
+          name: costLabel,
           type: 'line',
           smooth: true,
           symbol: 'circle',
           symbolSize: 6,
           showSymbol: true,
           lineStyle: {
-            color: themeConfig.tokensColor,
-            width: 3,
+            color: themeConfig.costColor,
+            width: 2.5,
           },
           itemStyle: {
-            color: themeConfig.tokensColor,
+            color: themeConfig.costColor,
             borderColor: themeConfig.itemBorderColor,
             borderWidth: 2,
-            shadowColor: themeConfig.tokensShadow,
-            shadowBlur: 6,
           },
-          areaStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              {
-                offset: 0,
-                color: themeConfig.tokensGradientStart,
-              },
-              {
-                offset: 1,
-                color: themeConfig.tokensGradientEnd,
-              },
-            ]),
-          },
-          data: data.map((item) => item.tokens),
-          yAxisIndex: 1,
+          data: data.map((item) => item.cost),
+          yAxisIndex: 2,
         },
       ],
     };
@@ -323,7 +367,7 @@ const BillingTrendChart: React.FC<BillingTrendChartProps> = (props) => {
       window.removeEventListener('resize', handleResize);
       chart.dispose();
     };
-  }, [data, loading, isDarkMode]);
+  }, [data, loading, isDarkMode, t, locale]);
 
   return (
     <div className="relative">
@@ -334,13 +378,16 @@ const BillingTrendChart: React.FC<BillingTrendChartProps> = (props) => {
       )}
       <div ref={chartRef} className="w-full h-72"></div>
       {!loading && data.length > 0 && (
-        <div className="mt-3 text-center text-xs">
-          数据周期：{new Date(data[0].date).toLocaleDateString('zh-CN')} -{' '}
-          {new Date(data[data.length - 1].date).toLocaleDateString('zh-CN')}
+        <div className="mt-3 text-center text-xs text-muted-foreground">
+          {t('Dashboard.dataPeriod') as string}：
+          {new Date(data[0].date).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US')} -{' '}
+          {new Date(data[data.length - 1].date).toLocaleDateString(
+            locale === 'zh' ? 'zh-CN' : 'en-US'
+          )}
         </div>
       )}
     </div>
   );
 };
 
-export default BillingTrendChart;
+export default CombinedTrendChart;
