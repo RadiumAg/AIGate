@@ -309,6 +309,7 @@ export const dashboardRouter = createTRPCRouter({
             date: dateStr,
             requests: 0,
             tokens: 0,
+            cost: 0,
           });
           currentDate.setDate(currentDate.getDate() + 1);
         }
@@ -319,6 +320,7 @@ export const dashboardRouter = createTRPCRouter({
             const stats = dailyStats.get(dateStr);
             stats.requests += 1;
             stats.tokens += record.totalTokens;
+            stats.cost += parseFloat(record.cost || '0');
           }
         });
 

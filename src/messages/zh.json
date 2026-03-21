@@ -52,11 +52,15 @@
     "tokenUsage": "Token 消耗",
     "activeUsers": "活跃用户",
     "recentActivity": "最近活动",
-    "usageTrend": "近期请求趋势",
+    "usageTrend": "使用趋势",
     "regionDistribution": "请求地区分布",
     "modelDistribution": "模型使用分布",
     "recentIpRequests": "最近 IP 请求记录",
-    "dataUpdateTime": "数据更新时间"
+    "dataUpdateTime": "数据更新时间",
+    "chinaMap": "中国",
+    "worldMap": "全球",
+    "cost": "费用",
+    "dataPeriod": "数据周期"
   },
   "ApiKey": {
     "title": "API 密钥管理",

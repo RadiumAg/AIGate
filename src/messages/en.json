@@ -52,11 +52,15 @@
     "tokenUsage": "Token Usage",
     "activeUsers": "Active Users",
     "recentActivity": "Recent Activity",
-    "usageTrend": "Recent Request Trends",
+    "usageTrend": "Usage Trend",
     "regionDistribution": "Request Region Distribution",
     "modelDistribution": "Model Usage Distribution",
     "recentIpRequests": "Recent IP Requests",
-    "dataUpdateTime": "Data updated at"
+    "dataUpdateTime": "Data updated at",
+    "chinaMap": "China",
+    "worldMap": "World",
+    "cost": "Cost",
+    "dataPeriod": "Data Period"
   },
   "ApiKey": {
     "title": "API Key Management",
