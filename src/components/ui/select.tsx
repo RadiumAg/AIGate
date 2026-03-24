@@ -17,21 +17,16 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      // Base styles
-      'flex h-10 w-full items-center justify-between rounded-xl px-3 py-2 text-sm ring-offset-background',
+      'flex h-10 w-full items-center justify-between rounded-2xl px-4 py-2 text-sm ring-offset-background',
       'placeholder:text-muted-foreground/60',
       'focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2',
       'disabled:cursor-not-allowed disabled:opacity-50',
       '[&>span]:line-clamp-1',
-      // Liquid Glass effect
-      'bg-white/15 dark:bg-black/20 backdrop-blur-lg backdrop-saturate-[1.5]',
-      'border border-white/25 dark:border-white/10',
-      'shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.3)]',
-      // Focus state
-      'focus:bg-white/20 dark:focus:bg-black/25',
-      'focus:shadow-[0_4px_16px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]',
-      // Hover state
-      'hover:bg-white/20 dark:hover:bg-black/25',
+      'border border-white/30 bg-white/20 backdrop-blur-xl backdrop-saturate-[1.7] dark:border-white/10 dark:bg-black/20',
+      'shadow-[0_8px_24px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.45)]',
+      'focus:border-white/35 focus:bg-white/25 dark:focus:bg-black/25',
+      'focus:shadow-[0_12px_30px_rgba(0,0,0,0.14),inset_0_1px_0_rgba(255,255,255,0.5)]',
+      'hover:bg-white/25 dark:hover:bg-black/25',
       'transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
       className
     )}
@@ -39,7 +34,7 @@ const SelectTrigger = React.forwardRef<
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 opacity-50" />
+      <ChevronDown className="h-4 w-4 opacity-60" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));
@@ -51,7 +46,7 @@ const SelectScrollUpButton = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollUpButton
     ref={ref}
-    className={cn('flex cursor-default items-center justify-center py-1', className)}
+    className={cn('flex cursor-default items-center justify-center py-1 text-foreground/70', className)}
     {...props}
   >
     <ChevronUp className="h-4 w-4" />
@@ -65,7 +60,7 @@ const SelectScrollDownButton = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollDownButton
     ref={ref}
-    className={cn('flex cursor-default items-center justify-center py-1', className)}
+    className={cn('flex cursor-default items-center justify-center py-1 text-foreground/70', className)}
     {...props}
   >
     <ChevronDown className="h-4 w-4" />
@@ -81,8 +76,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        // Base animation styles
-        'relative z-50 max-h-96 min-w-32 overflow-hidden rounded-2xl',
+        'relative z-50 max-h-96 min-w-32 overflow-hidden rounded-[1.5rem]',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
         'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -90,10 +84,8 @@ const SelectContent = React.forwardRef<
         'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
         position === 'popper' &&
           'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
-        // Liquid Glass effect
-        'bg-white/25 dark:bg-black/30 backdrop-blur-2xl backdrop-saturate-[1.8]',
-        'border border-white/30 dark:border-white/15',
-        'shadow-[0_16px_48px_rgba(0,0,0,0.15),inset_1px_1px_0_rgba(255,255,255,0.5)]',
+        'border border-white/30 bg-white/20 text-popover-foreground backdrop-blur-2xl backdrop-saturate-[1.8] dark:border-white/10 dark:bg-black/30',
+        'shadow-[0_18px_56px_rgba(0,0,0,0.16),inset_1px_1px_0_rgba(255,255,255,0.55),inset_0_0_12px_rgba(255,255,255,0.12)]',
         className
       )}
       position={position}
@@ -102,7 +94,7 @@ const SelectContent = React.forwardRef<
       <SelectScrollUpButton />
       <SelectPrimitive.Viewport
         className={cn(
-          'p-1',
+          'p-2',
           position === 'popper' &&
             'h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width)'
         )}
@@ -121,7 +113,7 @@ const SelectLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={cn('py-1.5 pl-8 pr-2 text-sm font-semibold', className)}
+    className={cn('px-3 py-1.5 text-sm font-semibold text-foreground/80', className)}
     {...props}
   />
 ));
@@ -134,11 +126,10 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      // Base styles
-      'relative flex w-full cursor-default select-none items-center rounded-lg py-1.5 pl-8 pr-2 text-sm outline-none',
+      'relative flex w-full cursor-default select-none items-center rounded-xl py-2 pl-8 pr-3 text-sm outline-none',
       'data-disabled:pointer-events-none data-disabled:opacity-50',
-      // Liquid Glass hover effect
-      'focus:bg-white/30 dark:focus:bg-white/15 focus:backdrop-blur-sm',
+      'focus:bg-white/30 focus:backdrop-blur-sm focus:shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:focus:bg-white/12',
+      'data-[highlighted]:bg-white/30 data-[highlighted]:backdrop-blur-sm data-[highlighted]:shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:data-[highlighted]:bg-white/12',
       'transition-all duration-150 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
       className
     )}
@@ -161,7 +152,7 @@ const SelectSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
     ref={ref}
-    className={cn('-mx-1 my-1 h-px bg-muted', className)}
+    className={cn('my-1 h-px bg-white/15 dark:bg-white/10', className)}
     {...props}
   />
 ));
