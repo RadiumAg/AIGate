@@ -26,7 +26,12 @@
     "language": "语言",
     "quotaLimit": "配额限制",
     "copy": "复制",
-    "description": "说明"
+    "description": "说明",
+    "status": "状态",
+    "createdAt": "创建时间",
+    "actions": "操作",
+    "active": "启用",
+    "inactive": "禁用"
   },
   "Auth": {
     "login": "登录",

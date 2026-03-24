@@ -26,7 +26,12 @@
     "language": "Language",
     "quotaLimit": "Quota Limit",
     "copy": "Copy",
-    "description": "Description"
+    "description": "Description",
+    "status": "Status",
+    "createdAt": "Created At",
+    "actions": "Actions",
+    "active": "Active",
+    "inactive": "Inactive"
   },
   "Auth": {
     "login": "Login",
