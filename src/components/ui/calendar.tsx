@@ -31,7 +31,7 @@ function Calendar({
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn(
-        "p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)] group/calendar bg-background in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
+        "group/calendar rounded-2xl border border-white/25 bg-white/15 p-3 shadow-[0_12px_40px_rgba(0,0,0,0.12),inset_1px_1px_0_rgba(255,255,255,0.55),inset_0_0_12px_rgba(255,255,255,0.12)] backdrop-blur-2xl backdrop-saturate-[1.8] dark:border-white/10 dark:bg-black/20 [--cell-radius:1rem] [--cell-size:--spacing(9)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className
@@ -56,12 +56,12 @@ function Calendar({
         ),
         button_previous: cn(
           buttonVariants({ variant: buttonVariant }),
-          "size-(--cell-size) p-0 select-none aria-disabled:opacity-50 rounded-xl backdrop-blur-lg bg-white/40 dark:bg-white/10 hover:bg-white/60 dark:hover:bg-white/20 border border-white/30 dark:border-white/10 hover:border-white/50 dark:hover:border-white/20 transition-all duration-200",
+          "size-(--cell-size) rounded-2xl border border-white/30 bg-white/35 p-0 text-foreground/80 shadow-[0_6px_20px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.45)] backdrop-blur-xl backdrop-saturate-[1.6] transition-all duration-200 hover:scale-[1.03] hover:bg-white/55 hover:text-foreground hover:shadow-[0_10px_28px_rgba(0,0,0,0.14),inset_0_1px_0_rgba(255,255,255,0.55)] aria-disabled:opacity-40 dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/20",
           defaultClassNames.button_previous
         ),
         button_next: cn(
           buttonVariants({ variant: buttonVariant }),
-          "size-(--cell-size) p-0 select-none aria-disabled:opacity-50 rounded-xl backdrop-blur-lg bg-white/40 dark:bg-white/10 hover:bg-white/60 dark:hover:bg-white/20 border border-white/30 dark:border-white/10 hover:border-white/50 dark:hover:border-white/20 transition-all duration-200",
+          "size-(--cell-size) rounded-2xl border border-white/30 bg-white/35 p-0 text-foreground/80 shadow-[0_6px_20px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.45)] backdrop-blur-xl backdrop-saturate-[1.6] transition-all duration-200 hover:scale-[1.03] hover:bg-white/55 hover:text-foreground hover:shadow-[0_10px_28px_rgba(0,0,0,0.14),inset_0_1px_0_rgba(255,255,255,0.55)] aria-disabled:opacity-40 dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/20",
           defaultClassNames.button_next
         ),
         month_caption: cn(
@@ -81,16 +81,16 @@ function Calendar({
           defaultClassNames.dropdown
         ),
         caption_label: cn(
-          "font-medium select-none",
+          "select-none rounded-full border border-white/25 bg-white/25 px-4 py-1.5 text-sm font-medium text-foreground/90 shadow-[0_4px_16px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.45)] backdrop-blur-xl backdrop-saturate-[1.6] dark:border-white/10 dark:bg-white/[0.08]",
           captionLayout === "label"
             ? "text-sm"
-            : "cn-calendar-caption-label flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground",
+            : "cn-calendar-caption-label flex items-center gap-1 [&>svg]:size-3.5 [&>svg]:text-muted-foreground/80",
           defaultClassNames.caption_label
         ),
         table: "w-full border-collapse",
         weekdays: cn("flex", defaultClassNames.weekdays),
         weekday: cn(
-          "flex-1 rounded-(--cell-radius) text-[0.8rem] font-normal text-muted-foreground select-none",
+          "flex-1 rounded-(--cell-radius) text-[0.8rem] font-normal text-muted-foreground/70 select-none",
           defaultClassNames.weekday
         ),
         week: cn("mt-2 flex w-full", defaultClassNames.week),
@@ -110,24 +110,27 @@ function Calendar({
           defaultClassNames.day
         ),
         range_start: cn(
-          "relative isolate z-0 rounded-l-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-muted",
+          "relative isolate z-0 rounded-l-(--cell-radius) bg-white/[0.14] after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-white/[0.14] dark:bg-white/[0.08] dark:after:bg-white/[0.08]",
           defaultClassNames.range_start
         ),
-        range_middle: cn("rounded-none", defaultClassNames.range_middle),
+        range_middle: cn(
+          "rounded-none bg-white/[0.10] dark:bg-white/[0.06]",
+          defaultClassNames.range_middle
+        ),
         range_end: cn(
-          "relative isolate z-0 rounded-r-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-muted",
+          "relative isolate z-0 rounded-r-(--cell-radius) bg-white/[0.14] after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-white/[0.14] dark:bg-white/[0.08] dark:after:bg-white/[0.08]",
           defaultClassNames.range_end
         ),
         today: cn(
-          "rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none",
+          "rounded-(--cell-radius) bg-white/[0.18] text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.3)] data-[selected=true]:rounded-none dark:bg-white/[0.10]",
           defaultClassNames.today
         ),
         outside: cn(
-          "text-muted-foreground aria-selected:text-muted-foreground",
+          "text-muted-foreground/45 aria-selected:text-muted-foreground/60",
           defaultClassNames.outside
         ),
         disabled: cn(
-          "text-muted-foreground opacity-50",
+          "text-muted-foreground/35 opacity-50",
           defaultClassNames.disabled
         ),
         hidden: cn("invisible", defaultClassNames.hidden),
@@ -210,7 +213,7 @@ function CalendarDayButton({
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
       className={cn(
-        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius) data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius) data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
+        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 rounded-(--cell-radius) border border-transparent leading-none font-normal text-foreground/90 shadow-none group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-white/30 group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-white/20 hover:border-white/20 hover:bg-white/[0.10] hover:backdrop-blur-md hover:shadow-[0_6px_18px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.28)] data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius) data-[range-end=true]:border-white/20 data-[range-end=true]:bg-white/[0.26] data-[range-end=true]:text-foreground data-[range-end=true]:shadow-[0_8px_24px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.45)] data-[range-middle=true]:rounded-none data-[range-middle=true]:border-transparent data-[range-middle=true]:bg-white/[0.12] data-[range-middle=true]:text-foreground data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius) data-[range-start=true]:border-white/20 data-[range-start=true]:bg-white/[0.26] data-[range-start=true]:text-foreground data-[range-start=true]:shadow-[0_8px_24px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.45)] data-[selected-single=true]:border-white/25 data-[selected-single=true]:bg-white/[0.28] data-[selected-single=true]:text-foreground data-[selected-single=true]:shadow-[0_10px_28px_rgba(0,0,0,0.14),inset_0_1px_0_rgba(255,255,255,0.5)] dark:hover:bg-white/[0.08] dark:data-[range-middle=true]:bg-white/[0.08] dark:data-[range-start=true]:bg-white/[0.18] dark:data-[range-end=true]:bg-white/[0.18] dark:data-[selected-single=true]:bg-white/[0.20] [&>span]:text-xs [&>span]:opacity-65",
         defaultClassNames.day,
         className
       )}
