@@ -7,7 +7,6 @@ import { checkQuota, recordUsage, getDailyUsage, getQuotaPolicyByApiKey } from '
 import { getProviderByModel, providers } from '@/lib/ai-providers';
 import type { AIProvider } from '@/lib/ai-providers';
 import { v4 as uuidv4 } from 'uuid';
-import { getRegionFromRequest, extractClientIp } from '@/lib/ip-region';
 import { apiKeyDb, whitelistRuleDb } from '../../../lib/database';
 import { getTodayString } from '@/lib/date';
 import { logError } from '@/lib/logger';
@@ -99,9 +98,9 @@ export const aiRouter = createTRPCRouter({
       const { userId, apiKeyId, request } = input;
       const isStream = request.stream === true;
 
-      // 提取客户端 IP 并查询归属地省份
-      const clientIp = ctx.req ? extractClientIp(ctx.req) : undefined;
-      const region = ctx.req ? getRegionFromRequest(ctx.req) : undefined;
+      // 从请求上下文中获取 clientIp 和 region
+      const clientIp = ctx.req?.clientIp;
+      const region = ctx.req?.region;
       const requestId = uuidv4();
 
       try {
@@ -245,7 +244,7 @@ export const aiRouter = createTRPCRouter({
       try {
         const today = getTodayString();
         const { userId, apiKeyId } = input;
-        const clientIp = ctx.req ? extractClientIp(ctx.req) : undefined;
+        const clientIp = ctx.req?.clientIp;
         // 优先通过 apiKeyId 获取配额策略
         const policy = await getQuotaPolicyByApiKey(input.apiKeyId);
         const validationResult = await whitelistRuleDb.validateUserByApiKey(

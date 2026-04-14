@@ -12,6 +12,7 @@ import superjson from 'superjson';
 import { ZodError } from 'zod';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
+import type { NextApiRequest } from 'next';
 
 /**
  * 1. CONTEXT
@@ -36,7 +37,7 @@ interface CreateContextOptions {
    * Session data from NextAuth
    */
   session: Session | null;
-  req?: import('http').IncomingMessage;
+  req?: NextApiRequest;
 }
 
 /**
