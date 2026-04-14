@@ -1,6 +1,7 @@
 {
   "Navigation": {
     "dashboard": "Dashboard",
+    "reports": "Reports",
     "debug": "API Debug",
     "quotas": "Quota Management",
     "keys": "API Keys",
@@ -304,5 +305,33 @@
     "resetting": "Resetting...",
     "resetQuota": "Reset Quota",
     "quotaResetSuccess": "Quota reset successfully"
+  },
+  "Reports": {
+    "title": "Reports Center",
+    "subtitle": "View and analyze all API usage data",
+    "totalRequests": "Total Requests",
+    "tokenConsumption": "Token Consumption",
+    "activeUsers": "Active Users",
+    "coveredRegions": "Covered Regions",
+    "comparedToLast": "{{change}} from last period",
+    "searchPlaceholder": "Search user, IP, region...",
+    "allModels": "All Models",
+    "allProviders": "All Providers",
+    "exportCsv": "Export CSV",
+    "detailedRecords": "Detailed Usage Records",
+    "recordsCount": "{{count}} records",
+    "noData": "No data available",
+    "table": {
+      "time": "Time",
+      "userId": "User ID",
+      "ipAddress": "IP Address",
+      "region": "Region",
+      "model": "Model",
+      "provider": "Provider",
+      "tokenCount": "Tokens"
+    },
+    "pagination": {
+      "showing": "Showing {{start}} - {{end}} of {{total}} records"
+    }
   }
 }
