@@ -117,7 +117,12 @@
     "cancel": "Cancel",
     "saving": "Saving...",
     "apiKeyDesc": "Please ensure the API Key format is correct. {provider} API Keys typically start with a specific prefix",
-    "baseUrlDesc": "Leave empty to use the default {provider} API endpoint. Custom URL can be used for proxy services or private deployments"
+    "baseUrlDesc": "Leave empty to use the default {provider} API endpoint. Custom URL can be used for proxy services or private deployments",
+    "pricingConfig": "Pricing Configuration (Optional)",
+    "pricingConfigDesc": "Set custom pricing for this API Key for cost calculation. Leave empty to use system default pricing",
+    "promptPrice": "Input Token Price",
+    "completionPrice": "Output Token Price",
+    "pricePerMillion": "USD per million tokens"
   },
   "Quota": {
     "title": "Quota Management",

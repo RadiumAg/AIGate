@@ -103,7 +103,7 @@ const HomePage: React.FC = () => {
 
   // 获取最近 IP 请求记录
   const { data: recentIpRequests, isLoading: ipRequestsLoading } =
-    trpc.dashboard.getRecentIpRequests.useQuery();
+    trpc.dashboard.getRecentIpRequests.useQuery({ startDate: queryStart, endDate: queryEnd });
 
   return (
     <div className="space-y-6">

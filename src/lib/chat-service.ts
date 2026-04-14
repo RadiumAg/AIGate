@@ -1,9 +1,9 @@
 import { providers } from '@/lib/ai-providers';
 import { v4 as uuidv4 } from 'uuid';
-import { getRegionFromRequest, extractClientIp } from '@/lib/ip-region';
 import type { UsageRecord } from '@/lib/types';
 import { apiKeyDb } from '@/lib/database';
 import { checkQuota, recordUsage } from '@/lib/quota';
+import { calculateCost } from '@/lib/model-pricing';
 
 // 通用对象类型
 export type AnyObject = Record<string, any>;
@@ -136,6 +136,9 @@ export async function recordRequestUsage(
   model: string,
   providerName: string
 ): Promise<void> {
+  // 计算成本
+  const cost = calculateCost(model, usage.promptTokens, usage.completionTokens);
+
   const actualUsage: UsageRecord = {
     id: context.requestId,
     userId: context.userId,
@@ -146,7 +149,7 @@ export async function recordRequestUsage(
     completionTokens: usage.completionTokens,
     totalTokens: usage.totalTokens,
     timestamp: new Date().toISOString(),
-    cost: 0,
+    cost,
     region: context.region,
     clientIp: context.clientIp,
   };

@@ -8,8 +8,8 @@ import { cn } from '@/lib/utils';
 
 interface DateRangePickerProps {
   dateRange: 'today' | 'yesterday' | '7days' | '30days' | 'custom';
-  setDateRange: (range: 'today' | 'yesterday' | '7days' | '30days' | 'custom') => void;
   className?: string;
+  setDateRange: (range: 'today' | 'yesterday' | '7days' | '30days' | 'custom') => void;
 }
 
 const DateRangePicker: React.FC<DateRangePickerProps> = ({

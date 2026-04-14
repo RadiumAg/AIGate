@@ -404,58 +404,87 @@ export const dashboardRouter = createTRPCRouter({
     }),
 
   // 获取最近 IP 请求记录
-  getRecentIpRequests: protectedProcedure.query(async () => {
-    try {
-      let results: Array<{
-        id: string;
-        userId: string;
-        clientIp: string | null;
-        region: string | null;
-        model: string;
-        provider: string;
-        totalTokens: number;
-        timestamp: Date;
-      }>;
+  getRecentIpRequests: protectedProcedure
+    .input(
+      z.object({
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+        days: z.number().optional().default(7),
+      })
+    )
+    .query(async ({ input }) => {
+      try {
+        const { startDate, endDate, days } = input;
 
-      if (isDemoMode()) {
-        results = getDemoStats.getRecentIpRequests(20).map((r) => ({
-          ...r,
-          clientIp: r.clientIp as string | null,
-          region: r.region as string | null,
+        // 如果提供了具体日期范围，使用该范围
+        let queryStartDate: Date;
+        let queryEndDate: Date;
+
+        if (startDate && endDate) {
+          queryStartDate = startDate;
+          queryEndDate = endDate;
+        } else {
+          // 否则使用最近N天
+          queryEndDate = new Date();
+          queryStartDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+        }
+
+        let results: Array<{
+          id: string;
+          userId: string;
+          clientIp: string | null;
+          region: string | null;
+          model: string;
+          provider: string;
+          totalTokens: number;
+          timestamp: Date;
+        }>;
+
+        if (isDemoMode()) {
+          results = getDemoStats.getRecentIpRequests(20, queryStartDate, queryEndDate).map((r) => ({
+            ...r,
+            clientIp: r.clientIp as string | null,
+            region: r.region as string | null,
+          }));
+        } else {
+          results = await db
+            .select({
+              id: usageRecords.id,
+              userId: usageRecords.userId,
+              clientIp: usageRecords.clientIp,
+              region: usageRecords.region,
+              model: usageRecords.model,
+              provider: usageRecords.provider,
+              totalTokens: usageRecords.totalTokens,
+              timestamp: usageRecords.timestamp,
+            })
+            .from(usageRecords)
+            .where(
+              and(
+                isNotNull(usageRecords.clientIp),
+                gte(usageRecords.timestamp, queryStartDate),
+                lte(usageRecords.timestamp, queryEndDate)
+              )
+            )
+            .orderBy(sql`${usageRecords.timestamp} desc`)
+            .limit(20);
+        }
+
+        return results.map((record) => ({
+          id: record.id,
+          userId: record.userId,
+          clientIp: record.clientIp || '',
+          region: record.region || '未知',
+          model: record.model,
+          provider: record.provider,
+          totalTokens: record.totalTokens,
+          timestamp: record.timestamp.toISOString(),
         }));
-      } else {
-        results = await db
-          .select({
-            id: usageRecords.id,
-            userId: usageRecords.userId,
-            clientIp: usageRecords.clientIp,
-            region: usageRecords.region,
-            model: usageRecords.model,
-            provider: usageRecords.provider,
-            totalTokens: usageRecords.totalTokens,
-            timestamp: usageRecords.timestamp,
-          })
-          .from(usageRecords)
-          .where(isNotNull(usageRecords.clientIp))
-          .orderBy(sql`${usageRecords.timestamp} desc`)
-          .limit(20);
+      } catch (error) {
+        console.error('获取最近 IP 请求记录失败:', error);
+        throw new Error('获取最近 IP 请求记录失败');
       }
-
-      return results.map((record) => ({
-        id: record.id,
-        userId: record.userId,
-        clientIp: record.clientIp || '',
-        region: record.region || '未知',
-        model: record.model,
-        provider: record.provider,
-        totalTokens: record.totalTokens,
-        timestamp: record.timestamp.toISOString(),
-      }));
-    } catch (error) {
-      console.error('获取最近 IP 请求记录失败:', error);
-      throw new Error('获取最近 IP 请求记录失败');
-    }
-  }),
+    }),
 
   // 获取模型使用分布
   getModelDistribution: protectedProcedure

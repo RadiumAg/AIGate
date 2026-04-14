@@ -24,6 +24,9 @@ export const ApiKeySchema = z.object({
   key: z.string().min(1, 'API Key 不能为空'),
   baseUrl: z.string().optional(),
   status: z.enum(['active', 'disabled']).default('active'),
+  // 定价相关
+  promptPrice: z.number().optional(),
+  completionPrice: z.number().optional(),
   createdAt: z.string(),
   lastUsed: z.string().optional(),
 });

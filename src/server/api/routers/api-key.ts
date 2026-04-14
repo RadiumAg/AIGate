@@ -82,6 +82,8 @@ export const apiKeyRouter = createTRPCRouter({
         provider: convertProviderFromDb(key.provider),
         status: convertStatusFromDb(key.status),
         createdAt: formatDate(key.createdAt),
+        promptPrice: key.promptPrice ? parseFloat(key.promptPrice) : undefined,
+        completionPrice: key.completionPrice ? parseFloat(key.completionPrice) : undefined,
       }));
 
       return maskedApiKeys;
@@ -115,6 +117,8 @@ export const apiKeyRouter = createTRPCRouter({
         status: convertStatusFromDb(apiKey.status),
         createdAt: formatDate(apiKey.createdAt),
         lastUsed: undefined, // 数据库模式中没有 lastUsed 字段
+        promptPrice: apiKey.promptPrice ? parseFloat(apiKey.promptPrice) : undefined,
+        completionPrice: apiKey.completionPrice ? parseFloat(apiKey.completionPrice) : undefined,
       };
     } catch (error) {
       if (error instanceof TRPCError) {
@@ -144,6 +148,8 @@ export const apiKeyRouter = createTRPCRouter({
           key: input.key,
           baseUrl: input.baseUrl || null,
           status: convertStatusToDb(input.status || 'active'),
+          promptPrice: input.promptPrice?.toString() || null,
+          completionPrice: input.completionPrice?.toString() || null,
         });
 
         // 更新 Redis 缓存
@@ -164,6 +170,10 @@ export const apiKeyRouter = createTRPCRouter({
           status: convertStatusFromDb(newApiKey.status),
           createdAt: formatDate(newApiKey.createdAt),
           lastUsed: undefined, // 数据库模式中没有 lastUsed 字段
+          promptPrice: newApiKey.promptPrice ? parseFloat(newApiKey.promptPrice) : undefined,
+          completionPrice: newApiKey.completionPrice
+            ? parseFloat(newApiKey.completionPrice)
+            : undefined,
         };
       } catch (error) {
         throw new TRPCError({
@@ -184,6 +194,8 @@ export const apiKeyRouter = createTRPCRouter({
         key: input.key,
         baseUrl: input.baseUrl || null,
         status: convertStatusToDb(input.status),
+        promptPrice: input.promptPrice?.toString() || null,
+        completionPrice: input.completionPrice?.toString() || null,
       });
 
       if (!updatedApiKey) {
@@ -211,6 +223,10 @@ export const apiKeyRouter = createTRPCRouter({
         status: convertStatusFromDb(updatedApiKey.status),
         createdAt: formatDate(updatedApiKey.createdAt),
         lastUsed: undefined, // 数据库模式中没有 lastUsed 字段
+        promptPrice: updatedApiKey.promptPrice ? parseFloat(updatedApiKey.promptPrice) : undefined,
+        completionPrice: updatedApiKey.completionPrice
+          ? parseFloat(updatedApiKey.completionPrice)
+          : undefined,
       };
     } catch (error) {
       if (error instanceof TRPCError) {

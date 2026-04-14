@@ -81,7 +81,9 @@ export const getDemoStats = {
 
   // 获取最近的 IP 请求记录
   getRecentIpRequests: (
-    limit: number = 20
+    limit: number = 20,
+    startDate?: Date,
+    endDate?: Date
   ): Array<{
     id: string;
     userId: string;
@@ -92,9 +94,13 @@ export const getDemoStats = {
     totalTokens: number;
     timestamp: Date;
   }> => {
+    const queryStartDate = startDate || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const queryEndDate = endDate || new Date();
+
     return demoDataStore
       .getAllUsageRecords()
       .filter((r): r is typeof r & { clientIp: string } => !!r.clientIp)
+      .filter((r) => r.timestamp >= queryStartDate && r.timestamp <= queryEndDate)
       .slice(0, limit)
       .map((record) => ({
         id: record.id,
