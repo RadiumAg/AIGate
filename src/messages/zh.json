@@ -305,5 +305,33 @@
     "resetting": "重置中...",
     "resetQuota": "重置配额",
     "quotaResetSuccess": "配额重置成功"
+  },
+  "Reports": {
+    "title": "数据报表中心",
+    "subtitle": "查看和分析所有 API 使用数据",
+    "totalRequests": "总请求数",
+    "tokenConsumption": "Token 消耗",
+    "activeUsers": "活跃用户数",
+    "coveredRegions": "覆盖地区",
+    "comparedToLast": "较上期 {{change}}",
+    "searchPlaceholder": "搜索用户、IP、地区...",
+    "allModels": "全部模型",
+    "allProviders": "全部提供商",
+    "exportCsv": "导出 CSV",
+    "detailedRecords": "详细使用记录",
+    "recordsCount": "{{count}} 条记录",
+    "noData": "暂无数据",
+    "table": {
+      "time": "时间",
+      "userId": "用户ID",
+      "ipAddress": "IP地址",
+      "region": "地区",
+      "model": "模型",
+      "provider": "提供商",
+      "tokenCount": "Token数"
+    },
+    "pagination": {
+      "showing": "显示 {{start}} - {{end}} 条，共 {{total}} 条记录"
+    }
   }
 }

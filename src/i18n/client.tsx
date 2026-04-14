@@ -15,7 +15,7 @@ const messagesMap = {
 interface I18nContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
@@ -56,7 +56,7 @@ export function I18nProvider({ children }: I18nProviderProps) {
   });
 
   const t = useCallback(
-    (key: string): string => {
+    (key: string, params?: Record<string, string | number>): string => {
       const messages = messagesMap[locale || 'zh'];
       const value = getNestedValue(messages as Record<string, unknown>, key);
 
@@ -66,6 +66,14 @@ export function I18nProvider({ children }: I18nProviderProps) {
       }
 
       if (typeof value === 'string') {
+        // 替换参数占位符 {{key}}
+        if (params) {
+          return Object.entries(params).reduce(
+            (acc, [paramKey, paramValue]) =>
+              acc.replace(new RegExp(`\\{\\{${paramKey}\\}\\}`, 'g'), String(paramValue)),
+            value
+          );
+        }
         return value;
       }
 

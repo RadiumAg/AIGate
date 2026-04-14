@@ -91,7 +91,15 @@ const ReportsPage: React.FC = () => {
     if (!usageRecords) return;
 
     const csvContent = [
-      ['时间', '用户ID', 'IP地址', '地区', '模型', '提供商', 'Token数'].join(','),
+      [
+        t('Reports.table.time'),
+        t('Reports.table.userId'),
+        t('Reports.table.ipAddress'),
+        t('Reports.table.region'),
+        t('Reports.table.model'),
+        t('Reports.table.provider'),
+        t('Reports.table.tokenCount'),
+      ].join(','),
       ...usageRecords.map((record) =>
         [
           format(new Date(record.timestamp), 'yyyy-MM-dd HH:mm:ss'),
@@ -157,47 +165,55 @@ const ReportsPage: React.FC = () => {
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-6">
       {/* 页面标题 */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">数据报表中心</h1>
-        <p className="text-slate-600 dark:text-slate-400">查看和分析所有 API 使用数据</p>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+          {t('Reports.title')}
+        </h1>
+        <p className="text-slate-600 dark:text-slate-400">{t('Reports.subtitle')}</p>
       </div>
 
       {/* 统计概览 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatSummaryCard
-          title="总请求数"
+          title={t('Reports.totalRequests')}
           value={stats?.requests.value.toLocaleString() || '-'}
           subtitle={
             stats
-              ? `较上期 ${stats.requests.change > 0 ? '+' : ''}${stats.requests.change}%`
+              ? t('Reports.comparedToLast', {
+                  change: `${stats.requests.change > 0 ? '+' : ''}${stats.requests.change}%`,
+                })
               : undefined
           }
           trend={stats?.requests.trend as 'up' | 'down' | 'neutral'}
           icon={<BarChart3 className="w-5 h-5 text-indigo-500" />}
         />
         <StatSummaryCard
-          title="Token 消耗"
+          title={t('Reports.tokenConsumption')}
           value={stats?.tokens.value.toLocaleString() || '-'}
           subtitle={
             stats
-              ? `较上期 ${stats.tokens.change > 0 ? '+' : ''}${stats.tokens.change}%`
+              ? t('Reports.comparedToLast', {
+                  change: `${stats.tokens.change > 0 ? '+' : ''}${stats.tokens.change}%`,
+                })
               : undefined
           }
           trend={stats?.tokens.trend as 'up' | 'down' | 'neutral'}
           icon={<FileText className="w-5 h-5 text-emerald-500" />}
         />
         <StatSummaryCard
-          title="活跃用户数"
+          title={t('Reports.activeUsers')}
           value={stats?.activeUsers.value.toLocaleString() || '-'}
           subtitle={
             stats
-              ? `较上期 ${stats.activeUsers.change > 0 ? '+' : ''}${stats.activeUsers.change}%`
+              ? t('Reports.comparedToLast', {
+                  change: `${stats.activeUsers.change > 0 ? '+' : ''}${stats.activeUsers.change}%`,
+                })
               : undefined
           }
           trend={stats?.activeUsers.trend as 'up' | 'down' | 'neutral'}
           icon={<Users className="w-5 h-5 text-amber-500" />}
         />
         <StatSummaryCard
-          title="覆盖地区"
+          title={t('Reports.coveredRegions')}
           value={new Set(usageRecords?.map((r) => r.region)).size || '-'}
           icon={<Globe className="w-5 h-5 text-rose-500" />}
         />
@@ -226,7 +242,7 @@ const ReportsPage: React.FC = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
-                placeholder="搜索用户、IP、地区..."
+                placeholder={t('Reports.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 w-full sm:w-64 bg-white/50 dark:bg-black/20 border-white/20"
@@ -239,10 +255,10 @@ const ReportsPage: React.FC = () => {
             <Select value={selectedModel} onValueChange={setSelectedModel}>
               <SelectTrigger className="w-40 bg-white/50 dark:bg-black/20 border-white/20">
                 <Filter className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="选择模型" />
+                <SelectValue placeholder={t('Reports.allModels')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部模型</SelectItem>
+                <SelectItem value="all">{t('Reports.allModels')}</SelectItem>
                 {uniqueModels.map((model) => (
                   <SelectItem key={model} value={model}>
                     {model}
@@ -255,10 +271,10 @@ const ReportsPage: React.FC = () => {
             <Select value={selectedProvider} onValueChange={setSelectedProvider}>
               <SelectTrigger className="w-40 bg-white/50 dark:bg-black/20 border-white/20">
                 <Filter className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="选择提供商" />
+                <SelectValue placeholder={t('Reports.allProviders')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部提供商</SelectItem>
+                <SelectItem value="all">{t('Reports.allProviders')}</SelectItem>
                 {uniqueProviders.map((provider) => (
                   <SelectItem key={provider} value={provider}>
                     {provider}
@@ -270,7 +286,7 @@ const ReportsPage: React.FC = () => {
             {/* 导出按钮 */}
             <Button onClick={handleExport} disabled={!usageRecords || usageRecords.length === 0}>
               <Download className="w-4 h-4 mr-2" />
-              导出 CSV
+              {t('Reports.exportCsv')}
             </Button>
           </div>
         </div>
@@ -285,9 +301,9 @@ const ReportsPage: React.FC = () => {
       >
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-            详细使用记录
+            {t('Reports.detailedRecords')}
             <span className="ml-2 text-sm font-normal text-slate-500">
-              ({filteredRecords.length} 条记录)
+              ({t('Reports.recordsCount', { count: filteredRecords.length })})
             </span>
           </h2>
         </div>
@@ -300,20 +316,32 @@ const ReportsPage: React.FC = () => {
           ) : filteredRecords.length === 0 ? (
             <div className="text-center py-12 text-slate-500">
               <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>暂无数据</p>
+              <p>{t('Reports.noData')}</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow className="border-white/10 hover:bg-transparent">
-                  <TableHead className="text-slate-600 dark:text-slate-400">时间</TableHead>
-                  <TableHead className="text-slate-600 dark:text-slate-400">用户ID</TableHead>
-                  <TableHead className="text-slate-600 dark:text-slate-400">IP地址</TableHead>
-                  <TableHead className="text-slate-600 dark:text-slate-400">地区</TableHead>
-                  <TableHead className="text-slate-600 dark:text-slate-400">模型</TableHead>
-                  <TableHead className="text-slate-600 dark:text-slate-400">提供商</TableHead>
+                  <TableHead className="text-slate-600 dark:text-slate-400">
+                    {t('Reports.table.time')}
+                  </TableHead>
+                  <TableHead className="text-slate-600 dark:text-slate-400">
+                    {t('Reports.table.userId')}
+                  </TableHead>
+                  <TableHead className="text-slate-600 dark:text-slate-400">
+                    {t('Reports.table.ipAddress')}
+                  </TableHead>
+                  <TableHead className="text-slate-600 dark:text-slate-400">
+                    {t('Reports.table.region')}
+                  </TableHead>
+                  <TableHead className="text-slate-600 dark:text-slate-400">
+                    {t('Reports.table.model')}
+                  </TableHead>
+                  <TableHead className="text-slate-600 dark:text-slate-400">
+                    {t('Reports.table.provider')}
+                  </TableHead>
                   <TableHead className="text-slate-600 dark:text-slate-400 text-right">
-                    Token数
+                    {t('Reports.table.tokenCount')}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -357,9 +385,11 @@ const ReportsPage: React.FC = () => {
         {filteredRecords.length > 0 && (
           <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/10">
             <div className="text-sm text-slate-600 dark:text-slate-400">
-              显示 {(currentPage - 1) * pageSize + 1} -{' '}
-              {Math.min(currentPage * pageSize, filteredRecords.length)} 条，共{' '}
-              {filteredRecords.length} 条记录
+              {t('Reports.pagination.showing', {
+                start: (currentPage - 1) * pageSize + 1,
+                end: Math.min(currentPage * pageSize, filteredRecords.length),
+                total: filteredRecords.length,
+              })}
             </div>
             <div className="flex items-center gap-2">
               <Button
