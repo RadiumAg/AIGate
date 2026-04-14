@@ -1,6 +1,5 @@
 import { providers } from '@/lib/ai-providers';
 import { v4 as uuidv4 } from 'uuid';
-import { getRegionFromRequest, extractClientIp } from '@/lib/ip-region';
 import type { UsageRecord } from '@/lib/types';
 import { apiKeyDb } from '@/lib/database';
 import { checkQuota, recordUsage } from '@/lib/quota';
