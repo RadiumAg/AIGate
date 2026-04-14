@@ -5,6 +5,7 @@ import * as echarts from 'echarts';
 import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslation } from '@/i18n/client';
+import { useMemoizedFn } from 'ahooks';
 
 const CHINA_MAP_GEOJSON_URL = '/100000_full.json';
 const WORLD_MAP_GEOJSON_URL = '/world.json';
@@ -46,6 +47,17 @@ const CHINA_PROVINCES = new Set([
   '香港',
   '澳门',
 ]);
+
+/**
+ * 规范化省份名称，去掉省、市、自治区、特别行政区等后缀
+ */
+function normalizeProvinceName(name: string): string {
+  return name
+    .replace(/省$/, '')
+    .replace(/市$/, '')
+    .replace(/自治区$/, '')
+    .replace(/特别行政区$/, '');
+}
 
 // 国家名称中英文映射
 const COUNTRY_NAME_MAP: Record<string, string> = {
@@ -126,58 +138,18 @@ const RegionHeatmapChart: React.FC<RegionHeatmapChartProps> = (props) => {
   // 记录哪些地图已加载
   const [loadedMaps, setLoadedMaps] = React.useState<Set<MapType>>(new Set());
   const [mapError, setMapError] = React.useState<MapType | null>(null);
-
   // 当前地图是否准备好
   const mapReady = loadedMaps.has(mapType);
 
-  // 加载地图数据
-  React.useEffect(() => {
-    let cancelled = false;
-
-    const registerMap = async () => {
-      const mapName = mapType;
-      const mapUrl = mapType === 'china' ? CHINA_MAP_GEOJSON_URL : WORLD_MAP_GEOJSON_URL;
-
-      // 如果已注册过则跳过
-      if (echarts.getMap(mapName)) {
-        setLoadedMaps((prev) => new Set(prev).add(mapType));
-        return;
-      }
-
-      try {
-        setMapError(null);
-        const response = await fetch(mapUrl);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch map data: ${response.status}`);
-        }
-        const geoJson = await response.json();
-        if (!cancelled) {
-          echarts.registerMap(mapName, geoJson);
-          setLoadedMaps((prev) => new Set(prev).add(mapType));
-        }
-      } catch (error) {
-        console.error(`加载${mapType === 'china' ? '中国' : '世界'}地图数据失败:`, error);
-        if (!cancelled) {
-          setMapError(mapType);
-        }
-      }
-    };
-
-    registerMap();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [mapType]);
-
   // 转换数据格式
-  const getMapData = React.useCallback(() => {
+  const getMapData = useMemoizedFn(() => {
     if (mapType === 'china') {
       // 中国地图：过滤出中国省份的数据
+      // 规范化只用于判断是否是中国省份，传给 ECharts 的名称保持原样
       return data
-        .filter((item) => CHINA_PROVINCES.has(item.name))
+        .filter((item) => CHINA_PROVINCES.has(normalizeProvinceName(item.name)))
         .map((item) => ({
-          name: item.name,
+          name: item.name, // 保持原始名称（如"广东省"），与 GeoJSON 中的一致
           value: item.value,
           tokens: item.tokens,
         }));
@@ -186,7 +158,7 @@ const RegionHeatmapChart: React.FC<RegionHeatmapChartProps> = (props) => {
       const worldData: Map<string, { value: number; tokens: number }> = new Map();
 
       data.forEach((item) => {
-        if (CHINA_PROVINCES.has(item.name)) {
+        if (CHINA_PROVINCES.has(normalizeProvinceName(item.name))) {
           // 中国省份合并为中国
           const existing = worldData.get('China') || { value: 0, tokens: 0 };
           worldData.set('China', {
@@ -210,7 +182,7 @@ const RegionHeatmapChart: React.FC<RegionHeatmapChartProps> = (props) => {
         tokens: data.tokens,
       }));
     }
-  }, [data, mapType]);
+  });
 
   React.useEffect(() => {
     if (!chartRef.current || loading || !mapReady) return;
@@ -305,6 +277,46 @@ const RegionHeatmapChart: React.FC<RegionHeatmapChartProps> = (props) => {
       chart.dispose();
     };
   }, [data, loading, mapReady, mapType, getMapData]);
+
+  // 加载地图数据
+  React.useEffect(() => {
+    let cancelled = false;
+
+    const registerMap = async () => {
+      const mapName = mapType;
+      const mapUrl = mapType === 'china' ? CHINA_MAP_GEOJSON_URL : WORLD_MAP_GEOJSON_URL;
+
+      // 如果已注册过则跳过
+      if (echarts.getMap(mapName)) {
+        setLoadedMaps((prev) => new Set(prev).add(mapType));
+        return;
+      }
+
+      try {
+        setMapError(null);
+        const response = await fetch(mapUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch map data: ${response.status}`);
+        }
+        const geoJson = await response.json();
+        if (!cancelled) {
+          echarts.registerMap(mapName, geoJson);
+          setLoadedMaps((prev) => new Set(prev).add(mapType));
+        }
+      } catch (error) {
+        console.error(`加载${mapType === 'china' ? '中国' : '世界'}地图数据失败:`, error);
+        if (!cancelled) {
+          setMapError(mapType);
+        }
+      }
+    };
+
+    registerMap();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mapType]);
 
   return (
     <div className="relative">
