@@ -24,17 +24,16 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Spinner } from '@/components/ui/spinner';
+import { Download, Search, Filter, FileText, BarChart3, Globe, Users } from 'lucide-react';
 import {
-  Download,
-  Search,
-  Filter,
-  FileText,
-  BarChart3,
-  Globe,
-  Users,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { addDays, format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -391,19 +390,23 @@ const ReportsPage: React.FC = () => {
                 total: filteredRecords.length,
               })}
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="bg-white/50 dark:bg-black/20 border-white/20 hover:bg-white/70 dark:hover:bg-black/30"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <div className="flex items-center gap-1">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentPage((p) => Math.max(1, p - 1));
+                    }}
+                    className={cn(
+                      'bg-white/50 dark:bg-black/20 border-white/20 hover:bg-white/70 dark:hover:bg-black/30',
+                      currentPage === 1 && 'pointer-events-none opacity-50'
+                    )}
+                  />
+                </PaginationItem>
+
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  // 显示当前页附近的页码
                   let pageNum;
                   if (totalPages <= 5) {
                     pageNum = i + 1;
@@ -414,33 +417,56 @@ const ReportsPage: React.FC = () => {
                   } else {
                     pageNum = currentPage - 2 + i;
                   }
+
+                  // 显示省略号逻辑
+                  if (totalPages > 5) {
+                    if (currentPage > 3 && i === 0) {
+                      return (
+                        <PaginationItem key="start-ellipsis">
+                          <PaginationEllipsis className="text-slate-600 dark:text-slate-400" />
+                        </PaginationItem>
+                      );
+                    }
+                    if (currentPage < totalPages - 2 && i === 4) {
+                      return (
+                        <PaginationItem key="end-ellipsis">
+                          <PaginationEllipsis className="text-slate-600 dark:text-slate-400" />
+                        </PaginationItem>
+                      );
+                    }
+                  }
+
                   return (
-                    <Button
-                      key={pageNum}
-                      variant={currentPage === pageNum ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={
-                        currentPage === pageNum
-                          ? 'bg-indigo-500/80 hover:bg-indigo-600/80'
-                          : 'bg-white/50 dark:bg-black/20 border-white/20 hover:bg-white/70 dark:hover:bg-black/30'
-                      }
-                    >
-                      {pageNum}
-                    </Button>
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink
+                        href="#"
+                        isActive={currentPage === pageNum}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setCurrentPage(pageNum);
+                        }}
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
                   );
                 })}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="bg-white/50 dark:bg-black/20 border-white/20 hover:bg-white/70 dark:hover:bg-black/30"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
+
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentPage((p) => Math.min(totalPages, p + 1));
+                    }}
+                    className={cn(
+                      'bg-white/50 dark:bg-black/20 border-white/20 hover:bg-white/70 dark:hover:bg-black/30',
+                      currentPage === totalPages && 'pointer-events-none opacity-50'
+                    )}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
         )}
       </Card>
