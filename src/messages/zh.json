@@ -1,6 +1,7 @@
 {
   "Navigation": {
     "dashboard": "仪表板",
+    "reports": "数据报表",
     "debug": "接口调试",
     "quotas": "配额管理",
     "keys": "API 密钥",

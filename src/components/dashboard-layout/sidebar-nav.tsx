@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Settings, Gauge, Key, Users } from 'lucide-react';
+import { Home, Settings, Gauge, Key, Users, BarChart3 } from 'lucide-react';
 import { useTranslation } from '@/i18n/client';
 
 const getNavigation = (t: (key: string) => string | Record<string, string>) => [
@@ -11,6 +11,11 @@ const getNavigation = (t: (key: string) => string | Record<string, string>) => [
     name: t('Navigation.dashboard') as string,
     href: '/',
     icon: <Home className="h-5 w-5" />,
+  },
+  {
+    name: t('Navigation.reports') as string,
+    href: '/reports',
+    icon: <BarChart3 className="h-5 w-5" />,
   },
   {
     name: t('Navigation.debug') as string,
