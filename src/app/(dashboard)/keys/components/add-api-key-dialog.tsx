@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ChevronDown } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import type { ApiKey, ApiKeyFormData } from '@/types/api-key';
 import { useTranslation } from '@/i18n/client';
 
@@ -253,51 +254,61 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
               </FieldDescription>
             </Field>
 
-            {/* 定价配置 */}
-            <div className="border-t border-border/50 pt-4 mt-4">
-              <h4 className="text-sm font-medium text-foreground mb-3">
-                {t('ApiKey.pricingConfig') as string}
-              </h4>
-              <p className="text-xs text-muted-foreground mb-4">
-                {t('ApiKey.pricingConfigDesc') as string}
-              </p>
-              <div className="grid grid-cols-2 gap-4">
-                <Field>
-                  <FieldLabel htmlFor="promptPrice">{t('ApiKey.promptPrice') as string}</FieldLabel>
-                  <Input
-                    id="promptPrice"
-                    type="number"
-                    step="0.000001"
-                    min="0"
-                    value={formData.promptPrice ?? ''}
-                    onChange={(e) => {
-                      const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                      setFormData((prev) => ({ ...prev, promptPrice: value }));
-                    }}
-                    placeholder="e.g. 2.5"
-                  />
-                  <FieldDescription>{t('ApiKey.pricePerMillion') as string}</FieldDescription>
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="completionPrice">
-                    {t('ApiKey.completionPrice') as string}
-                  </FieldLabel>
-                  <Input
-                    id="completionPrice"
-                    type="number"
-                    step="0.000001"
-                    min="0"
-                    value={formData.completionPrice ?? ''}
-                    onChange={(e) => {
-                      const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                      setFormData((prev) => ({ ...prev, completionPrice: value }));
-                    }}
-                    placeholder="e.g. 10.0"
-                  />
-                  <FieldDescription>{t('ApiKey.pricePerMillion') as string}</FieldDescription>
-                </Field>
-              </div>
-            </div>
+            {/* 定价配置 - 可折叠 */}
+            <Collapsible className="border-t border-border/50 pt-4 mt-4">
+              <CollapsibleTrigger asChild>
+                <Button
+                  type="button"
+                  className="flex w-full cursor-pointer items-center justify-between text-sm font-medium text-foreground hover:text-foreground/80 transition-colors"
+                >
+                  <span>{t('ApiKey.pricingConfig') as string}</span>
+                  <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-3">
+                <p className="text-xs text-muted-foreground mb-4">
+                  {t('ApiKey.pricingConfigDesc') as string}
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field>
+                    <FieldLabel htmlFor="promptPrice">
+                      {t('ApiKey.promptPrice') as string}
+                    </FieldLabel>
+                    <Input
+                      id="promptPrice"
+                      type="number"
+                      step="0.000001"
+                      min="0"
+                      value={formData.promptPrice ?? ''}
+                      onChange={(e) => {
+                        const value = e.target.value ? parseFloat(e.target.value) : undefined;
+                        setFormData((prev) => ({ ...prev, promptPrice: value }));
+                      }}
+                      placeholder="e.g. 2.5"
+                    />
+                    <FieldDescription>{t('ApiKey.pricePerMillion') as string}</FieldDescription>
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="completionPrice">
+                      {t('ApiKey.completionPrice') as string}
+                    </FieldLabel>
+                    <Input
+                      id="completionPrice"
+                      type="number"
+                      step="0.000001"
+                      min="0"
+                      value={formData.completionPrice ?? ''}
+                      onChange={(e) => {
+                        const value = e.target.value ? parseFloat(e.target.value) : undefined;
+                        setFormData((prev) => ({ ...prev, completionPrice: value }));
+                      }}
+                      placeholder="e.g. 10.0"
+                    />
+                    <FieldDescription>{t('ApiKey.pricePerMillion') as string}</FieldDescription>
+                  </Field>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </FieldGroup>
 
           <DialogFooter>
