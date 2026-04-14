@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { corsMiddleware } from '@/lib/cors';
+import { withRequestContext } from '@/lib/request-context';
 import {
   validateRequest,
   checkRequestQuota,
@@ -9,7 +10,7 @@ import {
   type TokenUsage,
 } from '@/lib/chat-service';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   // 处理 CORS
   if (corsMiddleware(req, res)) {
     return;
@@ -26,11 +27,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // 提取客户端 IP
-    const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '';
+    // 从 req 中获取 clientIp 和 region（由 withRequestContext 中间件注入）
+    const clientIp = req.clientIp || '';
+    const region = req.region || 'Unknown';
 
     // 1. 验证请求
     const { context, apiKeyInfo } = await validateRequest(apiKeyId, userId, clientIp);
+
+    // 更新 context 中的 region
+    const updatedContext = {
+      ...context,
+      region,
+    };
 
     // 2. 检查配额
     const quotaCheck = await checkRequestQuota(
@@ -104,7 +112,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           totalTokens: promptTokens + completionTokens,
         };
 
-        await recordRequestUsage(usage, context, request.model, apiKeyInfo.provider);
+        await recordRequestUsage(usage, updatedContext, request.model, apiKeyInfo.provider);
       }
 
       res.end();
@@ -113,11 +121,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.write(`data: ${JSON.stringify({ error: 'Stream processing failed' })}\n\n`);
       res.end();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API error:', error);
     if (!res.headersSent) {
-      return res.status(500).json({ error: error.message || 'Internal server error' });
+      return res
+        .status(500)
+        .json({ error: error instanceof Error ? error.message : 'Internal server error' });
     }
     res.end();
   }
 }
+
+// 包装 handler 以注入请求上下文
+export default withRequestContext(handler);

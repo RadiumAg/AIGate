@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { corsMiddleware } from '@/lib/cors';
+import { withRequestContext } from '@/lib/request-context';
 import {
   validateRequest,
   checkRequestQuota,
@@ -20,7 +21,7 @@ interface HandlerContext {
   clientIp: string;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   // 处理 CORS
   if (corsMiddleware(req, res)) {
     return;
@@ -40,8 +41,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .json({ error: 'Missing required fields: userId, apiKeyId, messages, model' });
     }
 
-    // 提取客户端 IP
-    const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '';
+    // 从 req 中获取 clientIp 和 region（由 withRequestContext 中间件注入）
+    const clientIp = req.clientIp || '';
+    const region = req.region || 'Unknown';
 
     // 1. 验证请求
     const { context, apiKeyInfo } = await validateRequest(finalApiKey, userId, clientIp);
@@ -71,7 +73,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       requestId: context.requestId,
       userId: context.userId,
       apiKeyId: context.apiKeyId,
-      region: context.region,
+      region,
       clientIp: context.clientIp,
     };
 
@@ -81,12 +83,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } else {
       await handleNonStreamResponse(res, apiKeyInfo, convertedRequest, handlerContext, model);
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API error:', error);
     if (!res.headersSent) {
       return res.status(500).json({
         error: {
-          message: error.message || 'Internal server error',
+          message: error instanceof Error ? error.message : 'Internal server error',
           type: 'server_error',
         },
       });
@@ -184,7 +186,7 @@ async function handleStreamResponse(
 async function handleNonStreamResponse(
   res: NextApiResponse,
   apiKeyInfo: ApiKeyInfo,
-  request: any,
+  request: Record<string, unknown>,
   context: HandlerContext,
   model: string
 ) {
@@ -223,3 +225,6 @@ async function handleNonStreamResponse(
     });
   }
 }
+
+// 包装 handler 以注入请求上下文
+export default withRequestContext(handler);
