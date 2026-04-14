@@ -3,6 +3,14 @@
 import React from 'react';
 import { Globe } from 'lucide-react';
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -11,6 +19,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+import { Spinner } from '@/components/ui/spinner';
 
 interface IpRequestRecord {
   id: string;
@@ -99,15 +108,8 @@ const RecentIpRequests: React.FC<RecentIpRequestsProps> = (props) => {
 
   if (loading) {
     return (
-      <div className="space-y-3">
-        {[...Array(5)].map((_, index) => (
-          <div key={index} className="animate-pulse flex items-center space-x-4 p-3">
-            <div className="w-24 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
-            <div className="w-16 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
-            <div className="flex-1 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
-            <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
-          </div>
-        ))}
+      <div className="flex items-center justify-center py-8">
+        <Spinner className="h-8 w-8 text-primary" />
       </div>
     );
   }
@@ -123,59 +125,48 @@ const RecentIpRequests: React.FC<RecentIpRequestsProps> = (props) => {
 
   return (
     <div className="space-y-4">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-              <th className="pb-3 pr-4 font-medium">IP 地址</th>
-              <th className="pb-3 pr-4 font-medium">归属地</th>
-              <th className="pb-3 pr-4 font-medium">用户</th>
-              <th className="pb-3 pr-4 font-medium">模型</th>
-              <th className="pb-3 pr-4 font-medium">Tokens</th>
-              <th className="pb-3 font-medium">时间</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-            {currentData.map((record) => (
-              <tr
-                key={record.id}
-                className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-              >
-                <td className="py-3 pr-4">
-                  <code className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded font-mono text-gray-800 dark:text-gray-200">
-                    {record.clientIp}
-                  </code>
-                </td>
-                <td className="py-3 pr-4">
-                  <span className="text-gray-700 dark:text-gray-300">{record.region}</span>
-                </td>
-                <td className="py-3 pr-4">
-                  <span className="text-gray-600 dark:text-gray-400 break-all">
-                    {record.userId}
-                  </span>
-                </td>
-                <td className="py-3 pr-4">
-                  <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getProviderColor(record.provider)}`}
-                  >
-                    {record.model}
-                  </span>
-                </td>
-                <td className="py-3 pr-4">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    {record.totalTokens.toLocaleString()}
-                  </span>
-                </td>
-                <td className="py-3">
-                  <span className="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">
-                    {formatTime(record.timestamp)}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>IP 地址</TableHead>
+            <TableHead>归属地</TableHead>
+            <TableHead>用户</TableHead>
+            <TableHead>模型</TableHead>
+            <TableHead>Tokens</TableHead>
+            <TableHead>时间</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {currentData.map((record) => (
+            <TableRow key={record.id}>
+              <TableCell>
+                <code className="text-xs bg-muted px-2 py-1 rounded font-mono">
+                  {record.clientIp}
+                </code>
+              </TableCell>
+              <TableCell>{record.region}</TableCell>
+              <TableCell>
+                <span className="text-muted-foreground break-all">{record.userId}</span>
+              </TableCell>
+              <TableCell>
+                <span
+                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getProviderColor(record.provider)}`}
+                >
+                  {record.model}
+                </span>
+              </TableCell>
+              <TableCell>
+                <span className="text-muted-foreground">{record.totalTokens.toLocaleString()}</span>
+              </TableCell>
+              <TableCell>
+                <span className="text-muted-foreground text-xs whitespace-nowrap">
+                  {formatTime(record.timestamp)}
+                </span>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
 
       {/* 分页组件 */}
       {totalPages > 1 && (
