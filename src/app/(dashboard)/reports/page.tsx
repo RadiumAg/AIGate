@@ -24,7 +24,17 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Spinner } from '@/components/ui/spinner';
-import { Download, Search, Filter, FileText, BarChart3, Globe, Users } from 'lucide-react';
+import {
+  Download,
+  Search,
+  Filter,
+  FileText,
+  BarChart3,
+  Globe,
+  Users,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import { addDays, format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -36,6 +46,10 @@ const ReportsPage: React.FC = () => {
   const [selectedProvider, setSelectedProvider] = React.useState<string>('all');
   const [startDate, setStartDate] = React.useState<Date>(addDays(new Date(), -30));
   const [endDate, setEndDate] = React.useState<Date>(new Date());
+
+  // 分页状态
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const pageSize = 10;
 
   // 获取统计数据
   const { data: stats, isLoading: statsLoading } = trpc.dashboard.getStats.useQuery(
@@ -115,6 +129,14 @@ const ReportsPage: React.FC = () => {
     });
   }, [usageRecords, searchQuery, selectedModel, selectedProvider]);
 
+  // 分页数据
+  const paginatedRecords = React.useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredRecords.slice(startIndex, startIndex + pageSize);
+  }, [filteredRecords, currentPage]);
+
+  const totalPages = Math.ceil(filteredRecords.length / pageSize);
+
   // 获取唯一的模型和提供商列表
   const uniqueModels = React.useMemo(() => {
     if (!modelDistribution) return [];
@@ -125,6 +147,11 @@ const ReportsPage: React.FC = () => {
     if (!usageRecords) return [];
     return Array.from(new Set(usageRecords.map((r) => r.provider)));
   }, [usageRecords]);
+
+  // 重置页码当筛选条件变化时
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedModel, selectedProvider, startDate, endDate]);
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-6">
@@ -241,11 +268,7 @@ const ReportsPage: React.FC = () => {
             </Select>
 
             {/* 导出按钮 */}
-            <Button
-              onClick={handleExport}
-              disabled={!usageRecords || usageRecords.length === 0}
-              className="bg-indigo-500/80 hover:bg-indigo-600/80 backdrop-blur-sm"
-            >
+            <Button onClick={handleExport} disabled={!usageRecords || usageRecords.length === 0}>
               <Download className="w-4 h-4 mr-2" />
               导出 CSV
             </Button>
@@ -295,7 +318,7 @@ const ReportsPage: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredRecords.map((record) => (
+                {paginatedRecords.map((record) => (
                   <TableRow
                     key={record.id}
                     className="border-white/5 hover:bg-white/5 dark:hover:bg-white/5 transition-colors"
@@ -329,6 +352,67 @@ const ReportsPage: React.FC = () => {
             </Table>
           )}
         </div>
+
+        {/* 分页控件 */}
+        {filteredRecords.length > 0 && (
+          <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/10">
+            <div className="text-sm text-slate-600 dark:text-slate-400">
+              显示 {(currentPage - 1) * pageSize + 1} -{' '}
+              {Math.min(currentPage * pageSize, filteredRecords.length)} 条，共{' '}
+              {filteredRecords.length} 条记录
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="bg-white/50 dark:bg-black/20 border-white/20 hover:bg-white/70 dark:hover:bg-black/30"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  // 显示当前页附近的页码
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={
+                        currentPage === pageNum
+                          ? 'bg-indigo-500/80 hover:bg-indigo-600/80'
+                          : 'bg-white/50 dark:bg-black/20 border-white/20 hover:bg-white/70 dark:hover:bg-black/30'
+                      }
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="bg-white/50 dark:bg-black/20 border-white/20 hover:bg-white/70 dark:hover:bg-black/30"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );
