@@ -383,14 +383,14 @@ const ReportsPage: React.FC = () => {
         {/* 分页控件 */}
         {filteredRecords.length > 0 && (
           <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/10">
-            <div className="text-sm text-slate-600 dark:text-slate-400">
+            <div className="text-sm  min-w-max text-slate-600 dark:text-slate-400">
               {t('Reports.pagination.showing', {
                 start: (currentPage - 1) * pageSize + 1,
                 end: Math.min(currentPage * pageSize, filteredRecords.length),
                 total: filteredRecords.length,
               })}
             </div>
-            <Pagination>
+            <Pagination className="flex-1">
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
