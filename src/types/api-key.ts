@@ -10,6 +10,9 @@ export interface ApiKey {
   createdAt: string;
   lastUsed?: string;
   status: 'active' | 'disabled';
+  // 定价相关（可选，覆盖默认定价）
+  promptPrice?: number; // 输入 token 价格（美元/百万）
+  completionPrice?: number; // 输出 token 价格（美元/百万）
 }
 
 export type ApiKeyFormData = Omit<ApiKey, 'createdAt' | 'maskId' | 'maskKey'>;

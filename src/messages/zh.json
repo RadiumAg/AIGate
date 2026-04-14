@@ -117,7 +117,12 @@
     "cancel": "取消",
     "saving": "保存中...",
     "apiKeyDesc": "请确保 API Key 格式正确，{provider} 的 API Key 通常以特定前缀开头",
-    "baseUrlDesc": "留空将使用默认的 {provider} API 地址。自定义 URL 可用于代理服务或私有部署"
+    "baseUrlDesc": "留空将使用默认的 {provider} API 地址。自定义 URL 可用于代理服务或私有部署",
+    "pricingConfig": "定价配置（可选）",
+    "pricingConfigDesc": "设置此 API Key 的自定义定价，用于成本计算。留空将使用系统默认定价",
+    "promptPrice": "输入 Token 价格",
+    "completionPrice": "输出 Token 价格",
+    "pricePerMillion": "美元/百万 tokens"
   },
   "Quota": {
     "title": "配额管理",

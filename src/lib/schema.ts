@@ -47,6 +47,24 @@ export const apiKeys = pgTable('api_keys', {
   key: text('key').notNull(),
   baseUrl: text('base_url'), // AI 服务商的自定义 baseUrl
   status: statusEnum('status').default('ACTIVE').notNull(),
+  // 定价相关（可选，覆盖默认定价）
+  promptPrice: decimal('prompt_price', { precision: 10, scale: 6 }),
+  completionPrice: decimal('completion_price', { precision: 10, scale: 6 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// 模型定价表
+export const modelPricing = pgTable('model_pricing', {
+  id: text('id').primaryKey(),
+  model: text('model').notNull(), // 模型名称，如 gpt-4o, claude-3-5-sonnet
+  provider: text('provider').notNull(), // 提供商
+  // 价格单位：美元/百万 tokens
+  promptPrice: decimal('prompt_price', { precision: 10, scale: 6 }).notNull().default('0'),
+  completionPrice: decimal('completion_price', { precision: 10, scale: 6 }).notNull().default('0'),
+  // 可选的描述
+  description: text('description'),
+  isActive: integer('is_active').notNull().default(1), // 是否启用
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -159,3 +177,5 @@ export type Account = typeof accounts.$inferSelect;
 export type NewAccount = typeof accounts.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
+export type ModelPricing = typeof modelPricing.$inferSelect;
+export type NewModelPricing = typeof modelPricing.$inferInsert;

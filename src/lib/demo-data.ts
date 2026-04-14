@@ -70,6 +70,8 @@ class DemoDataStore {
       key: 'sk-demo-openai-key-1234567890abcdef',
       baseUrl: null,
       status: 'ACTIVE',
+      promptPrice: '2.5',
+      completionPrice: '10.0',
       createdAt: now,
       updatedAt: now,
     };
@@ -81,6 +83,8 @@ class DemoDataStore {
       key: 'sk-demo-anthropic-key-0987654321fedcba',
       baseUrl: null,
       status: 'ACTIVE',
+      promptPrice: '3.0',
+      completionPrice: '15.0',
       createdAt: now,
       updatedAt: now,
     };
@@ -92,6 +96,8 @@ class DemoDataStore {
       key: 'sk-demo-deepseek-key-abcdef1234567890',
       baseUrl: 'https://api.deepseek.com',
       status: 'ACTIVE',
+      promptPrice: '0.14',
+      completionPrice: '0.28',
       createdAt: now,
       updatedAt: now,
     };
