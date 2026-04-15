@@ -11,6 +11,7 @@ import {
   CHINA_PROVINCES,
   normalizeProvinceName,
   COUNTRY_NAME_MAP,
+  getLocalizedCountryName,
   CHINA_MAP_GEOJSON_URL,
   WORLD_MAP_GEOJSON_URL,
 } from './utils';
@@ -24,7 +25,7 @@ type MapType = 'china' | 'world';
 
 const RegionHeatmapChart: React.FC<RegionHeatmapChartProps> = (props) => {
   const { data, loading = false } = props;
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const chartRef = React.useRef<HTMLDivElement>(null);
   const [mapType, setMapType] = React.useState<MapType>('china');
   // 记录哪些地图已加载
@@ -105,13 +106,18 @@ const RegionHeatmapChart: React.FC<RegionHeatmapChartProps> = (props) => {
             data?: { name: string; value: number; tokens: number };
           };
           const dataItem = param.data;
+          // 世界地图显示本地化国家名
+          const displayName =
+            mapType === 'world' && param.name
+              ? getLocalizedCountryName(param.name, locale)
+              : param.name;
           if (!dataItem || dataItem.value === undefined) {
-            return `<div style="font-weight: bold;">${param.name ?? ''}</div><div>暂无请求数据</div>`;
+            return `<div style="font-weight: bold;">${displayName ?? ''}</div><div>${t('Dashboard.noRequestData')}</div>`;
           }
           return `
-            <div style="font-weight: bold;">${dataItem.name}</div>
-            <div>请求次数: ${dataItem.value.toLocaleString()} 次</div>
-            <div>Token 消耗: ${dataItem.tokens.toLocaleString()} tokens</div>
+            <div style="font-weight: bold;">${displayName}</div>
+            <div>${t('Dashboard.requestCount')}: ${dataItem.value.toLocaleString()}</div>
+            <div>${t('Dashboard.tokenConsumption')}: ${dataItem.tokens.toLocaleString()}</div>
           `;
         }) as unknown as echarts.TooltipComponentOption['formatter'],
       },
@@ -127,11 +133,11 @@ const RegionHeatmapChart: React.FC<RegionHeatmapChartProps> = (props) => {
         },
         left: 'left',
         bottom: 10,
-        text: ['高', '低'],
+        text: [t('Dashboard.high'), t('Dashboard.low')],
       },
       series: [
         {
-          name: '请求地区分布',
+          name: t('Dashboard.requestRegionDistribution'),
           type: 'map',
           map: mapName,
           roam: true,
@@ -144,6 +150,13 @@ const RegionHeatmapChart: React.FC<RegionHeatmapChartProps> = (props) => {
               show: true,
               color: '#333',
               fontSize: 12,
+              formatter: (params: unknown) => {
+                const param = params as { name?: string };
+                if (mapType === 'world' && param.name) {
+                  return getLocalizedCountryName(param.name, locale);
+                }
+                return param.name ?? '';
+              },
             },
             itemStyle: {
               areaColor: '#ffd666',
@@ -233,12 +246,12 @@ const RegionHeatmapChart: React.FC<RegionHeatmapChartProps> = (props) => {
       )}
       {mapError === mapType && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <p className="text-gray-500 dark:text-gray-400">地图数据加载失败</p>
+          <p className="text-gray-500 dark:text-gray-400">{t('Dashboard.mapLoadError')}</p>
         </div>
       )}
       {!loading && mapError !== mapType && mapReady && (!data || data.length === 0) && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <p className="text-gray-500 dark:text-gray-400">暂无地区分布数据</p>
+          <p className="text-gray-500 dark:text-gray-400">{t('Dashboard.noRegionData')}</p>
         </div>
       )}
       <div ref={chartRef} className="w-full h-80"></div>

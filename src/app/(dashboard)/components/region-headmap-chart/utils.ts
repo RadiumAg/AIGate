@@ -104,6 +104,19 @@ export const COUNTRY_NAME_MAP: Record<string, string> = {
   乌克兰: 'Ukraine',
   罗马尼亚: 'Romania',
 };
+
+// 反向映射：英文 -> 中文
+export const COUNTRY_NAME_REVERSE_MAP: Record<string, string> = Object.fromEntries(
+  Object.entries(COUNTRY_NAME_MAP).map(([zh, en]) => [en, zh])
+);
+
+// 根据英文国家名获取本地化名称
+export function getLocalizedCountryName(englishName: string, locale: string): string {
+  if (locale === 'zh') {
+    return COUNTRY_NAME_REVERSE_MAP[englishName] || englishName;
+  }
+  return englishName;
+}
 export interface RegionDistributionItem {
   name: string;
   value: number;
