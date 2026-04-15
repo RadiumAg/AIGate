@@ -181,7 +181,7 @@ const RegionHeatmapChart: React.FC<RegionHeatmapChartProps> = (props) => {
       window.removeEventListener('resize', handleResize);
       chart.dispose();
     };
-  }, [data, loading, mapReady, mapType, getMapData]);
+  }, [data, loading, mapReady, mapType, locale, getMapData, t]);
 
   // 加载地图数据
   React.useEffect(() => {
