@@ -4,7 +4,7 @@ import React from 'react';
 import { trpc } from '@/components/trpc-provider';
 import CombinedTrendChart from '@/app/(dashboard)/components/combined-trend-chart';
 import ModelDistributionChart from '@/app/(dashboard)/components/model-distribution-chart';
-import RegionHeatmapChart from '@/app/(dashboard)/components/region-heatmap-chart';
+import RegionHeatmapChart from '@/app/(dashboard)/components/region-headmap-chart';
 import RecentIpRequests from '@/app/(dashboard)/components/recent-ip-requests';
 import StatCard from './components/stat-card';
 import RecentActivity from './components/recent-activity';
