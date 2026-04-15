@@ -12,6 +12,7 @@ import {
   normalizeProvinceName,
   COUNTRY_NAME_MAP,
   getLocalizedCountryName,
+  normalizeToWorldMapRegion,
   CHINA_MAP_GEOJSON_URL,
   WORLD_MAP_GEOJSON_URL,
 } from './utils';
@@ -47,26 +48,17 @@ const RegionHeatmapChart: React.FC<RegionHeatmapChartProps> = (props) => {
           tokens: item.tokens,
         }));
     } else {
-      // 世界地图：将中国各省份合并为中国，其他国家保持原样
+      // 世界地图：将所有地区统一映射到国家级别
       const worldData: Map<string, { value: number; tokens: number }> = new Map();
 
       data.forEach((item) => {
-        if (CHINA_PROVINCES.has(normalizeProvinceName(item.name))) {
-          // 中国省份合并为中国
-          const existing = worldData.get('China') || { value: 0, tokens: 0 };
-          worldData.set('China', {
-            value: existing.value + item.value,
-            tokens: existing.tokens + item.tokens,
-          });
-        } else {
-          // 其他国家/地区
-          const englishName = COUNTRY_NAME_MAP[item.name] || item.name;
-          const existing = worldData.get(englishName) || { value: 0, tokens: 0 };
-          worldData.set(englishName, {
-            value: existing.value + item.value,
-            tokens: existing.tokens + item.tokens,
-          });
-        }
+        // 使用统一的映射函数将地区名转换为国家级别英文名
+        const countryName = normalizeToWorldMapRegion(item.name);
+        const existing = worldData.get(countryName) || { value: 0, tokens: 0 };
+        worldData.set(countryName, {
+          value: existing.value + item.value,
+          tokens: existing.tokens + item.tokens,
+        });
       });
 
       return Array.from(worldData.entries()).map(([name, data]) => ({
