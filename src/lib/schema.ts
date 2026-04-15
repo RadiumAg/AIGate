@@ -149,9 +149,7 @@ export const verificationTokens = pgTable(
     token: text('token').notNull().unique(),
     expires: timestamp('expires', { mode: 'date' }).notNull(),
   },
-  (vt) => ({
-    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
+  (vt) => [primaryKey({ columns: [vt.identifier, vt.token] })]
 );
 
 // 关系定义

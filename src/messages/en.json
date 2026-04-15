@@ -66,7 +66,15 @@
     "chinaMap": "China",
     "worldMap": "World",
     "cost": "Cost",
-    "dataPeriod": "Data Period"
+    "dataPeriod": "Data Period",
+    "noRequestData": "No request data",
+    "requestCount": "Request Count",
+    "tokenConsumption": "Token Consumption",
+    "high": "High",
+    "low": "Low",
+    "requestRegionDistribution": "Request Region Distribution",
+    "mapLoadError": "Failed to load map data",
+    "noRegionData": "No region distribution data"
   },
   "ApiKey": {
     "title": "API Key Management",
