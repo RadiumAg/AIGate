@@ -36,10 +36,11 @@ import {
 } from '@/components/ui/pagination';
 import { addDays, format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import PageHeader from '@/components/page-header';
 
 // 主报表页面
 const ReportsPage: React.FC = () => {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedModel, setSelectedModel] = React.useState<string>('all');
   const [selectedProvider, setSelectedProvider] = React.useState<string>('all');
@@ -51,7 +52,7 @@ const ReportsPage: React.FC = () => {
   const pageSize = 10;
 
   // 获取统计数据
-  const { data: stats, isLoading: statsLoading } = trpc.dashboard.getStats.useQuery(
+  const { data: stats } = trpc.dashboard.getStats.useQuery(
     {
       startDate,
       endDate,
@@ -161,17 +162,11 @@ const ReportsPage: React.FC = () => {
   }, [searchQuery, selectedModel, selectedProvider, startDate, endDate]);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-6">
-      {/* 页面标题 */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-          {t('Reports.title')}
-        </h1>
-        <p className="text-slate-600 dark:text-slate-400">{t('Reports.subtitle')}</p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader title={t('Reports.title')} subtitle={t('Reports.subtitle')} />
 
       {/* 统计概览 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatSummaryCard
           title={t('Reports.totalRequests')}
           value={stats?.requests.value.toLocaleString() || '-'}
@@ -221,7 +216,7 @@ const ReportsPage: React.FC = () => {
       {/* 筛选和搜索 */}
       <Card
         className={cn(
-          'p-6 mb-6 overflow-hidden rounded-2xl border transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
+          'p-6 overflow-hidden rounded-2xl border transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
           glassCardVariants.thin
         )}
       >

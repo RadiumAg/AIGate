@@ -12,6 +12,7 @@ import DateRangePicker from '@/components/date-range-picker';
 import DatePickerWithRange from '@/components/date-picker-with-range';
 import { Users, BarChart3, Coins, UserCheck } from 'lucide-react';
 import { useTranslation } from '@/i18n/client';
+import PageHeader from '@/components/page-header';
 
 const HomePage: React.FC = () => {
   const { t, locale } = useTranslation();
@@ -107,11 +108,10 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header with Liquid Glass */}
-      <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/60 dark:bg-black/30 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)]">
-        <h1 className="text-2xl font-bold text-foreground">{t('Dashboard.title') as string}</h1>
-        <p className="text-muted-foreground mt-2">{t('Dashboard.subtitle') as string}</p>
-      </div>
+      <PageHeader
+        title={t('Dashboard.title') as string}
+        subtitle={t('Dashboard.subtitle') as string}
+      />
 
       {/* 日期筛选器 - Liquid Glass */}
       <div className="flex justify-between items-center rounded-2xl p-4 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)]">

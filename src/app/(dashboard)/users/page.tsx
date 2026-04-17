@@ -11,6 +11,7 @@ import { confirm } from '@/components/ui/confirm';
 import { toast } from 'sonner';
 import { useMemoizedFn } from 'ahooks';
 import { useTranslation } from '@/i18n/client';
+import PageHeader from '@/components/page-header';
 
 interface WhitelistRule {
   id: string;
@@ -116,11 +117,10 @@ const UsersPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header with Liquid Glass */}
-      <div className="flex justify-between items-center rounded-2xl p-6 backdrop-blur-xl bg-white/60 dark:bg-black/30 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)]">
-        <h1 className="text-2xl font-bold text-foreground">{t('User.title') as string}</h1>
-        <Button onClick={handleAddRule}>{t('User.addRule') as string}</Button>
-      </div>
+      <PageHeader
+        title={t('User.title') as string}
+        actions={<Button onClick={handleAddRule}>{t('User.addRule') as string}</Button>}
+      />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl">

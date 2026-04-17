@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { confirm } from '@/components/ui/confirm';
 import { useMemoizedFn } from 'ahooks';
 import { useTranslation } from '@/i18n/client';
+import PageHeader from '@/components/page-header';
 
 const KeysPage: React.FC = () => {
   const { t } = useTranslation();
@@ -101,13 +102,14 @@ const KeysPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header with Liquid Glass */}
-      <div className="flex justify-between items-center rounded-2xl p-6 backdrop-blur-xl bg-white/60 dark:bg-black/30 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)]">
-        <h1 className="text-2xl font-bold text-foreground">{t('ApiKey.title') as string}</h1>
-        <Button onClick={handleAddKey} disabled={isLoading}>
-          {t('ApiKey.addKey') as string}
-        </Button>
-      </div>
+      <PageHeader
+        title={t('ApiKey.title') as string}
+        actions={
+          <Button onClick={handleAddKey} disabled={isLoading}>
+            {t('ApiKey.addKey') as string}
+          </Button>
+        }
+      />
 
       {isLoading ? (
         <div className="rounded-2xl p-8 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]">
