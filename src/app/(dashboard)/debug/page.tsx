@@ -11,6 +11,7 @@ import CodeModal from './components/code-modal';
 import QuotaDebug from './components/quota-debug';
 import { DebugRequestForm, ResponseData } from './components/types';
 import { Spinner } from '@/components/ui/spinner';
+import PageHeader from '@/components/page-header';
 
 const DebugPage: React.FC = () => {
   const { t } = useTranslation();
@@ -319,11 +320,7 @@ curl -X POST '${baseUrl}/api/ai/chat/completions' \\
 
   return (
     <div className="space-y-6">
-      {/* Header with Liquid Glass */}
-      <div className="rounded-2xl p-6 backdrop-blur-xl bg-white/60 dark:bg-black/30 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)]">
-        <h1 className="text-2xl font-bold text-foreground">{t('Debug.title') as string}</h1>
-        <p className="text-muted-foreground mt-2">{t('Debug.subtitle') as string}</p>
-      </div>
+      <PageHeader title={t('Debug.title') as string} subtitle={t('Debug.subtitle') as string} />
 
       {isLoading ? (
         <div className="rounded-2xl p-8 backdrop-blur-xl bg-white/50 dark:bg-black/25 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]">
