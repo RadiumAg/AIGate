@@ -11,13 +11,22 @@
 - [src/app/(dashboard)/components/combined-trend-chart.tsx](file://src/app/(dashboard)/components/combined-trend-chart.tsx)
 - [src/app/(dashboard)/components/model-distribution-chart.tsx](file://src/app/(dashboard)/components/model-distribution-chart.tsx)
 - [src/app/(dashboard)/components/region-headmap-chart/index.tsx](file://src/app/(dashboard)/components/region-headmap-chart/index.tsx)
+- [src/app/(dashboard)/components/region-headmap-chart/utils.ts](file://src/app/(dashboard)/components/region-headmap-chart/utils.ts)
 - [src/app/(dashboard)/components/recent-activity.tsx](file://src/app/(dashboard)/components/recent-activity.tsx)
 - [src/app/(dashboard)/components/activity-item.tsx](file://src/app/(dashboard)/components/activity-item.tsx)
 - [src/app/(dashboard)/components/recent-ip-requests.tsx](file://src/app/(dashboard)/components/recent-ip-requests.tsx)
-- [src/app/(dashboard)/components/region-headmap-chart/utils.ts](file://src/app/(dashboard)/components/region-headmap-chart/utils.ts)
 - [src/server/api/routers/dashboard.ts](file://src/server/api/routers/dashboard.ts)
 - [src/components/dashboard-layout/sidebar-nav.tsx](file://src/components/dashboard-layout/sidebar-nav.tsx)
 </cite>
+
+## 更新摘要
+**所做更改**
+- 新增企业级仪表板系统详细文档
+- 更新客户端-服务器分离架构说明
+- 增强 tRPC 集成模式文档
+- 完善布局系统技术实现细节
+- 补充统计卡片、趋势图表、饼图、热力图等组件的详细分析
+- 新增故障排除指南和性能考虑章节
 
 ## 目录
 1. [简介](#简介)
@@ -32,7 +41,9 @@
 
 ## 简介
 
-这是一个基于 Next.js 和 TypeScript 构建的企业级 AI 服务仪表板系统。该仪表板提供了实时的使用统计、趋势分析、区域分布和用户活动监控功能。系统采用现代化的设计理念，结合了液态玻璃效果、深色模式支持和响应式布局，为用户提供直观的数据可视化体验。
+这是一个基于 Next.js 14+ 和 TypeScript 构建的企业级 AI 服务仪表板系统。该仪表板提供了实时的使用统计、趋势分析、区域分布和用户活动监控功能。系统采用现代化的设计理念，结合了液态玻璃效果、深色模式支持和响应式布局，为用户提供直观的数据可视化体验。
+
+**更新** 新增企业级仪表板系统详细文档，涵盖完整的客户端-服务器分离架构、tRPC 集成模式、布局系统、统计卡片、趋势图表、饼图、热力图等组件的技术实现和使用指导。
 
 ## 项目结构
 
@@ -100,6 +111,8 @@ D --> M
 - **区域热力图**：显示全球或中国地区的使用分布
 - **活动列表**：展示最近的系统活动
 - **IP 请求表格**：展示最近的 IP 访问记录
+
+**更新** 新增账单趋势图表组件，提供费用趋势分析功能。
 
 **章节来源**
 - [src/app/(dashboard)/page.tsx](file://src/app/(dashboard)/page.tsx#L1-L243)
@@ -413,6 +426,8 @@ M --> H
 - **事件清理**：自动清理 ECharts 实例和事件监听器
 - **数据清理**：组件卸载时释放内存资源
 
+**更新** 新增账单趋势图表的性能优化策略，包括数据聚合和缓存机制。
+
 ## 故障排除指南
 
 ### 常见问题及解决方案
@@ -447,6 +462,16 @@ M --> H
 3. 实现合理的超时处理机制
 4. 添加数据缓存策略
 
+#### tRPC 调用失败
+
+**问题描述**：API 调用返回错误
+
+**解决步骤**：
+1. 检查用户认证状态
+2. 验证请求参数格式
+3. 查看服务器端错误日志
+4. 确认数据库连接可用性
+
 **章节来源**
 - [src/app/(dashboard)/components/region-headmap-chart/index.tsx](file://src/app/(dashboard)/components/region-headmap-chart/index.tsx#L178-L216)
 - [src/app/(dashboard)/components/combined-trend-chart.tsx](file://src/app/(dashboard)/components/combined-trend-chart.tsx#L36-L44)
@@ -455,9 +480,12 @@ M --> H
 
 这个仪表板系统展现了现代前端开发的最佳实践，通过精心设计的组件架构、丰富的数据可视化能力和完善的性能优化策略，为用户提供了优秀的数据分析体验。系统的模块化设计使得各个组件可以独立开发和测试，而强大的 tRPC 集成确保了类型安全和开发效率。
 
+**更新** 新增的企业级仪表板系统进一步增强了系统的可扩展性和维护性，通过清晰的架构分层、完善的错误处理机制和全面的性能优化策略，为企业级应用提供了坚实的技术基础。
+
 未来可以考虑的功能扩展包括：
 - 更高级的图表交互功能
 - 自定义报表生成功能
 - 实时数据推送支持
 - 多租户数据隔离
 - 更丰富的主题定制选项
+- 增强的权限管理和审计功能
