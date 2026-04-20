@@ -51,13 +51,7 @@ export const StatSummaryCard: React.FC<StatSummaryCardProps> = ({
   };
 
   return (
-    <Card
-      className={cn(
-        'overflow-hidden rounded-2xl border transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
-        'hover:shadow-[0_12px_40px_rgba(0,0,0,0.16)]',
-        glassCardVariants.default
-      )}
-    >
+    <Card className={cn('overflow-hidden rounded-2xl border', glassCardVariants.default)}>
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
