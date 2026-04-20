@@ -17,6 +17,7 @@
 - [src/app/(dashboard)/components/recent-ip-requests.tsx](file://src/app/(dashboard)/components/recent-ip-requests.tsx)
 - [src/server/api/routers/dashboard.ts](file://src/server/api/routers/dashboard.ts)
 - [src/components/dashboard-layout/sidebar-nav.tsx](file://src/components/dashboard-layout/sidebar-nav.tsx)
+- [src/i18n/client.tsx](file://src/i18n/client.tsx)
 </cite>
 
 ## 更新摘要
@@ -27,6 +28,7 @@
 - 完善布局系统技术实现细节
 - 补充统计卡片、趋势图表、饼图、热力图等组件的详细分析
 - 新增故障排除指南和性能考虑章节
+- **更新** 区域热力图组件代码优化分析，包括 COUNTRY_NAME_MAP 常量的使用和工具函数优化
 
 ## 目录
 1. [简介](#简介)
@@ -278,7 +280,7 @@ PieChart --> RequestView : 切换到 请求次数
 
 ### 区域热力地图组件
 
-区域热力地图组件支持中国地图和世界地图两种视图模式：
+区域热力地图组件支持中国地图和世界地图两种视图模式，经过代码优化后具有更强的数据处理能力：
 
 ```mermaid
 flowchart TD
@@ -293,7 +295,8 @@ ConvertData --> SelectMap{选择地图类型}
 SelectMap --> |中国| FilterChina[过滤中国省份]
 SelectMap --> |世界| NormalizeWorld[标准化世界地图]
 FilterChina --> RenderChart[渲染中国地图]
-NormalizeWorld --> RenderChart
+NormalizeWorld --> AggregateData[聚合世界数据]
+AggregateData --> RenderChart
 RenderChart --> HandleResize[监听窗口调整]
 HandleResize --> End([完成])
 ShowEmpty --> End
@@ -304,6 +307,13 @@ ShowEmpty --> End
 
 **章节来源**
 - [src/app/(dashboard)/components/region-headmap-chart/index.tsx](file://src/app/(dashboard)/components/region-headmap-chart/index.tsx#L1-L255)
+
+**更新** 区域热力图组件经过代码优化，增强了世界地图视图的数据处理能力。主要优化包括：
+
+1. **工具函数优化**：改进了 `normalizeToWorldMapRegion` 函数，使其能够更准确地处理中国省份到国家的映射
+2. **数据聚合增强**：在世界地图模式下实现了更高效的数据聚合算法
+3. **COUNTRY_NAME_MAP 常量使用**：继续使用国家名称映射常量进行中英文转换
+4. **本地化支持**：增强了对不同语言环境下的国家名称显示支持
 
 ### 最近活动组件
 
@@ -369,31 +379,37 @@ B[tRPC]
 C[Lucide Icons]
 D[Next.js 14+]
 E[Tailwind CSS]
+F[ahooks]
+G[i18n]
 end
 subgraph "内部模块"
-F[Dashboard Layout]
-G[UI Components]
-H[API Routers]
-I[Database Services]
-J[Demo Mode]
+H[Dashboard Layout]
+I[UI Components]
+J[API Routers]
+K[Database Services]
+L[Demo Mode]
+M[Region Heatmap Utils]
 end
 subgraph "类型定义"
-K[Dashboard Types]
-L[Component Props]
-M[API Responses]
+N[Dashboard Types]
+O[Component Props]
+P[API Responses]
 end
-A --> F
-B --> H
-C --> G
-D --> F
-E --> G
-F --> G
+A --> H
+B --> J
+C --> I
+D --> H
+E --> I
+F --> H
 G --> H
 H --> I
-H --> J
-K --> G
-L --> G
-M --> H
+I --> J
+J --> K
+J --> L
+M --> I
+N --> I
+O --> I
+P --> J
 ```
 
 **图表来源**
@@ -426,7 +442,10 @@ M --> H
 - **事件清理**：自动清理 ECharts 实例和事件监听器
 - **数据清理**：组件卸载时释放内存资源
 
-**更新** 新增账单趋势图表的性能优化策略，包括数据聚合和缓存机制。
+**更新** 区域热力图组件的性能优化包括：
+- **数据聚合优化**：在世界地图模式下使用 Map 数据结构进行高效聚合
+- **工具函数缓存**：利用 useMemoizedFn 缓存数据转换函数
+- **地图数据预加载**：提前注册地图数据减少首次渲染延迟
 
 ## 故障排除指南
 
@@ -472,6 +491,11 @@ M --> H
 3. 查看服务器端错误日志
 4. 确认数据库连接可用性
 
+**更新** 区域热力图组件故障排除：
+- **COUNTRY_NAME_MAP 常量问题**：如果出现国家名称映射错误，检查 COUNTRY_NAME_MAP 常量的完整性
+- **数据转换错误**：验证 `normalizeToWorldMapRegion` 函数的输入数据格式
+- **世界地图聚合异常**：检查数据聚合逻辑中的键值映射
+
 **章节来源**
 - [src/app/(dashboard)/components/region-headmap-chart/index.tsx](file://src/app/(dashboard)/components/region-headmap-chart/index.tsx#L178-L216)
 - [src/app/(dashboard)/components/combined-trend-chart.tsx](file://src/app/(dashboard)/components/combined-trend-chart.tsx#L36-L44)
@@ -489,3 +513,4 @@ M --> H
 - 多租户数据隔离
 - 更丰富的主题定制选项
 - 增强的权限管理和审计功能
+- **区域热力图组件的进一步优化**：包括更智能的数据聚合算法和更高效的内存使用策略
