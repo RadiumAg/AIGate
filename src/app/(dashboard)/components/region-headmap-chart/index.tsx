@@ -10,7 +10,6 @@ import {
   RegionDistributionItem,
   CHINA_PROVINCES,
   normalizeProvinceName,
-  COUNTRY_NAME_MAP,
   getLocalizedCountryName,
   normalizeToWorldMapRegion,
   CHINA_MAP_GEOJSON_URL,
