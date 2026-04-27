@@ -25,15 +25,18 @@
 - [src/server/api/routers/ai.ts](file://src/server/api/routers/ai.ts)
 - [src/types/api-key.ts](file://src/types/api-key.ts)
 - [src/lib/schema.ts](file://src/lib/schema.ts)
+- [src/lib/ai-providers.ts](file://src/lib/ai-providers.ts)
+- [src/lib/provider-utils.ts](file://src/lib/provider-utils.ts)
 </cite>
 
 ## 更新摘要
 **变更内容**
-- 国际化增强：系统现已完整支持多语言，所有用户界面文本均可根据用户语言偏好自动切换
-- 翻译资源完善：新增完整的 API Key 管理相关翻译键值，包括表单标签、按钮文本、确认对话框内容等
-- 国际化集成：通过 I18nProvider 全局集成，支持中英文双语切换，提供一致的用户体验
-- 组件本地化：API Key 页面、对话框、表格等核心组件均已完成国际化改造
-- 语言切换功能：支持实时语言切换，数据持久化存储在本地存储中
+- 新增 Kimi 和 MiniMax 提供商支持：API Key 管理界面现已支持 Kimi（月之暗面）和 MiniMax 两大国内主流 AI 服务商
+- 提供商类型扩展：ApiKey 类型定义已更新，支持 'kimi' 和 'minimax' 两种新的提供商类型
+- 数据库枚举更新：providerEnum 枚举已包含 Kimi 和 MiniMax，确保数据一致性
+- 国际化增强：翻译资源已更新，支持 Kimi 和 MiniMax 的多语言显示
+- 前端表单适配：新增提供商的表单占位符、基础 URL 和显示名称
+- 后端路由适配：API Key 路由已适配新的提供商类型，确保完整功能支持
 
 ## 目录
 1. [简介](#简介)
@@ -41,28 +44,28 @@
 3. [核心组件](#核心组件)
 4. [架构总览](#架构总览)
 5. [详细组件分析](#详细组件分析)
-6. [国际化系统](#国际化系统)
-7. [依赖关系分析](#依赖关系分析)
-8. [性能考虑](#性能考虑)
-9. [故障排除指南](#故障排除指南)
-10. [结论](#结论)
-11. [附录](#附录)
+6. [提供商支持详解](#提供商支持详解)
+7. [国际化系统](#国际化系统)
+8. [依赖关系分析](#依赖关系分析)
+9. [性能考虑](#性能考虑)
+10. [故障排除指南](#故障排除指南)
+11. [结论](#结论)
+12. [附录](#附录)
 
 ## 简介
 本文件面向管理员与开发者，系统性阐述 API Key 管理系统的实现与使用。内容涵盖密钥的生成、验证、状态管理与生命周期控制；密钥绑定策略（白名单规则）、提供商关联、权限控制与使用统计；密钥轮换机制、安全策略配置、批量管理操作与审计日志记录。同时提供具体 API 调用示例与管理界面使用指南，帮助管理员高效、安全地管理 API Key。
 
-**更新** 系统已完成全面的国际化增强，所有用户界面文本现已支持多语言切换，包括 API Key 表单、确认对话框、表格列头等组件的完整翻译支持。新增的 I18nProvider 提供了统一的语言切换机制，支持中英文双语环境下的无缝切换。
+**更新** 系统现已全面支持 Kimi（月之暗面）和 MiniMax 两大国内主流 AI 服务商，新增了对 Kimi 和 MiniMax 提供商的完整支持，包括提供商选择、占位符、类型定义和国际化显示。
 
 ## 项目结构
-API Key 管理涉及三层：前端页面与对话框、后端 tRPC 路由层、数据库与缓存层。前端负责展示与交互，tRPC 路由负责业务编排与参数校验，数据库与缓存负责持久化与高性能读取。新增的国际化系统通过 I18nProvider 全局集成，为所有页面提供统一的多语言支持。液体玻璃样式确认对话框系统通过 ConfirmProvider 全局集成，为所有页面提供统一的确认操作体验。
+API Key 管理涉及三层：前端页面与对话框、后端 tRPC 路由层、数据库与缓存层。前端负责展示与交互，tRPC 路由负责业务编排与参数校验，数据库与缓存负责持久化与高性能读取。新增的 Kimi 和 MiniMax 提供商支持通过统一的 AI Provider 抽象层实现，确保与现有架构的兼容性。
 
 ```mermaid
 graph TB
-subgraph "国际化系统"
-I18nProvider["I18nProvider<br/>国际化提供者"]
-MessagesEN["en.json<br/>英文翻译资源"]
-MessagesZH["zh.json<br/>中文翻译资源"]
-useTranslation["useTranslation Hook<br/>翻译钩子函数"]
+subgraph "新增提供商支持"
+KimiProvider["Kimi Provider<br/>月之暗面 AI 服务"]
+MiniMaxProvider["MiniMax Provider<br/>MiniMax AI 服务"]
+ProviderUtils["Provider Utils<br/>提供商转换工具"]
 end
 subgraph "前端"
 KeysPage["KeysPage<br/>密钥列表页"]
@@ -76,21 +79,17 @@ end
 subgraph "后端"
 TPRouter["apiKeyRouter<br/>API Key 路由"]
 QuotaRouter["quotaRouter<br/>配额路由"]
+AIProvider["AI Provider 抽象层"]
 end
 subgraph "数据与缓存"
 DB["数据库<br/>apiKeys 表"]
 Redis["Redis 缓存<br/>API Key 与配额策略"]
+ProviderEnum["Provider Enum<br/>OPENAI/DEEPSEEK/KIMI/MINIMAX"]
 end
-I18nProvider --> MessagesEN
-I18nProvider --> MessagesZH
-KeysPage --> useTranslation
-AddDialog --> useTranslation
-ApiKeyTable --> useTranslation
-DeleteModal --> useTranslation
-useTranslation --> KeysPage
-useTranslation --> AddDialog
-useTranslation --> ApiKeyTable
-useTranslation --> DeleteModal
+KimiProvider --> AIProvider
+MiniMaxProvider --> AIProvider
+ProviderUtils --> DB
+ProviderUtils --> AIProvider
 KeysPage --> ApiKeyTable
 KeysPage --> AddDialog
 KeysPage --> DeleteModal
@@ -102,83 +101,69 @@ DeleteModal --> TPRouter
 ConfirmSystem --> LiquidGlassDialog
 TPRouter --> DB
 TPRouter --> Redis
+TPRouter --> ProviderEnum
+AIProvider --> DB
+AIProvider --> Redis
 QuotaRouter --> Redis
 QuotaRouter --> DB
 ```
 
 **图表来源**
-- [src/i18n/client.tsx:53-86](file://src/i18n/client.tsx#L53-L86)
-- [src/messages/en.json:59-110](file://src/messages/en.json#L59-L110)
-- [src/messages/zh.json:59-110](file://src/messages/zh.json#L59-L110)
-- [src/app/(dashboard)/keys/page.tsx:15-16](file://src/app/(dashboard)/keys/page.tsx#L15-L16)
-- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:34-36](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L34-L36)
-- [src/app/(dashboard)/keys/components/api-key-table.tsx:22-24](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L22-L24)
-- [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx:17-19](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L17-L19)
+- [src/lib/ai-providers.ts:288-408](file://src/lib/ai-providers.ts#L288-L408)
+- [src/lib/provider-utils.ts:1-30](file://src/lib/provider-utils.ts#L1-L30)
+- [src/lib/schema.ts:15-22](file://src/lib/schema.ts#L15-L22)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:83-117](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L83-L117)
 
 **章节来源**
-- [src/i18n/client.tsx:53-86](file://src/i18n/client.tsx#L53-L86)
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L145)
-- [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
+- [src/lib/ai-providers.ts:288-408](file://src/lib/ai-providers.ts#L288-L408)
+- [src/lib/provider-utils.ts:1-30](file://src/lib/provider-utils.ts#L1-L30)
+- [src/lib/schema.ts:15-22](file://src/lib/schema.ts#L15-L22)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:83-117](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L83-L117)
 
 ## 核心组件
 - **API Key 路由层**：提供获取、创建、更新、删除、切换状态与使用统计等接口，统一进行输入校验与状态转换。
-- **数据库层**：提供 API Key 的增删改查与按提供商筛选，以及用量记录与白名单规则的读写。
+- **数据库层**：提供 API Key 的增删改查与按提供商筛选，以及用量记录与白名单规则的读写。**更新**：数据库枚举已扩展支持 Kimi 和 MiniMax 提供商。
 - **缓存层**：Redis 缓存 API Key 与配额策略，提升读取性能并支持快速轮换。
 - **前端页面**：提供密钥列表、新增/编辑、删除确认与状态切换的可视化操作，集成液体玻璃样式确认对话框系统和 Toast 通知系统，支持多语言界面。
+- **AI Provider 抽象层**：统一管理各 AI 服务商的 API 调用，新增 Kimi 和 MiniMax 的 OpenAI 兼容实现。**更新**：Kimi 使用 Moonshot API 端点，MiniMax 使用 OpenAI 兼容端点。
 - **国际化系统**：通过 I18nProvider 提供统一的多语言支持，支持中英文双语切换，翻译资源完整覆盖 API Key 管理相关界面元素。
 - **配额与审计**：基于 Redis 的配额检查与记录，结合日志系统实现审计追踪。
 - **液体玻璃确认系统**：基于 ConfirmProvider 和 confirm 函数的现代化确认对话框系统，提供统一的用户反馈层。
 - **Toast 通知系统**：基于 Sonner 库的现代化通知组件，提供成功、错误、警告等多类型反馈。
 
-**更新** 新增国际化系统作为核心组件之一，提供完整的多语言支持。所有前端组件均已完成国际化改造，包括 API Key 页面、对话框、表格等核心界面元素。I18nProvider 通过 useTranslation 钩子函数为组件提供翻译功能，支持实时语言切换。
+**更新** 新增 AI Provider 抽象层作为核心组件之一，统一管理各 AI 服务商的 API 调用。Kimi 和 MiniMax 通过 OpenAI 兼容 API 实现，确保与现有架构的无缝集成。
 
 **章节来源**
-- [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
-- [src/lib/database.ts:19-81](file://src/lib/database.ts#L19-L81)
-- [src/lib/redis.ts:18-43](file://src/lib/redis.ts#L18-L43)
-- [src/i18n/client.tsx:53-86](file://src/i18n/client.tsx#L53-L86)
-- [src/messages/en.json:59-110](file://src/messages/en.json#L59-L110)
-- [src/messages/zh.json:59-110](file://src/messages/zh.json#L59-L110)
+- [src/lib/ai-providers.ts:288-408](file://src/lib/ai-providers.ts#L288-L408)
+- [src/lib/schema.ts:15-22](file://src/lib/schema.ts#L15-L22)
+- [src/lib/provider-utils.ts:1-30](file://src/lib/provider-utils.ts#L1-L30)
 
 ## 架构总览
-系统采用 tRPC 作为前后端通信桥梁，前端通过 tRPC 客户端调用后端路由，后端路由访问数据库与缓存完成业务处理。白名单规则与配额策略贯穿请求链路，确保密钥绑定与权限控制。新增的国际化系统通过 I18nProvider 全局集成，为所有页面提供统一的多语言支持。液体玻璃样式确认对话框系统作为统一的用户交互层，提供沉浸式的确认操作体验。Toast 通知系统作为统一的用户反馈层，提供即时的操作结果反馈。
+系统采用 tRPC 作为前后端通信桥梁，前端通过 tRPC 客户端调用后端路由，后端路由访问数据库与缓存完成业务处理。白名单规则与配额策略贯穿请求链路，确保密钥绑定与权限控制。新增的 Kimi 和 MiniMax 提供商支持通过统一的 AI Provider 抽象层实现，所有提供商共享相同的 API 调用模式和错误处理机制。
 
 ```mermaid
 sequenceDiagram
 participant Admin as "管理员"
-participant I18n as "国际化系统"
 participant UI as "前端页面"
-participant Confirm as "液体玻璃确认系统"
-participant Toast as "Toast 通知系统"
 participant API as "apiKeyRouter"
+participant Provider as "AI Provider 抽象层"
 participant DB as "数据库"
 participant Cache as "Redis"
-Admin->>I18n : 切换语言
-I18n->>UI : 更新翻译资源
-UI->>API : 查询所有 API Key
-API->>DB : 读取 apiKeys
-DB-->>API : 返回密钥列表
-API->>Cache : 读取配额策略缓存(可选)
-API-->>UI : 返回前端所需格式
-Admin->>UI : 触发删除操作
-UI->>Confirm : 显示液体玻璃确认对话框
-Confirm->>Confirm : 用户确认/取消
-Confirm-->>UI : 返回确认结果
-UI->>API : 发起删除请求
-API->>DB : 删除数据库记录
-API->>Cache : 清理Redis缓存
-API-->>UI : 返回删除结果
-UI->>Toast : 显示成功/错误通知
-Note over I18n,Toast : 国际化系统 + 液体玻璃样式确认对话框 + 基于 Sonner 的 Toast 通知
+Admin->>UI : 添加 Kimi/MiniMax API Key
+UI->>API : 提交新增请求
+API->>Provider : 转换提供商类型
+Provider->>DB : 写入 apiKeys 表
+DB-->>Provider : 返回写入结果
+Provider->>Cache : 更新缓存
+API-->>UI : 返回成功结果
+UI->>UI : 更新界面显示
+Note over Provider,DB : Kimi 使用 Moonshot 端点<br/>MiniMax 使用 OpenAI 兼容端点
 ```
 
 **图表来源**
-- [src/i18n/client.tsx:73-80](file://src/i18n/client.tsx#L73-L80)
-- [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
-- [src/lib/database.ts:19-81](file://src/lib/database.ts#L19-L81)
-- [src/lib/redis.ts:18-43](file://src/lib/redis.ts#L18-L43)
-- [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
-- [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
+- [src/lib/ai-providers.ts:461-482](file://src/lib/ai-providers.ts#L461-L482)
+- [src/lib/provider-utils.ts:1-30](file://src/lib/provider-utils.ts#L1-L30)
+- [src/lib/schema.ts:42-55](file://src/lib/schema.ts#L42-L55)
 
 ## 详细组件分析
 
@@ -213,60 +198,41 @@ Stats --> End
 - [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
 
 ### 前端页面与交互
-- **KeysPage**：集中管理 tRPC 查询与变更，处理加载状态，集成液体玻璃样式确认对话框系统和 Toast 通知系统，触发刷新。**更新**：已集成国际化系统，支持多语言界面显示。
-- **AddApiKeyDialog**：表单校验（名称、API Key 必填），动态占位符与提供商提示，支持新增与编辑。**更新**：所有表单标签、占位符、按钮文本均支持多语言切换。
-- **ApiKeyTable**：展示密钥列表，支持复制、启用/禁用、编辑、删除与测试按钮，使用 Toast 进行即时反馈。**更新**：表格列头、操作按钮、状态显示均支持多语言。
-- **DeleteConfirmModal**：基于液体玻璃样式的二次确认删除对话框，提供毛玻璃背景和阴影效果，防止误操作。**更新**：确认对话框内容支持多语言切换。
+- **KeysPage**：集中管理 tRPC 查询与变更，处理加载状态，集成液体玻璃样式确认对话框系统和 Toast 通知系统，触发刷新。
+- **AddApiKeyDialog**：表单校验（名称、API Key 必填），动态占位符与提供商提示，支持新增与编辑。**更新**：已适配 Kimi 和 MiniMax 提供商的表单占位符和基础 URL。
+- **ApiKeyTable**：展示密钥列表，支持复制、启用/禁用、编辑、删除与测试按钮，使用 Toast 进行即时反馈。**更新**：表格中显示的提供商名称已支持 Kimi 和 MiniMax。
+- **DeleteConfirmModal**：基于液体玻璃样式的二次确认删除对话框，提供毛玻璃背景和阴影效果，防止误操作。
 - **液体玻璃确认系统**：基于 ConfirmProvider 和 confirm 函数的现代化确认对话框系统，提供统一的用户交互体验。
 - **Toast 通知系统**：基于 Sonner 的现代化通知组件，提供成功、错误、警告等多类型反馈。
 
-**更新** 所有前端组件均已集成国际化系统，通过 useTranslation 钩子函数获取翻译资源。API Key 页面、对话框、表格等核心界面元素均已完成多语言改造，支持中英文双语显示。
+**更新** 新增 Kimi 和 MiniMax 提供商的前端适配，包括表单占位符、基础 URL 和显示名称的国际化支持。
 
 ```mermaid
 sequenceDiagram
 participant Admin as "管理员"
-participant I18n as "国际化系统"
 participant Page as "KeysPage"
 participant Table as "ApiKeyTable"
 participant Dialog as "AddApiKeyDialog"
 participant Modal as "DeleteConfirmModal"
-participant Confirm as "液体玻璃确认系统"
-participant Toast as "Toast 系统"
 participant API as "apiKeyRouter"
-Admin->>I18n : 切换语言
-I18n->>Page : 更新翻译
-Page->>API : 查询所有 API Key
-API-->>Page : 返回密钥列表
-Page->>Table : 渲染表格
-Admin->>Dialog : 新增/编辑
+Admin->>Dialog : 选择 Kimi/MiniMax 提供商
+Dialog->>Dialog : 显示对应占位符和基础 URL
 Dialog->>API : 提交保存
 API-->>Page : 返回成功/失败
-Page->>Toast : 显示保存结果通知
 Page->>Table : 刷新数据
 Admin->>Modal : 删除
-Modal->>Confirm : 显示液体玻璃确认对话框
-Confirm->>Confirm : 用户确认/取消
-Confirm-->>Modal : 返回确认结果
 Modal->>API : 确认删除
 API-->>Page : 返回结果
-Page->>Toast : 显示删除成功通知
 Page->>Table : 刷新数据
 ```
 
 **图表来源**
-- [src/i18n/client.tsx:73-80](file://src/i18n/client.tsx#L73-L80)
-- [src/app/(dashboard)/keys/page.tsx:15-16](file://src/app/(dashboard)/keys/page.tsx#L15-L16)
-- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:34-36](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L34-L36)
-- [src/app/(dashboard)/keys/components/api-key-table.tsx:22-24](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L22-L24)
-- [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx:17-19](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L17-L19)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:83-117](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L83-L117)
+- [src/app/(dashboard)/keys/components/api-key-table.tsx:38-42](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L38-L42)
 
 **章节来源**
-- [src/app/(dashboard)/keys/page.tsx](file://src/app/(dashboard)/keys/page.tsx#L1-L145)
-- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L1-L271)
-- [src/app/(dashboard)/keys/components/api-key-table.tsx](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L1-L183)
-- [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L1-L56)
-- [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
-- [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:83-117](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L83-L117)
+- [src/app/(dashboard)/keys/components/api-key-table.tsx:38-42](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L38-L42)
 
 ### API Key 字段命名标准化
 **更新** 系统已完成 API Key 字段命名标准化，将 `originId` 和 `originKey` 统一为 `id` 和 `key`，提升代码的一致性和语义清晰度。
@@ -281,7 +247,7 @@ Page->>Table : 刷新数据
   - `maskKey`：脱敏后的密钥显示
 
 **章节来源**
-- [src/types/api-key.ts:1-21](file://src/types/api-key.ts#L1-L21)
+- [src/types/api-key.ts:1-24](file://src/types/api-key.ts#L1-L24)
 - [src/app/(dashboard)/keys/components/api-key-table.tsx:41-72](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L41-L72)
 - [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:36-44](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L36-L44)
 - [src/server/api/routers/api-key.ts:75-85](file://src/server/api/routers/api-key.ts#L75-L85)
@@ -338,7 +304,7 @@ Error --> End
 
 ### 密钥绑定策略与提供商关联
 - **白名单规则**：每个 API Key 可绑定一条白名单规则，规则包含匹配模式、优先级与策略名称，支持按 userId 格式校验与占位符生成最终 userId。
-- **提供商映射**：前端字符串映射到数据库枚举，确保一致性。
+- **提供商映射**：前端字符串映射到数据库枚举，确保一致性。**更新**：新增 Kimi 和 MiniMax 的提供商映射。
 - **校验流程**：请求到达时先按 API Key 查找白名单规则，再进行格式校验与 userId 生成，最终使用生成的 userId 与 API Key 组合进行配额检查。
 
 ```mermaid
@@ -444,6 +410,103 @@ Note over API,Log : 生产环境输出到按日期轮转的日志文件
 - [src/components/ui/dialog.tsx:30-56](file://src/components/ui/dialog.tsx#L30-L56)
 - [src/components/ui/alert-dialog.tsx:30-50](file://src/components/ui/alert-dialog.tsx#L30-L50)
 
+## 提供商支持详解
+
+### Kimi（月之暗面）提供商支持
+- **API 兼容性**：Kimi 使用 Moonshot AI 的 OpenAI 兼容 API，通过统一的 AI Provider 抽象层实现。
+- **基础 URL**：默认使用 `https://api.moonshot.cn/v1` 端点，支持自定义基础 URL。
+- **模型支持**：支持 `kimi-latest`、`moonshot-v1-8k`、`moonshot-v1-32k`、`moonshot-v1-128k` 等模型。
+- **配置特点**：
+  - API Key 前缀：与 Moonshot 服务保持一致
+  - 流式响应：支持流式对话响应
+  - Token 估算：使用统一的估算算法
+- **集成方式**：通过 `getProviderByModel()` 函数识别以 `kimi-` 或 `kimi` 开头的模型。
+
+```mermaid
+flowchart TD
+Kimi["Kimi Provider"] --> Moonshot["Moonshot API"]
+Moonshot --> Endpoint["https://api.moonshot.cn/v1"]
+Endpoint --> Models["支持模型<br/>kimi-latest<br/>moonshot-v1-8k<br/>moonshot-v1-32k<br/>moonshot-v1-128k"]
+Endpoint --> Compatible["OpenAI 兼容 API"]
+Compatible --> Stream["流式响应支持"]
+Compatible --> Token["Token 估算"]
+```
+
+**图表来源**
+- [src/lib/ai-providers.ts:288-347](file://src/lib/ai-providers.ts#L288-L347)
+- [src/lib/ai-providers.ts:420-431](file://src/lib/ai-providers.ts#L420-L431)
+
+**章节来源**
+- [src/lib/ai-providers.ts:288-347](file://src/lib/ai-providers.ts#L288-L347)
+- [src/lib/ai-providers.ts:420-431](file://src/lib/ai-providers.ts#L420-L431)
+
+### MiniMax（MiniMax）提供商支持
+- **API 兼容性**：MiniMax 使用 OpenAI 兼容 API，通过统一的 AI Provider 抽象层实现。
+- **基础 URL**：默认使用 `https://api.minimax.chat/v1` 端点，支持自定义基础 URL。
+- **模型支持**：支持 `MiniMax-Text-01`、`MiniMax-M1`、`abab6.5s-chat` 等模型。
+- **配置特点**：
+  - API Key 前缀：标准 OpenAI 格式
+  - 流式响应：支持流式对话响应
+  - Token 估算：使用统一的估算算法
+- **集成方式**：通过 `getProviderByModel()` 函数识别以 `MiniMax-`、`minimax-` 或 `abab` 开头的模型。
+
+```mermaid
+flowchart TD
+MiniMax["MiniMax Provider"] --> OpenAI["OpenAI 兼容 API"]
+OpenAI --> Endpoint["https://api.minimax.chat/v1"]
+Endpoint --> Models["支持模型<br/>MiniMax-Text-01<br/>MiniMax-M1<br/>abab6.5s-chat"]
+Endpoint --> Stream["流式响应支持"]
+Endpoint --> Token["Token 估算"]
+```
+
+**图表来源**
+- [src/lib/ai-providers.ts:349-408](file://src/lib/ai-providers.ts#L349-L408)
+- [src/lib/ai-providers.ts:420-431](file://src/lib/ai-providers.ts#L420-L431)
+
+**章节来源**
+- [src/lib/ai-providers.ts:349-408](file://src/lib/ai-providers.ts#L349-L408)
+- [src/lib/ai-providers.ts:420-431](file://src/lib/ai-providers.ts#L420-L431)
+
+### 提供商类型定义扩展
+- **类型定义**：ApiKey 接口的 provider 字段已扩展支持 'kimi' 和 'minimax' 类型。
+- **数据库枚举**：providerEnum 枚举已包含 OPENAI、DEEPSEEK、MOONSHOT、SPARK、KIMI、MINIMAX 六种提供商。
+- **前端映射**：新增提供商的显示名称映射，支持中英文双语显示。
+- **表单适配**：新增提供商的表单占位符和基础 URL 配置。
+
+**更新** 新增 Kimi 和 MiniMax 提供商的类型定义和数据库支持，确保完整的类型安全和数据一致性。
+
+**章节来源**
+- [src/types/api-key.ts:8](file://src/types/api-key.ts#L8)
+- [src/lib/schema.ts:15-22](file://src/lib/schema.ts#L15-L22)
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:83-117](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L83-L117)
+
+### 提供商转换工具
+- **双向转换**：convertProviderToDb() 将前端字符串转换为数据库枚举值。
+- **映射关系**：
+  - openai → OpenAI
+  - deepseek → DeepSeek
+  - moonshot → Moonshot
+  - spark → Spark
+  - kimi → Kimi
+  - minimax → MiniMax
+- **反向映射**：convertProviderFromDb() 将数据库枚举值转换为前端字符串。
+
+**更新** 新增 Kimi 和 MiniMax 的提供商转换映射，确保前后端数据的一致性。
+
+**章节来源**
+- [src/lib/provider-utils.ts:1-30](file://src/lib/provider-utils.ts#L1-L30)
+
+### 前端表单适配
+- **显示名称**：新增提供商的中文显示名称映射。
+- **占位符配置**：为 Kimi 和 MiniMax 提供专门的 API Key 占位符。
+- **基础 URL**：为 Kimi 和 MiniMax 提供默认的基础 URL 配置。
+- **国际化支持**：所有新增提供商的界面元素均支持多语言显示。
+
+**更新** 新增 Kimi 和 MiniMax 提供商的前端表单适配，包括占位符、基础 URL 和显示名称的国际化支持。
+
+**章节来源**
+- [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:83-117](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L83-L117)
+
 ## 国际化系统
 
 ### I18nProvider 国际化提供者
@@ -531,6 +594,7 @@ Reload --> Display
 - **确认系统集成**：液体玻璃确认系统通过 ConfirmProvider 全局集成，为所有页面提供统一的确认操作体验。
 - **通知系统集成**：Toast 通知系统通过全局布局集成，为所有页面提供统一的反馈机制。
 - **国际化系统集成**：I18nProvider 通过全局布局集成，为所有页面提供统一的多语言支持。
+- **提供商抽象层**：AI Provider 抽象层统一管理各提供商的 API 调用，新增 Kimi 和 MiniMax 支持。
 
 ```mermaid
 graph LR
@@ -541,11 +605,11 @@ TPR --> DB["数据库"]
 TPR --> RC["Redis"]
 QR --> RC
 QR --> DB
-AI["AI 请求路由"] --> WL["白名单规则"]
-AI --> QU["配额模块"]
-WL --> DB
-QU --> RC
-QU --> DB
+AI["AI Provider 抽象层"] --> Providers["Kimi/MiniMax 提供商"]
+Providers --> DB
+Providers --> RC
+ProviderUtils["Provider Utils"] --> DB
+ProviderUtils --> AI
 Confirm["液体玻璃确认系统"] --> UI
 Confirm --> TPR
 Confirm --> QR
@@ -556,23 +620,13 @@ Toast --> QR
 
 **图表来源**
 - [src/i18n/client.tsx:53-86](file://src/i18n/client.tsx#L53-L86)
-- [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
-- [src/server/api/routers/quota.ts:39-221](file://src/server/api/routers/quota.ts#L39-L221)
-- [src/lib/database.ts:19-81](file://src/lib/database.ts#L19-L81)
-- [src/lib/redis.ts:18-43](file://src/lib/redis.ts#L18-L43)
-- [src/server/api/routers/ai.ts:131-174](file://src/server/api/routers/ai.ts#L131-L174)
-- [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
-- [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
+- [src/lib/ai-providers.ts:288-408](file://src/lib/ai-providers.ts#L288-L408)
+- [src/lib/provider-utils.ts:1-30](file://src/lib/provider-utils.ts#L1-L30)
 
 **章节来源**
 - [src/i18n/client.tsx:53-86](file://src/i18n/client.tsx#L53-L86)
-- [src/server/api/routers/api-key.ts:68-377](file://src/server/api/routers/api-key.ts#L68-L377)
-- [src/server/api/routers/quota.ts:39-221](file://src/server/api/routers/quota.ts#L39-L221)
-- [src/lib/database.ts:19-81](file://src/lib/database.ts#L19-L81)
-- [src/lib/redis.ts:18-43](file://src/lib/redis.ts#L18-L43)
-- [src/server/api/routers/ai.ts:131-174](file://src/server/api/routers/ai.ts#L131-L174)
-- [src/components/ui/confirm.tsx:34-111](file://src/components/ui/confirm.tsx#L34-L111)
-- [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
+- [src/lib/ai-providers.ts:288-408](file://src/lib/ai-providers.ts#L288-L408)
+- [src/lib/provider-utils.ts:1-30](file://src/lib/provider-utils.ts#L1-L30)
 
 ## 性能考虑
 - **缓存优先**：API Key 与配额策略通过 Redis 缓存，减少数据库压力；删除/切换状态时主动清理缓存，保证一致性。
@@ -583,8 +637,9 @@ Toast --> QR
 - **确认系统性能**：液体玻璃确认系统采用 React 状态管理，Promise 异步处理，性能开销最小化。
 - **国际化性能**：I18nProvider 采用本地存储缓存语言偏好，避免频繁的网络请求；翻译资源按需加载，支持懒加载优化。
 - **组件优化**：useTranslation 钩子函数使用 useCallback 优化，避免不必要的组件重渲染。
+- **提供商缓存**：新增的 Kimi 和 MiniMax 提供商支持通过统一的 AI Provider 抽象层实现，减少重复的 API 调用。
 
-**更新** 新增国际化系统的性能考虑，包括本地存储缓存、懒加载优化、组件重渲染优化等。国际化系统通过本地存储避免频繁网络请求，翻译资源按需加载支持性能优化。
+**更新** 新增提供商抽象层的性能考虑，包括统一的 API 调用模式、错误处理机制和缓存策略。
 
 ## 故障排除指南
 - **API Key 无法使用**
@@ -612,10 +667,15 @@ Toast --> QR
   - 确认翻译键是否存在，检查 messages 文件中的键值对。
   - 检查浏览器语言设置，确认语言切换功能正常工作。
   - 确认本地存储中的语言偏好设置是否正确。
+- **提供商相关问题**
+  - **更新** 检查 Kimi 和 MiniMax 提供商的 API Key 格式是否正确。
+  - 确认基础 URL 配置是否正确，特别是自定义端点设置。
+  - 检查提供商转换工具是否正确映射前端字符串到数据库枚举。
+  - 确认 AI Provider 抽象层是否正确识别 Kimi 和 MiniMax 模型。
 - **日志定位**
   - 查看日志模块输出的配额检查与 AI 请求记录，定位异常原因。
 
-**更新** 新增国际化相关的故障排除指南，包括 I18nProvider 集成检查、翻译键验证、语言切换功能测试、本地存储设置验证等。新增字段命名错误的故障排除指导，确保开发者正确使用标准化的字段命名。
+**更新** 新增 Kimi 和 MiniMax 提供商相关的故障排除指南，包括 API Key 格式验证、基础 URL 配置检查、提供商转换映射验证和 AI Provider 识别测试。
 
 **章节来源**
 - [src/server/api/routers/api-key.ts:272-322](file://src/server/api/routers/api-key.ts#L272-L322)
@@ -626,11 +686,13 @@ Toast --> QR
 - [src/components/ui/confirm.tsx:113-127](file://src/components/ui/confirm.tsx#L113-L127)
 - [src/components/ui/sonner.tsx:1-46](file://src/components/ui/sonner.tsx#L1-L46)
 - [src/i18n/client.tsx:113-127](file://src/i18n/client.tsx#L113-L127)
+- [src/lib/ai-providers.ts:420-431](file://src/lib/ai-providers.ts#L420-L431)
+- [src/lib/provider-utils.ts:1-30](file://src/lib/provider-utils.ts#L1-L30)
 
 ## 结论
 本系统通过 tRPC、数据库与 Redis 的协同，实现了 API Key 的全生命周期管理与严格的权限控制。白名单规则与配额策略解耦设计，既保证灵活性又兼顾性能。配合完善的审计日志、现代化的 Toast 通知系统、液体玻璃样式确认对话框系统和全新的国际化系统，管理员可以高效、安全地管理密钥并保障系统稳定运行。
 
-**更新** 新增的国际化系统提供了完整的多语言支持，所有用户界面文本均可根据用户语言偏好自动切换。I18nProvider 通过 useTranslation 钩子函数为组件提供翻译功能，支持中英文双语环境下的无缝切换。液体玻璃确认对话框系统提供了更直观、一致的用户反馈体验，进一步提升了系统的易用性和专业性。
+**更新** 新增的 Kimi 和 MiniMax 提供商支持进一步扩展了系统的生态兼容性，通过统一的 AI Provider 抽象层实现了对多家 AI 服务商的无缝集成。新增的提供商类型定义、数据库枚举和前端表单适配确保了完整的功能支持和用户体验一致性。
 
 ## 附录
 
@@ -663,6 +725,7 @@ Toast --> QR
 - **更新** 删除操作会弹出液体玻璃样式确认对话框，提供毛玻璃背景和阴影效果，确保操作安全性。
 - **更新** 状态切换操作使用标准化的 `key.id` 字段，确保操作的准确性和一致性。
 - **更新** 支持实时语言切换，在侧边栏底部的语言切换区域可选择中英文界面。
+- **更新** 新增 Kimi 和 MiniMax 提供商支持，可在提供商选择中看到这两个选项。
 
 ### API Key 字段命名标准化指南
 **更新** 新增 API Key 字段命名标准化使用指南，帮助开发者正确使用新的字段命名规范。
@@ -682,7 +745,7 @@ Toast --> QR
   - 检查数据库查询和缓存操作中的字段引用
 
 **章节来源**
-- [src/types/api-key.ts:1-21](file://src/types/api-key.ts#L1-L21)
+- [src/types/api-key.ts:1-24](file://src/types/api-key.ts#L1-L24)
 - [src/app/(dashboard)/keys/components/api-key-table.tsx:127](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L127)
 - [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:118](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L118)
 - [src/server/api/routers/api-key.ts:141](file://src/server/api/routers/api-key.ts#L141)
@@ -740,7 +803,7 @@ Toast --> QR
   - `id`：API Key 的唯一标识符
   - `key`：实际的 API 密钥值
   - `name`：API Key 的名称
-  - `provider`：提供商类型
+  - `provider`：提供商类型（已扩展支持 Kimi 和 MiniMax）
   - `base_url`：自定义基础 URL
   - `status`：状态（ACTIVE/INACTIVE/SUSPENDED）
   - `created_at`：创建时间
@@ -754,9 +817,12 @@ Toast --> QR
   - 提升代码一致性
   - 减少命名混淆
   - 便于维护和扩展
+- **提供商枚举扩展**：
+  - 新增 KIMI 和 MINIMAX 枚举值
+  - 支持六种提供商类型
 
 **章节来源**
-- [src/lib/schema.ts:42-52](file://src/lib/schema.ts#L42-L52)
+- [src/lib/schema.ts:42-55](file://src/lib/schema.ts#L42-L55)
 - [src/server/api/routers/api-key.ts:75-85](file://src/server/api/routers/api-key.ts#L75-L85)
 - [src/types/api-key.ts:2-12](file://src/types/api-key.ts#L2-L12)
 
@@ -792,3 +858,26 @@ Toast --> QR
 - [src/app/(dashboard)/keys/components/add-api-key-dialog.tsx:34-36](file://src/app/(dashboard)/keys/components/add-api-key-dialog.tsx#L34-L36)
 - [src/app/(dashboard)/keys/components/api-key-table.tsx:22-24](file://src/app/(dashboard)/keys/components/api-key-table.tsx#L22-L24)
 - [src/app/(dashboard)/keys/components/delete-confirm-modal.tsx:17-19](file://src/app/(dashboard)/keys/components/delete-confirm-modal.tsx#L17-L19)
+
+### Kimi 和 MiniMax 提供商集成指南
+**更新** 新增 Kimi 和 MiniMax 提供商的集成使用指南。
+
+- **提供商类型**：
+  - Kimi：'kimi' 类型，支持 Moonshot API 端点
+  - MiniMax：'minimax' 类型，支持 OpenAI 兼容端点
+- **API Key 配置**：
+  - Kimi：使用 Moonshot 格式的 API Key，基础 URL 为 https://api.moonshot.cn/v1
+  - MiniMax：使用标准 OpenAI 格式的 API Key，基础 URL 为 https://api.minimax.chat/v1
+- **模型支持**：
+  - Kimi：kimi-latest、moonshot-v1-8k、moonshot-v1-32k、moonshot-v1-128k
+  - MiniMax：MiniMax-Text-01、MiniMax-M1、abab6.5s-chat
+- **集成验证**：
+  - 使用 getProviderByModel() 函数验证模型识别
+  - 通过 convertProviderToDb() 和 convertProviderFromDb() 验证类型转换
+  - 检查数据库枚举是否包含新的提供商类型
+
+**章节来源**
+- [src/lib/ai-providers.ts:288-408](file://src/lib/ai-providers.ts#L288-L408)
+- [src/lib/provider-utils.ts:1-30](file://src/lib/provider-utils.ts#L1-L30)
+- [src/lib/schema.ts:15-22](file://src/lib/schema.ts#L15-L22)
+- [src/lib/ai-providers.ts:420-431](file://src/lib/ai-providers.ts#L420-L431)
