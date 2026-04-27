@@ -76,15 +76,28 @@ class DemoDataStore {
       updatedAt: now,
     };
 
-    const anthropicKey: ApiKey = {
-      id: 'key-anthropic-001',
-      name: 'Anthropic Claude',
-      provider: 'ANTHROPIC',
-      key: 'sk-demo-anthropic-key-0987654321fedcba',
+    const kimiKey: ApiKey = {
+      id: 'key-kimi-001',
+      name: 'Kimi',
+      provider: 'KIMI',
+      key: 'sk-demo-kimi-key-0987654321fedcba',
       baseUrl: null,
       status: 'ACTIVE',
-      promptPrice: '3.0',
-      completionPrice: '15.0',
+      promptPrice: '2.0',
+      completionPrice: '10.0',
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const minimaxKey: ApiKey = {
+      id: 'key-minimax-001',
+      name: 'MiniMax',
+      provider: 'MINIMAX',
+      key: 'sk-demo-minimax-key-abcdef1234567890',
+      baseUrl: null,
+      status: 'ACTIVE',
+      promptPrice: '1.0',
+      completionPrice: '2.0',
       createdAt: now,
       updatedAt: now,
     };
@@ -103,8 +116,9 @@ class DemoDataStore {
     };
 
     this.apiKeys.set(openaiKey.id, openaiKey);
-    this.apiKeys.set(anthropicKey.id, anthropicKey);
+    this.apiKeys.set(kimiKey.id, kimiKey);
     this.apiKeys.set(deepseekKey.id, deepseekKey);
+    this.apiKeys.set(minimaxKey.id, minimaxKey);
 
     // 初始化白名单规则
     const whitelistRule1: WhitelistRule = {
@@ -130,7 +144,7 @@ class DemoDataStore {
       validationPattern: '^[a-zA-Z0-9._%+-]+@vip\\.com$',
       userIdPattern: '@user_id',
       validationEnabled: 1,
-      apiKeyId: 'key-anthropic-001',
+      apiKeyId: 'key-kimi-001',
       createdAt: now,
       updatedAt: now,
     };

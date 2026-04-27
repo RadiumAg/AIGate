@@ -29,18 +29,16 @@ function formatDate(date: Date | string): string {
 // 辅助函数：转换提供商名称（前端小写 -> 数据库大写）
 export function convertProviderToDb(
   provider: string
-): 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'MOONSHOT' | 'SPARK' {
-  const mapping: Record<
-    string,
-    'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'MOONSHOT' | 'SPARK'
-  > = {
-    openai: 'OPENAI',
-    anthropic: 'ANTHROPIC',
-    google: 'GOOGLE',
-    deepseek: 'DEEPSEEK',
-    moonshot: 'MOONSHOT',
-    spark: 'SPARK',
-  };
+): 'OPENAI' | 'DEEPSEEK' | 'MOONSHOT' | 'SPARK' | 'KIMI' | 'MINIMAX' {
+  const mapping: Record<string, 'OPENAI' | 'DEEPSEEK' | 'MOONSHOT' | 'SPARK' | 'KIMI' | 'MINIMAX'> =
+    {
+      openai: 'OPENAI',
+      deepseek: 'DEEPSEEK',
+      moonshot: 'MOONSHOT',
+      spark: 'SPARK',
+      kimi: 'KIMI',
+      minimax: 'MINIMAX',
+    };
   return mapping[provider.toLowerCase()] || 'OPENAI';
 }
 

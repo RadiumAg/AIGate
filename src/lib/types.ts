@@ -20,7 +20,7 @@ export type QuotaPolicy = z.infer<typeof QuotaPolicySchema>;
 export const ApiKeySchema = z.object({
   id: z.string(),
   name: z.string().min(1, '名称不能为空'),
-  provider: z.enum(['openai', 'anthropic', 'google', 'deepseek', 'moonshot', 'spark']),
+  provider: z.enum(['openai', 'deepseek', 'moonshot', 'spark', 'kimi', 'minimax']),
   key: z.string().min(1, 'API Key 不能为空'),
   baseUrl: z.string().optional(),
   status: z.enum(['active', 'disabled']).default('active'),

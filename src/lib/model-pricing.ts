@@ -16,24 +16,12 @@ export const DEFAULT_PRICING: Record<string, { prompt: number; completion: numbe
   'o1-mini': { prompt: 1.5, completion: 6.0 },
   'o1-preview': { prompt: 15.0, completion: 60.0 },
 
-  // Anthropic
-  'claude-3-5-sonnet': { prompt: 3.0, completion: 15.0 },
-  'claude-3-5-sonnet-20241022': { prompt: 3.0, completion: 15.0 },
-  'claude-3-5-haiku': { prompt: 0.25, completion: 1.25 },
-  'claude-3-opus': { prompt: 15.0, completion: 75.0 },
-  'claude-3-sonnet': { prompt: 3.0, completion: 15.0 },
-  'claude-3-haiku': { prompt: 0.25, completion: 1.25 },
-
   // DeepSeek
   'deepseek-chat': { prompt: 0.14, completion: 0.28 },
   'deepseek-reasoner': { prompt: 0.55, completion: 2.19 },
 
-  // Google
-  'gemini-1.5-pro': { prompt: 1.25, completion: 5.0 },
-  'gemini-1.5-flash': { prompt: 0.075, completion: 0.3 },
-  'gemini-pro': { prompt: 0.5, completion: 1.5 },
-
-  // Moonshot
+  // Kimi（包含 Moonshot 模型）
+  'kimi-latest': { prompt: 2.0, completion: 10.0 },
   'moonshot-v1-8k': { prompt: 0.5, completion: 0.5 },
   'moonshot-v1-32k': { prompt: 1.0, completion: 1.0 },
   'moonshot-v1-128k': { prompt: 2.0, completion: 2.0 },
@@ -41,6 +29,11 @@ export const DEFAULT_PRICING: Record<string, { prompt: number; completion: numbe
   // Spark (讯飞)
   'spark-v3.5': { prompt: 0.15, completion: 0.15 },
   'spark-v3.0': { prompt: 0.1, completion: 0.1 },
+
+  // MiniMax
+  'MiniMax-Text-01': { prompt: 1.0, completion: 2.0 },
+  'MiniMax-M1': { prompt: 0.5, completion: 1.0 },
+  'abab6.5s-chat': { prompt: 0.1, completion: 0.1 },
 };
 
 // 缓存模型定价

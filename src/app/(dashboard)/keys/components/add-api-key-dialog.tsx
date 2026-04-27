@@ -83,11 +83,11 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
   const getProviderDisplayName = (provider: string) => {
     const names: Record<string, string> = {
       openai: 'OpenAI',
-      anthropic: 'Anthropic',
-      google: 'Google',
       deepseek: 'DeepSeek',
       moonshot: 'Moonshot',
       spark: 'Spark',
+      kimi: 'Kimi',
+      minimax: 'MiniMax',
     };
     return names[provider] || provider;
   };
@@ -95,11 +95,11 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
   const getKeyPlaceholder = (provider: string) => {
     const placeholders: Record<string, string> = {
       openai: 'sk-************************************************',
-      anthropic: 'sk-ant-*************************************',
-      google: 'AI************************************',
       deepseek: 'sk-************************************************',
       moonshot: 'sk-************************************************',
       spark: 'sk-************************************************',
+      kimi: 'sk-************************************************',
+      minimax: 'sk-************************************************',
     };
     return placeholders[provider] || (t('ApiKey.apiKeyPlaceholder') as string);
   };
@@ -107,11 +107,11 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
   const getBaseUrlPlaceholder = (provider: string) => {
     const placeholders: Record<string, string> = {
       openai: 'https://api.openai.com/v1',
-      anthropic: 'https://api.anthropic.com',
-      google: 'https://generativelanguage.googleapis.com/v1beta',
       deepseek: 'https://api.deepseek.com/v1',
       moonshot: 'https://api.moonshot.cn/v1',
       spark: 'https://spark-api.xf-yun.com/v1',
+      kimi: 'https://api.moonshot.cn/v1',
+      minimax: 'https://api.minimax.chat/v1',
     };
     return placeholders[provider] || (t('ApiKey.baseUrlPlaceholder') as string);
   };
@@ -124,11 +124,11 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
         name: keyData.name,
         provider: keyData.provider as
           | 'openai'
-          | 'anthropic'
-          | 'google'
           | 'deepseek'
           | 'moonshot'
-          | 'spark',
+          | 'spark'
+          | 'kimi'
+          | 'minimax',
         key: keyData.key,
         baseUrl: keyData.baseUrl || '',
         lastUsed: keyData.lastUsed,
@@ -193,11 +193,11 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="openai">OpenAI</SelectItem>
-                  <SelectItem value="anthropic">Anthropic</SelectItem>
-                  <SelectItem value="google">Google</SelectItem>
                   <SelectItem value="deepseek">DeepSeek</SelectItem>
                   <SelectItem value="moonshot">Moonshot</SelectItem>
                   <SelectItem value="spark">Spark</SelectItem>
+                  <SelectItem value="kimi">Kimi</SelectItem>
+                  <SelectItem value="minimax">MiniMax</SelectItem>
                 </SelectContent>
               </Select>
             </Field>

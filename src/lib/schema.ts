@@ -14,11 +14,11 @@ export const roleEnum = pgEnum('role', ['USER', 'ADMIN']);
 export const statusEnum = pgEnum('status', ['ACTIVE', 'INACTIVE', 'SUSPENDED']);
 export const providerEnum = pgEnum('provider', [
   'OPENAI',
-  'ANTHROPIC',
-  'GOOGLE',
   'DEEPSEEK',
   'MOONSHOT',
   'SPARK',
+  'KIMI',
+  'MINIMAX',
 ]);
 export const whitelistStatusEnum = pgEnum('whitelist_status', ['active', 'inactive']);
 

@@ -5,7 +5,7 @@ export interface ApiKey {
   maskId: string;
   maskKey: string;
   name: string;
-  provider: 'openai' | 'anthropic' | 'google' | 'deepseek' | 'moonshot' | 'spark';
+  provider: 'openai' | 'deepseek' | 'moonshot' | 'spark' | 'kimi' | 'minimax';
   baseUrl?: string; // AI 服务商的自定义 baseUrl
   createdAt: string;
   lastUsed?: string;
