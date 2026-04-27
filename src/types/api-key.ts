@@ -7,6 +7,7 @@ export interface ApiKey {
   name: string;
   provider: 'openai' | 'deepseek' | 'moonshot' | 'spark' | 'kimi' | 'minimax';
   baseUrl?: string; // AI 服务商的自定义 baseUrl
+  defaultModel?: string; // 默认模型，优先于用户传递的 model
   createdAt: string;
   lastUsed?: string;
   status: 'active' | 'disabled';

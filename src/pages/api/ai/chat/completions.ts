@@ -48,9 +48,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     // 1. 验证请求
     const { context, apiKeyInfo } = await validateRequest(finalApiKey, userId, clientIp);
 
-    // 2. 转换消息格式
+    // 2. 转换消息格式，优先使用 API Key 配置的 defaultModel
+    const effectiveModel = apiKeyInfo.defaultModel || model;
     const convertedRequest = {
-      model,
+      model: effectiveModel,
       messages,
       ...otherParams,
     };
@@ -79,9 +80,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     // 4. 处理流式和非流式响应
     if (stream) {
-      await handleStreamResponse(res, apiKeyInfo, convertedRequest, handlerContext, model);
+      await handleStreamResponse(res, apiKeyInfo, convertedRequest, handlerContext, effectiveModel);
     } else {
-      await handleNonStreamResponse(res, apiKeyInfo, convertedRequest, handlerContext, model);
+      await handleNonStreamResponse(
+        res,
+        apiKeyInfo,
+        convertedRequest,
+        handlerContext,
+        effectiveModel
+      );
     }
   } catch (error: unknown) {
     console.error('API error:', error);

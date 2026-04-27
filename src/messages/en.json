@@ -131,7 +131,9 @@
     "pricingConfigDesc": "Set custom pricing for this API Key for cost calculation. Leave empty to use system default pricing",
     "promptPrice": "Input Token Price",
     "completionPrice": "Output Token Price",
-    "pricePerMillion": "USD per million tokens"
+    "pricePerMillion": "USD per million tokens",
+    "defaultModel": "Default Model (Optional)",
+    "defaultModelDesc": "When set, all requests through this API Key will use this model instead of the model passed by the user"
   },
   "Quota": {
     "title": "Quota Management",

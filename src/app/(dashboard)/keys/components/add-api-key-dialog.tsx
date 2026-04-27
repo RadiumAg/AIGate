@@ -41,6 +41,7 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
     id: keyData?.id || '',
     key: keyData?.key || '',
     baseUrl: keyData?.baseUrl || '',
+    defaultModel: keyData?.defaultModel || '',
     lastUsed: keyData?.lastUsed || '',
     status: keyData?.status || 'active',
     provider: keyData?.provider as ApiKey['provider'],
@@ -116,6 +117,18 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
     return placeholders[provider] || (t('ApiKey.baseUrlPlaceholder') as string);
   };
 
+  const getDefaultModelPlaceholder = (provider: string) => {
+    const placeholders: Record<string, string> = {
+      openai: 'gpt-4o',
+      deepseek: 'deepseek-chat',
+      moonshot: 'moonshot-v1-8k',
+      spark: 'spark-3.5',
+      kimi: 'kimi-latest',
+      minimax: 'MiniMax-Text-01',
+    };
+    return placeholders[provider] || '';
+  };
+
   // 当 keyData 变化时更新表单数据
   React.useEffect(() => {
     if (keyData) {
@@ -131,6 +144,7 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
           | 'minimax',
         key: keyData.key,
         baseUrl: keyData.baseUrl || '',
+        defaultModel: keyData.defaultModel || '',
         lastUsed: keyData.lastUsed,
         status: keyData.status,
         promptPrice: keyData.promptPrice,
@@ -143,6 +157,7 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
         provider: 'openai',
         key: '',
         baseUrl: '',
+        defaultModel: '',
         lastUsed: undefined,
         status: 'active',
         promptPrice: undefined,
@@ -252,6 +267,17 @@ const AddApiKeyDialog: React.FC<AddApiKeyDialogProps> = (props) => {
                   getProviderDisplayName(formData.provider)
                 )}
               </FieldDescription>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="defaultModel">{t('ApiKey.defaultModel') as string}</FieldLabel>
+              <Input
+                id="defaultModel"
+                value={formData.defaultModel}
+                onChange={(e) => handleInputChange('defaultModel', e.target.value)}
+                placeholder={getDefaultModelPlaceholder(formData.provider)}
+              />
+              <FieldDescription>{t('ApiKey.defaultModelDesc') as string}</FieldDescription>
             </Field>
 
             {/* 定价配置 - 可折叠 */}

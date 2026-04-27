@@ -131,7 +131,9 @@
     "pricingConfigDesc": "设置此 API Key 的自定义定价，用于成本计算。留空将使用系统默认定价",
     "promptPrice": "输入 Token 价格",
     "completionPrice": "输出 Token 价格",
-    "pricePerMillion": "美元/百万 tokens"
+    "pricePerMillion": "美元/百万 tokens",
+    "defaultModel": "默认模型（可选）",
+    "defaultModelDesc": "设置后，所有通过此 API Key 的请求将优先使用此模型，而非用户传递的模型名"
   },
   "Quota": {
     "title": "配额管理",

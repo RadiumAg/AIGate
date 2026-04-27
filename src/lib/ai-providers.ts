@@ -1,7 +1,7 @@
 import { getActiveApiKey, apiKeyDb } from './database';
 import { redis, RedisKeys } from './redis';
 import { convertProviderToDb } from '@/server/api/routers/api-key';
-import type { ChatCompletionRequest, ChatCompletionResponse, ChatMessage } from './types';
+import type { ChatCompletionRequest, ChatCompletionResponse } from './types';
 
 // AI 服务商配置
 export interface AIProvider {
@@ -78,7 +78,7 @@ const openaiProvider: AIProvider = {
     });
   },
   estimateTokens: (request: ChatCompletionRequest) => {
-    const text = request.messages.map((m: ChatMessage) => m.content).join(' ');
+    const text = request.messages.map((m) => String(m.content ?? '')).join(' ');
     return estimateTokens(text);
   },
 };
@@ -141,7 +141,7 @@ const deepseekProvider: AIProvider = {
     });
   },
   estimateTokens: (request: ChatCompletionRequest) => {
-    const text = request.messages.map((m: ChatMessage) => m.content).join(' ');
+    const text = request.messages.map((m) => String(m.content ?? '')).join(' ');
     return estimateTokens(text);
   },
 };
@@ -204,7 +204,7 @@ const moonshotProvider: AIProvider = {
     });
   },
   estimateTokens: (request: ChatCompletionRequest) => {
-    const text = request.messages.map((m: ChatMessage) => m.content).join(' ');
+    const text = request.messages.map((m) => String(m.content ?? '')).join(' ');
     return estimateTokens(text);
   },
 };
@@ -267,7 +267,7 @@ const sparkProvider: AIProvider = {
     });
   },
   estimateTokens: (request: ChatCompletionRequest) => {
-    const text = request.messages.map((m: ChatMessage) => m.content).join(' ');
+    const text = request.messages.map((m) => String(m.content ?? '')).join(' ');
     return estimateTokens(text);
   },
 };
@@ -325,7 +325,7 @@ const kimiProvider: AIProvider = {
     });
   },
   estimateTokens: (request: ChatCompletionRequest) => {
-    const text = request.messages.map((m: ChatMessage) => m.content).join(' ');
+    const text = request.messages.map((m) => String(m.content ?? '')).join(' ');
     return estimateTokens(text);
   },
 };
@@ -383,7 +383,7 @@ const minimaxProvider: AIProvider = {
     });
   },
   estimateTokens: (request: ChatCompletionRequest) => {
-    const text = request.messages.map((m: ChatMessage) => m.content).join(' ');
+    const text = request.messages.map((m) => String(m.content ?? '')).join(' ');
     return estimateTokens(text);
   },
 };

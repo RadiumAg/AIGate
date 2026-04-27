@@ -23,6 +23,7 @@ export const ApiKeySchema = z.object({
   provider: z.enum(['openai', 'deepseek', 'moonshot', 'spark', 'kimi', 'minimax']),
   key: z.string().min(1, 'API Key 不能为空'),
   baseUrl: z.string().optional(),
+  defaultModel: z.string().optional(), // 默认模型，优先于用户传递的 model
   status: z.enum(['active', 'disabled']).default('active'),
   // 定价相关
   promptPrice: z.number().optional(),
@@ -47,24 +48,16 @@ export const UserSchema = z.object({
 
 export type User = z.infer<typeof UserSchema>;
 
-// 聊天消息类型
-export const ChatMessageSchema = z.object({
-  role: z.enum(['system', 'user', 'assistant']),
-  content: z.string(),
-});
-
-export type ChatMessage = z.infer<typeof ChatMessageSchema>;
-
 // AI 请求类型（OpenAI Chat Completion 兼容格式，passthrough 透传未知字段）
 export const ChatCompletionRequestSchema = z
   .object({
     model: z.string(),
-    messages: z.array(ChatMessageSchema),
+    messages: z.array(z.record(z.string(), z.unknown())), // 透传消息体，不限制 role/content 格式
     temperature: z.number().optional(),
     max_tokens: z.number().optional(),
     stream: z.boolean().optional(),
   })
-  .loose();
+  .passthrough();
 
 export type ChatCompletionRequest = z.infer<typeof ChatCompletionRequestSchema>;
 

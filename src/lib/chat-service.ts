@@ -37,6 +37,7 @@ export interface ApiKeyInfo {
   baseUrl?: string;
   provider: string;
   providerInstance: AnyObject;
+  defaultModel?: string; // 默认模型，优先于用户传递的 model
 }
 
 // 使用量统计接口
@@ -101,6 +102,7 @@ export async function validateRequest(
     baseUrl: apiKey.baseUrl || undefined,
     provider: apiKey.provider,
     providerInstance: foundProvider,
+    defaultModel: apiKey.defaultModel || undefined,
   };
 
   return {

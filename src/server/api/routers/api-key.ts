@@ -77,6 +77,7 @@ export const apiKeyRouter = createTRPCRouter({
         maskKey: maskApiKey(key.key),
         name: key.name,
         baseUrl: key.baseUrl || undefined,
+        defaultModel: key.defaultModel || undefined,
         provider: convertProviderFromDb(key.provider),
         status: convertStatusFromDb(key.status),
         createdAt: formatDate(key.createdAt),
@@ -112,6 +113,7 @@ export const apiKeyRouter = createTRPCRouter({
         provider: convertProviderFromDb(apiKey.provider),
         key: apiKey.key,
         baseUrl: apiKey.baseUrl || undefined,
+        defaultModel: apiKey.defaultModel || undefined,
         status: convertStatusFromDb(apiKey.status),
         createdAt: formatDate(apiKey.createdAt),
         lastUsed: undefined, // 数据库模式中没有 lastUsed 字段
@@ -145,6 +147,7 @@ export const apiKeyRouter = createTRPCRouter({
           provider: convertProviderToDb(input.provider),
           key: input.key,
           baseUrl: input.baseUrl || null,
+          defaultModel: input.defaultModel || null,
           status: convertStatusToDb(input.status || 'active'),
           promptPrice: input.promptPrice?.toString() || null,
           completionPrice: input.completionPrice?.toString() || null,
@@ -165,6 +168,7 @@ export const apiKeyRouter = createTRPCRouter({
           provider: convertProviderFromDb(newApiKey.provider),
           key: maskApiKey(newApiKey.key),
           baseUrl: newApiKey.baseUrl || undefined,
+          defaultModel: newApiKey.defaultModel || undefined,
           status: convertStatusFromDb(newApiKey.status),
           createdAt: formatDate(newApiKey.createdAt),
           lastUsed: undefined, // 数据库模式中没有 lastUsed 字段
@@ -191,6 +195,7 @@ export const apiKeyRouter = createTRPCRouter({
         provider: convertProviderToDb(input.provider),
         key: input.key,
         baseUrl: input.baseUrl || null,
+        defaultModel: input.defaultModel || null,
         status: convertStatusToDb(input.status),
         promptPrice: input.promptPrice?.toString() || null,
         completionPrice: input.completionPrice?.toString() || null,
@@ -218,6 +223,7 @@ export const apiKeyRouter = createTRPCRouter({
         provider: convertProviderFromDb(updatedApiKey.provider),
         key: updatedApiKey.key,
         baseUrl: updatedApiKey.baseUrl || undefined,
+        defaultModel: updatedApiKey.defaultModel || undefined,
         status: convertStatusFromDb(updatedApiKey.status),
         createdAt: formatDate(updatedApiKey.createdAt),
         lastUsed: undefined, // 数据库模式中没有 lastUsed 字段

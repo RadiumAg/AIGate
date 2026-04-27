@@ -40,7 +40,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       region,
     };
 
-    // 2. 检查配额
+    // 2. 应用 defaultModel 覆盖
+    if (apiKeyInfo.defaultModel) {
+      request.model = apiKeyInfo.defaultModel;
+    }
+
+    // 3. 检查配额
     const quotaCheck = await checkRequestQuota(
       context.userId,
       context.apiKeyId,

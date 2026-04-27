@@ -157,7 +157,12 @@ export const aiRouter = createTRPCRouter({
           baseUrl: apiKey.baseUrl || undefined,
         };
 
-        // 3. 估算 Token 消耗
+        // 应用 defaultModel 覆盖
+        if (apiKey.defaultModel) {
+          request.model = apiKey.defaultModel;
+        }
+
+        // 估算 Token 消耗
         const estimatedTokens = provider.estimateTokens(request);
 
         // 4. 检查配额（使用 finalUserId + apiKeyId 组合作为标识符，确保不同 API Key 配额分开计算）

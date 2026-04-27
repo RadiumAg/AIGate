@@ -46,6 +46,7 @@ export const apiKeys = pgTable('api_keys', {
   provider: providerEnum('provider').notNull(),
   key: text('key').notNull(),
   baseUrl: text('base_url'), // AI 服务商的自定义 baseUrl
+  defaultModel: text('default_model'), // 默认模型，优先于用户传递的 model
   status: statusEnum('status').default('ACTIVE').notNull(),
   // 定价相关（可选，覆盖默认定价）
   promptPrice: decimal('prompt_price', { precision: 10, scale: 6 }),
