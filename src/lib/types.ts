@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 // 配额策略类型
 export const QuotaPolicySchema = z.object({
@@ -52,12 +53,12 @@ export type User = z.infer<typeof UserSchema>;
 export const ChatCompletionRequestSchema = z
   .object({
     model: z.string(),
-    messages: z.array(z.record(z.string(), z.unknown())), // 透传消息体，不限制 role/content 格式
+    messages: z.custom<ChatCompletionMessageParam[]>((v) => Array.isArray(v)), // 透传消息体，兼容 OpenAI SDK 类型
     temperature: z.number().optional(),
     max_tokens: z.number().optional(),
     stream: z.boolean().optional(),
   })
-  .passthrough();
+  .loose();
 
 export type ChatCompletionRequest = z.infer<typeof ChatCompletionRequestSchema>;
 

@@ -39,9 +39,10 @@ const openaiProvider: AIProvider = {
       baseURL: baseUrl || 'https://api.openai.com/v1',
     });
 
+    const { stream: _stream, ...requestWithoutStream } = request;
     const response = await openai.chat.completions.create({
-      ...request,
-      stream: false,
+      ...requestWithoutStream,
+      stream: false as const,
     });
 
     return response as ChatCompletionResponse;
@@ -57,9 +58,10 @@ const openaiProvider: AIProvider = {
       baseURL: baseUrl || 'https://api.openai.com/v1',
     });
 
+    const { stream: _stream, ...requestWithoutStream } = request;
     const stream = await openai.chat.completions.create({
-      ...request,
-      stream: true,
+      ...requestWithoutStream,
+      stream: true as const,
     });
 
     // 转换为 Web ReadableStream
@@ -99,9 +101,10 @@ const deepseekProvider: AIProvider = {
         baseURL: baseUrl || 'https://api.deepseek.com/v1',
       });
 
+      const { stream: _stream, ...requestWithoutStream } = request;
       const response = await openai.chat.completions.create({
-        ...request,
-        stream: false,
+        ...requestWithoutStream,
+        stream: false as const,
       });
 
       return response as ChatCompletionResponse;
@@ -121,9 +124,10 @@ const deepseekProvider: AIProvider = {
       baseURL: baseUrl || 'https://api.deepseek.com/v1',
     });
 
+    const { stream: _stream, ...requestWithoutStream } = request;
     const stream = await openai.chat.completions.create({
-      ...request,
-      stream: true,
+      ...requestWithoutStream,
+      stream: true as const,
     });
 
     return new ReadableStream({
@@ -162,9 +166,10 @@ const moonshotProvider: AIProvider = {
         baseURL: baseUrl || 'https://api.moonshot.cn/v1',
       });
 
+      const { stream: _stream, ...requestWithoutStream } = request;
       const response = await openai.chat.completions.create({
-        ...request,
-        stream: false,
+        ...requestWithoutStream,
+        stream: false as const,
       });
 
       return response as ChatCompletionResponse;
@@ -184,9 +189,10 @@ const moonshotProvider: AIProvider = {
       baseURL: baseUrl || 'https://api.moonshot.cn/v1',
     });
 
+    const { stream: _stream, ...requestWithoutStream } = request;
     const stream = await openai.chat.completions.create({
-      ...request,
-      stream: true,
+      ...requestWithoutStream,
+      stream: true as const,
     });
 
     return new ReadableStream({
@@ -225,9 +231,10 @@ const sparkProvider: AIProvider = {
         baseURL: baseUrl || 'https://spark-api.xf-yun.com/v1',
       });
 
+      const { stream: _stream, ...requestWithoutStream } = request;
       const response = await openai.chat.completions.create({
-        ...request,
-        stream: false,
+        ...requestWithoutStream,
+        stream: false as const,
       });
 
       return response as ChatCompletionResponse;
@@ -247,9 +254,10 @@ const sparkProvider: AIProvider = {
       baseURL: baseUrl || 'https://spark-api.xf-yun.com/v1',
     });
 
+    const { stream: _stream, ...requestWithoutStream } = request;
     const stream = await openai.chat.completions.create({
-      ...request,
-      stream: true,
+      ...requestWithoutStream,
+      stream: true as const,
     });
 
     return new ReadableStream({
@@ -287,9 +295,10 @@ const kimiProvider: AIProvider = {
       baseURL: baseUrl || 'https://api.moonshot.cn/v1',
     });
 
+    const { stream: _stream, ...requestWithoutStream } = request;
     const response = await openai.chat.completions.create({
-      ...request,
-      stream: false,
+      ...requestWithoutStream,
+      stream: false as const,
     });
 
     return response as ChatCompletionResponse;
@@ -305,9 +314,10 @@ const kimiProvider: AIProvider = {
       baseURL: baseUrl || 'https://api.moonshot.cn/v1',
     });
 
+    const { stream: _stream, ...requestWithoutStream } = request;
     const stream = await openai.chat.completions.create({
-      ...request,
-      stream: true,
+      ...requestWithoutStream,
+      stream: true as const,
     });
 
     return new ReadableStream({
@@ -345,9 +355,10 @@ const minimaxProvider: AIProvider = {
       baseURL: baseUrl || 'https://api.minimax.chat/v1',
     });
 
+    const { stream: _stream, ...requestWithoutStream } = request;
     const response = await openai.chat.completions.create({
-      ...request,
-      stream: false,
+      ...requestWithoutStream,
+      stream: false as const,
     });
 
     return response as ChatCompletionResponse;
@@ -363,9 +374,10 @@ const minimaxProvider: AIProvider = {
       baseURL: baseUrl || 'https://api.minimax.chat/v1',
     });
 
+    const { stream: _stream, ...requestWithoutStream } = request;
     const stream = await openai.chat.completions.create({
-      ...request,
-      stream: true,
+      ...requestWithoutStream,
+      stream: true as const,
     });
 
     return new ReadableStream({
