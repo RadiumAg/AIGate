@@ -47,19 +47,24 @@ export const UserSchema = z.object({
 
 export type User = z.infer<typeof UserSchema>;
 
-// AI 请求类型
-export const ChatCompletionRequestSchema = z.object({
-  model: z.string(),
-  messages: z.array(
-    z.object({
-      role: z.enum(['system', 'user', 'assistant']),
-      content: z.string(),
-    })
-  ),
-  temperature: z.number().optional(),
-  max_tokens: z.number().optional(),
-  stream: z.boolean().optional(),
+// 聊天消息类型
+export const ChatMessageSchema = z.object({
+  role: z.enum(['system', 'user', 'assistant']),
+  content: z.string(),
 });
+
+export type ChatMessage = z.infer<typeof ChatMessageSchema>;
+
+// AI 请求类型（OpenAI Chat Completion 兼容格式，passthrough 透传未知字段）
+export const ChatCompletionRequestSchema = z
+  .object({
+    model: z.string(),
+    messages: z.array(ChatMessageSchema),
+    temperature: z.number().optional(),
+    max_tokens: z.number().optional(),
+    stream: z.boolean().optional(),
+  })
+  .loose();
 
 export type ChatCompletionRequest = z.infer<typeof ChatCompletionRequestSchema>;
 

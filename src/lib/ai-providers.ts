@@ -1,13 +1,7 @@
 import { getActiveApiKey, apiKeyDb } from './database';
 import { redis, RedisKeys } from './redis';
 import { convertProviderToDb } from '@/server/api/routers/api-key';
-import type { ChatCompletionRequest, ChatCompletionResponse } from './types';
-
-// 消息类型定义
-interface ChatMessage {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
-}
+import type { ChatCompletionRequest, ChatCompletionResponse, ChatMessage } from './types';
 
 // AI 服务商配置
 export interface AIProvider {
@@ -634,6 +628,7 @@ const sparkProvider: AIProvider = {
         temperature: request.temperature,
         max_tokens: request.max_tokens,
         stream: false,
+        ...request,
       });
 
       return response as ChatCompletionResponse;
@@ -658,7 +653,8 @@ const sparkProvider: AIProvider = {
       messages: request.messages,
       temperature: request.temperature,
       max_tokens: request.max_tokens,
-      stream: true,
+      stream: false,
+      ...request,
     });
 
     return new ReadableStream({
