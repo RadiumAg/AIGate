@@ -69,10 +69,6 @@ const openaiProvider: AIProvider = {
           for await (const chunk of stream) {
             const data = `data: ${JSON.stringify(chunk)}\n\n`;
             controller.enqueue(new TextEncoder().encode(data));
-
-            if (chunk.choices[0]?.finish_reason) {
-              controller.enqueue(new TextEncoder().encode(`data: [DONE]\n\n`));
-            }
           }
           controller.close();
         } catch (error) {
@@ -136,9 +132,6 @@ const deepseekProvider: AIProvider = {
           for await (const chunk of stream) {
             const data = `data: ${JSON.stringify(chunk)}\n\n`;
             controller.enqueue(new TextEncoder().encode(data));
-            if (chunk.choices[0]?.finish_reason) {
-              controller.enqueue(new TextEncoder().encode(`data: [DONE]\n\n`));
-            }
           }
           controller.close();
         } catch (error) {
@@ -202,9 +195,6 @@ const moonshotProvider: AIProvider = {
           for await (const chunk of stream) {
             const data = `data: ${JSON.stringify(chunk)}\n\n`;
             controller.enqueue(new TextEncoder().encode(data));
-            if (chunk.choices[0]?.finish_reason) {
-              controller.enqueue(new TextEncoder().encode(`data: [DONE]\n\n`));
-            }
           }
           controller.close();
         } catch (error) {
@@ -268,9 +258,6 @@ const sparkProvider: AIProvider = {
           for await (const chunk of stream) {
             const data = `data: ${JSON.stringify(chunk)}\n\n`;
             controller.enqueue(new TextEncoder().encode(data));
-            if (chunk.choices[0]?.finish_reason) {
-              controller.enqueue(new TextEncoder().encode(`data: [DONE]\n\n`));
-            }
           }
           controller.close();
         } catch (error) {
@@ -329,9 +316,6 @@ const kimiProvider: AIProvider = {
           for await (const chunk of stream) {
             const data = `data: ${JSON.stringify(chunk)}\n\n`;
             controller.enqueue(new TextEncoder().encode(data));
-            if (chunk.choices[0]?.finish_reason) {
-              controller.enqueue(new TextEncoder().encode(`data: [DONE]\n\n`));
-            }
           }
           controller.close();
         } catch (error) {
@@ -390,9 +374,6 @@ const minimaxProvider: AIProvider = {
           for await (const chunk of stream) {
             const data = `data: ${JSON.stringify(chunk)}\n\n`;
             controller.enqueue(new TextEncoder().encode(data));
-            if (chunk.choices[0]?.finish_reason) {
-              controller.enqueue(new TextEncoder().encode(`data: [DONE]\n\n`));
-            }
           }
           controller.close();
         } catch (error) {
