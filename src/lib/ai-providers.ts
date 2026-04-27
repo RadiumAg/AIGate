@@ -40,10 +40,7 @@ const openaiProvider: AIProvider = {
     });
 
     const response = await openai.chat.completions.create({
-      model: request.model,
-      messages: request.messages,
-      temperature: request.temperature,
-      max_tokens: request.max_tokens,
+      ...request,
       stream: false,
     });
 
@@ -61,10 +58,7 @@ const openaiProvider: AIProvider = {
     });
 
     const stream = await openai.chat.completions.create({
-      model: request.model,
-      messages: request.messages,
-      temperature: request.temperature,
-      max_tokens: request.max_tokens,
+      ...request,
       stream: true,
     });
 
@@ -479,10 +473,7 @@ const deepseekProvider: AIProvider = {
       });
 
       const response = await openai.chat.completions.create({
-        model: request.model,
-        messages: request.messages,
-        temperature: request.temperature,
-        max_tokens: request.max_tokens,
+        ...request,
         stream: false,
       });
 
@@ -504,10 +495,7 @@ const deepseekProvider: AIProvider = {
     });
 
     const stream = await openai.chat.completions.create({
-      model: request.model,
-      messages: request.messages,
-      temperature: request.temperature,
-      max_tokens: request.max_tokens,
+      ...request,
       stream: true,
     });
 
@@ -551,10 +539,7 @@ const moonshotProvider: AIProvider = {
       });
 
       const response = await openai.chat.completions.create({
-        model: request.model,
-        messages: request.messages,
-        temperature: request.temperature,
-        max_tokens: request.max_tokens,
+        ...request,
         stream: false,
       });
 
@@ -576,10 +561,7 @@ const moonshotProvider: AIProvider = {
     });
 
     const stream = await openai.chat.completions.create({
-      model: request.model,
-      messages: request.messages,
-      temperature: request.temperature,
-      max_tokens: request.max_tokens,
+      ...request,
       stream: true,
     });
 
@@ -623,12 +605,8 @@ const sparkProvider: AIProvider = {
       });
 
       const response = await openai.chat.completions.create({
-        model: request.model,
-        messages: request.messages,
-        temperature: request.temperature,
-        max_tokens: request.max_tokens,
-        stream: false,
         ...request,
+        stream: false,
       });
 
       return response as ChatCompletionResponse;
@@ -649,12 +627,8 @@ const sparkProvider: AIProvider = {
     });
 
     const stream = await openai.chat.completions.create({
-      model: request.model,
-      messages: request.messages,
-      temperature: request.temperature,
-      max_tokens: request.max_tokens,
-      stream: false,
       ...request,
+      stream: true,
     });
 
     return new ReadableStream({
